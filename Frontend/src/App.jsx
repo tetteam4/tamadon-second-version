@@ -14,7 +14,7 @@ import ForgotPassword from "./Components/loginpage/ForgotPassword";
 import CreateNewPassword from "./Components/loginpage/CreateNewPassword";
 import CategoryPage from "./Components/Blog/CategoryPage";
 import ServiceDetails from "./Components/Services/ServiceDetails";
-import DropdownFilter from "./Components/test";
+import CustomerWaitingScreen from "./Pages/Screeen";
 
 function App() {
   return (
@@ -25,6 +25,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogCardDetails />} />
+          <Route path="/s" element={<CustomerWaitingScreen />} />
+
           <Route path="/category/:categoryName" element={<CategoryPage />} />
           {/* New route */}
           <Route path="/service" element={<Services />} />

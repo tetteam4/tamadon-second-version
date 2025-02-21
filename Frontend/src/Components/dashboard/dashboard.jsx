@@ -57,6 +57,7 @@ import ChartGraph from "./ChartGraph.jsx";
 import DesignerChart from "./designer/designersChart.jsx";
 import { BiArrowBack, BiArrowFromRight, BiArrowToRight } from "react-icons/bi";
 import WellcomePage from "./wellcomePage.jsx";
+import ModeToggle from "./ModeToggling.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const Dashboard = () => {
   // Modal visibility state
@@ -621,6 +622,7 @@ const Dashboard = () => {
             <p className=" font-serif text-2xl font-bold">
               {decryptData(localStorage.getItem("username"))}
             </p>
+            <ModeToggle />
             <div
               className="flex items-center cursor-pointer"
               onClick={() => setIsProfilePopupOpen(!isProfilePopupOpen)}
