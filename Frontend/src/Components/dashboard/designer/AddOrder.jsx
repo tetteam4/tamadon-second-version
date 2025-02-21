@@ -345,21 +345,40 @@ const AddOrder = () => {
                 >
                   کتگوری سفارش
                 </label>
-                <select
-                  id="category"
-                  className="w-full px-3 py-2 border bg-gray-200 rounded text-black cursor-pointer"
-                  value={selectedCategoryId || ""}
-                  onChange={(e) => setSelectedCategoryId(e.target.value)}
-                >
-                  <option value="" disabled>
-                    کتگوری را انتخاب کنید
-                  </option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  {/* Dropdown Button */}
+                  <div
+                    className="w-full px-3 py-2 border flex justify-between items-center bg-gray-200 rounded text-black cursor-pointer "
+                    onClick={() =>
+                      setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
+                    }
+                  >
+                    {selectedCategoryId
+                      ? categories.find((cat) => cat.id === selectedCategoryId)
+                          ?.name || "کتگوری را انتخاب کنید"
+                      : "کتگوری را انتخاب کنید"}
+                    <FaChevronDown
+                      className={` transition-all duration-300 ${
+                        isCategoryDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+
+                  {/* Dropdown List */}
+                  {isCategoryDropdownOpen && (
+                    <ul className="absolute w-full bg-white text-black border border-gray-300 rounded-md shadow-lg mt-1 z-10">
+                      {categories.map((category) => (
+                        <li
+                          key={category.id}
+                          className="p-3 hover:bg-gray-200 border-b text-black cursor-pointer"
+                          onClick={() => handleCategorySelect(category.id)}
+                        >
+                          {category.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
 
               {/* Dynamic Fields */}
