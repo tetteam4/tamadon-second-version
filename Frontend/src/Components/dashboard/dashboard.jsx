@@ -429,16 +429,14 @@ const Dashboard = () => {
   }
 
   return (
-    <div
-      className={`${
-        darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"
-      } h-screen flex`}
-    >
+    <div className={`bg-gray-100 text-gray-800 h-screen w-full flex`}>
       {/* side bar section */}
       <aside
         className={`bg-white text-gray-900 ${
           isSideOpen ? "w-[60%] md:w-auto h-screen  z-20" : "hidden"
-        } items-center z-20  lg:flex flex-col fixed max-w-[250px] px-5 md:relative top-0 h-screen right-0 bottom-0 transition-all ease-in-out  duration-200`}
+        }    lg:flex flex-col fixed  max-w-[250px] px-5 md:relative 
+    top-0 h-screen right-0 bottom-0 
+    transition-all ease-in-out duration-200 z-20`}
       >
         <div
           className={` hidden relative  w-full  ${
@@ -548,7 +546,7 @@ const Dashboard = () => {
                   />
                 </span>
                 {isSidebarExpanded && (
-                  <span className="ml-4 text-md flex  items-center">
+                  <span className="ml-4 text-md flex font-bold  items-center">
                     مدیریت کتگوری
                   </span>
                 )}
@@ -557,7 +555,7 @@ const Dashboard = () => {
                 categoryManagementItems.map((item) => (
                   <div
                     key={item.component}
-                    className={`ml-8 flex gap-x-3 items-center p-2  hover:bg-green hover:text-white rounded cursor-pointer ${
+                    className={`flex gap-x-3 items-center p-2  hover:bg-green hover:text-white rounded cursor-pointer ${
                       activeComponent === item.component
                         ? "bg-green text-white"
                         : ""
@@ -569,7 +567,7 @@ const Dashboard = () => {
                   >
                     <span className="text-xl">{item.icon}</span>
                     {isSidebarExpanded && (
-                      <span className="ml-4 text-md font-medium">
+                      <span className="ml-4 text-md  font-bold">
                         {item.label}
                       </span>
                     )}

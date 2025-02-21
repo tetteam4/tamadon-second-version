@@ -291,7 +291,7 @@ const AddOrder = () => {
           className="secondry-btn flex items-center justify-between gap-x-3"
           onClick={() => setIsFormOpen((prev) => !prev)}
         >
-          افزون سفارش
+          افزودن سفارش
           <FaPlus />
         </button>
       </div>
