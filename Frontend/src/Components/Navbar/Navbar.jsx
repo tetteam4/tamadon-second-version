@@ -25,7 +25,8 @@ const Navbar = ({ navItems }) => {
     >
       <div
         className={` dark:bg-[#100d25]  flex justify-center items-center ${
-          isScrolled && "grid grid-cols-4  bg-[#00513a] dark:bg-primary place-content-center"
+          isScrolled &&
+          "grid grid-cols-4  bg-[#00513a] dark:bg-primary place-content-center"
         }`}
       >
         {/* Logo */}
@@ -61,7 +62,7 @@ const Navbar = ({ navItems }) => {
             <li
               key={index}
               className={`px-1 text-gray-800 hover:text-[#00513a] ${
-                isScrolled ? "text-white hover:text-gray-900 " : ""
+                isScrolled ? "text-white hover:text-[#ED8D1D] " : ""
               } py-2 group relative cursor-pointer`}
             >
               <Link

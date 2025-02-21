@@ -14,13 +14,14 @@ import ForgotPassword from "./Components/loginpage/ForgotPassword";
 import CreateNewPassword from "./Components/loginpage/CreateNewPassword";
 import CategoryPage from "./Components/Blog/CategoryPage";
 import ServiceDetails from "./Components/Services/ServiceDetails";
+import DropdownFilter from "./Components/test";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-  
         <Route path="/" element={<Layout />}>
+          <Route path="/test" element={<DropdownFilter />} />
           <Route path="/" element={<Home />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogCardDetails />} />
@@ -31,7 +32,7 @@ function App() {
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/about" element={<About />} />
         </Route>
-       
+
         <Route path="*" element={<NotFound />} />
         <Route path="/bill" element={<Bill />} />
         <Route path="/dashboard" element={<Dashboard role="Designer" />} />

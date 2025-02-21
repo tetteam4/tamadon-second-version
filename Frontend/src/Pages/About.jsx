@@ -1,4 +1,4 @@
-import image from ".././assets/Hero_Image/image1.jpg";
+
 import ActiveCustomer from "../Components/About/ActiveCustomer";
 import GallaryImage from "../Components/About/GallaryImage";
 import RecentlyBlogPost from "../Components/Blog/RecentlyBlogPost";
