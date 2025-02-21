@@ -8,8 +8,6 @@ import { FaRegEdit } from "react-icons/fa";
 import Swal from "sweetalert2";
 import { FaPlus } from "react-icons/fa";
 
-
-
 const AddOrder = () => {
   const [categories, setCategories] = useState([]);
   const [dropdownState, setDropdownState] = useState({});
@@ -199,6 +197,8 @@ const AddOrder = () => {
         );
       } else {
         // Create new order
+        console.log(payload);
+
         response = await axios.post(`${BASE_URL}/group/orders/`, payload, {
           headers,
         });
@@ -345,40 +345,21 @@ const AddOrder = () => {
                 >
                   کتگوری سفارش
                 </label>
-                <div className="relative">
-                  {/* Dropdown Button */}
-                  <div
-                    className="w-full px-3 py-2 border flex justify-between items-center bg-gray-200 rounded text-black cursor-pointer "
-                    onClick={() =>
-                      setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
-                    }
-                  >
-                    {selectedCategoryId
-                      ? categories.find((cat) => cat.id === selectedCategoryId)
-                          ?.name || "کتگوری را انتخاب کنید"
-                      : "کتگوری را انتخاب کنید"}
-                    <FaChevronDown
-                      className={` transition-all duration-300 ${
-                        isCategoryDropdownOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </div>
-
-                  {/* Dropdown List */}
-                  {isCategoryDropdownOpen && (
-                    <ul className="absolute w-full bg-white text-black border border-gray-300 rounded-md shadow-lg mt-1 z-10">
-                      {categories.map((category) => (
-                        <li
-                          key={category.id}
-                          className="p-3 hover:bg-gray-200 border-b text-black cursor-pointer"
-                          onClick={() => handleCategorySelect(category.id)}
-                        >
-                          {category.name}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+                <select
+                  id="category"
+                  className="w-full px-3 py-2 border bg-gray-200 rounded text-black cursor-pointer"
+                  value={selectedCategoryId || ""}
+                  onChange={(e) => setSelectedCategoryId(e.target.value)}
+                >
+                  <option value="" disabled>
+                    کتگوری را انتخاب کنید
+                  </option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Dynamic Fields */}
@@ -486,53 +467,74 @@ const AddOrder = () => {
               </ul>
 
               {/* Buttons */}
-             <div className="flex items-center justify-center gap-x-5 ">
-             <button
-                type="submit"
-                disabled={submitting}
-                className={`  ${
-                  submitting
-                    ? "bg-blue-500 cursor-not-allowed opacity-70"
-                    : "secondry-btn"
-                }`}
-              >
-                {" "}
-                {submitting ? "در حال ارسال" : " ثبت"}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFormOpen(false);
-                  setIsEditing(false);
-                  setEditingOrderId(null);
-                  setForm1({ customer_name: "", order_name: "", category: "" });
-                  setFormData({});
-                  setSelectedCategoryId("");
-                }}
-                className=" py-1.5 bg-red-500 hover:bg-red-600 px-5 rounded-lg  text-white  "
-              >
-                لغو
-              </button>
-             </div>
+              <div className="flex items-center justify-center gap-x-5 ">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className={`  ${
+                    submitting
+                      ? "bg-blue-500 cursor-not-allowed opacity-70"
+                      : "secondry-btn"
+                  }`}
+                >
+                  {" "}
+                  {submitting ? "در حال ارسال" : " ثبت"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsFormOpen(false);
+                    setIsEditing(false);
+                    setEditingOrderId(null);
+                    setForm1({
+                      customer_name: "",
+                      order_name: "",
+                      designer: decryptData(localStorage.getItem("email")),
+                      category: "",
+                      status: "pending",
+                    });
+                    setFormData({});
+                    setSelectedCategoryId("");
+                  }}
+                  className=" py-1.5 bg-red-500 hover:bg-red-600 px-5 rounded-lg  text-white  "
+                >
+                  لغو
+                </button>
+              </div>
             </form>
           </div>
         )}
       </div>
-      <div  className=" w-[300px] sm:w-[45px] md:w-[700px] mt-10 lg:w-[80%] mx-auto overflow-x-scroll    lg:overflow-hidden">
+      <div className=" w-[300px] sm:w-[45px] md:w-[700px] mt-10 lg:w-[80%] mx-auto overflow-x-scroll    lg:overflow-hidden">
         <table className="w-full  rounded-lg border overflow-auto  border-gray-300 shadow-md">
           <thead>
-          <tr className="bg-green text-gray-100 text-center">
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">نام مشتری</th>
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">نام سفارش</th>
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">دسته‌بندی</th>
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">عملیات</th>
+            <tr className="bg-green text-gray-100 text-center">
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                نام مشتری
+              </th>
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                نام سفارش
+              </th>
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                دسته‌بندی
+              </th>
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                عملیات
+              </th>
             </tr>
           </thead>
           <tbody>
-            { orders.slice(0, visibleCount).map((order) => (
-              <tr key={order.id}   className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all">
-                <td className="border-gray-300 px-6 py-2 text-gray-700">{order.customer_name}</td>
-                <td className="border-gray-300 px-6 py-2 text-gray-700">{order.order_name}</td>
+            {orders.slice(0, visibleCount).map((order) => (
+              <tr
+                key={order.id}
+                className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
+              >
+                <td className="border-gray-300 px-6 py-2 text-gray-700">
+                  {order.customer_name}
+                </td>
+                <td className="border-gray-300 px-6 py-2 text-gray-700">
+                  {order.order_name}
+                </td>
                 <td className="border-gray-300 px-6 py-2 text-gray-700">
                   {categories.find((category) => category.id === order.category)
                     ?.name || "دسته‌بندی نامشخص"}
@@ -540,15 +542,15 @@ const AddOrder = () => {
                 <td className=" flex items-center justify-center  gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
                   <button
                     onClick={() => handleEdit(order)}
-                       className="text-green hover:scale-105 transition-all duration-300"
+                    className="text-green hover:scale-105 transition-all duration-300"
                   >
-                     <FaRegEdit size={24} />
+                    <FaRegEdit size={24} />
                   </button>
                   <button
                     onClick={() => handleDelete(order.id)}
-                  className="text-red-600 hover:scale-105 transition-all duration-300"
+                    className="text-red-600 hover:scale-105 transition-all duration-300"
                   >
-                     <IoTrashSharp size={24} />
+                    <IoTrashSharp size={24} />
                   </button>
                 </td>
               </tr>
