@@ -355,7 +355,11 @@ const AddOrder = () => {
                     کتگوری را انتخاب کنید
                   </option>
                   {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
+                    <option
+                      key={category.id}
+                      className=""
+                      value={category.id}
+                    >
                       {category.name}
                     </option>
                   ))}
