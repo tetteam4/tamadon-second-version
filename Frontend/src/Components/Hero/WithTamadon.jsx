@@ -2,7 +2,7 @@ import React from "react";
 import { BsDot, BsPhone } from "react-icons/bs";
 
 import { FaPhoneAlt } from "react-icons/fa";
-import image from "../../assets/Hero_Image/image1.jpg";
+// import image from "../../assets/Hero_Image/image1.jpg";
 
 const WithTamadon = () => {
   return (
