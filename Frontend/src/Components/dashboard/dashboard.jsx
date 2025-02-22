@@ -57,7 +57,7 @@ import ChartGraph from "./ChartGraph.jsx";
 import DesignerChart from "./designer/designersChart.jsx";
 import { BiArrowBack, BiArrowFromRight, BiArrowToRight } from "react-icons/bi";
 import WellcomePage from "./wellcomePage.jsx";
-import ModeToggle from "./ModeToggling.jsx";
+import Deliver from "./Reception/deliverOrder.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const Dashboard = () => {
   // Modal visibility state
@@ -218,7 +218,7 @@ const Dashboard = () => {
       "Logout",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
-    2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
+    2: ["defaultPage", "OrderList", "TokenOrders", "deliver", "Logout"],
     4: ["defaultPage", "ReceivedList", "ProcessingList", "DoneList", "Logout"],
   };
   const websiteManagementItems = [
@@ -287,20 +287,26 @@ const Dashboard = () => {
       icon: <MdHome />,
       label: " صفحه اصلی",
     },
+    OrderList: {
+      component: "OrderList",
+      icon: <FaClipboardList />,
+      label: "  لیست سفارشات جدید",
+    },
     TokenOrders: {
       component: "TokenOrders",
       icon: <FaClipboardList />,
       label: "سفارشات گرفته شده",
     },
-    OrderList: {
-      component: "OrderList",
-      icon: <FaClipboardList />,
-      label: "لیست سفارشات",
-    },
+
     "Add Order": {
       component: "AddOrder",
       icon: <FaPlusCircle />,
       label: "سفارشات",
+    },
+    deliver: {
+      component: "deliver",
+      icon: <FaClipboardList />,
+      label: "تحویل سفارشات",
     },
     designerChart: {
       component: "designerChart",
@@ -322,6 +328,7 @@ const Dashboard = () => {
       icon: <FaClipboardList />,
       label: " سفارشات  کامل شده",
     },
+
     Dashboard: {
       component: "DashboardHome",
       icon: <MdDashboard />,
@@ -397,6 +404,10 @@ const Dashboard = () => {
     switch (activeComponent) {
       case "DoneList":
         return <DoneList />;
+      case "deliver":
+        return <Deliver />;
+      case "OrderList":
+        return <OrderList />;
       case "ProcessingList":
         return <ProcessingList />;
       case "TokenOrders":
@@ -411,8 +422,6 @@ const Dashboard = () => {
         return <ReportDashboard />;
       case "AddOrder":
         return <AddOrder />;
-      case "OrderList":
-        return <OrderList />;
       case "UserManagement":
         return <UserManagement />;
       case "designerChart":
@@ -430,14 +439,16 @@ const Dashboard = () => {
   }
 
   return (
-    <div className={`bg-gray-100 text-gray-800 h-screen w-full flex`}>
+    <div
+      className={`${
+        darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"
+      } h-screen flex`}
+    >
       {/* side bar section */}
       <aside
         className={`bg-white text-gray-900 ${
           isSideOpen ? "w-[60%] md:w-auto h-screen  z-20" : "hidden"
-        }    lg:flex flex-col fixed  max-w-[250px] px-5 md:relative 
-    top-0 h-screen right-0 bottom-0 
-    transition-all ease-in-out duration-200 z-20`}
+        } items-center z-20  lg:flex flex-col fixed max-w-[250px] px-5 md:relative top-0 h-screen right-0 bottom-0 transition-all ease-in-out  duration-200`}
       >
         <div
           className={` hidden relative  w-full  ${
@@ -547,7 +558,7 @@ const Dashboard = () => {
                   />
                 </span>
                 {isSidebarExpanded && (
-                  <span className="ml-4 text-md flex font-bold  items-center">
+                  <span className="ml-4 text-md flex  items-center">
                     مدیریت کتگوری
                   </span>
                 )}
@@ -556,7 +567,7 @@ const Dashboard = () => {
                 categoryManagementItems.map((item) => (
                   <div
                     key={item.component}
-                    className={`flex gap-x-3 items-center p-2  hover:bg-green hover:text-white rounded cursor-pointer ${
+                    className={`ml-8 flex gap-x-3 items-center p-2  hover:bg-green hover:text-white rounded cursor-pointer ${
                       activeComponent === item.component
                         ? "bg-green text-white"
                         : ""
@@ -568,7 +579,7 @@ const Dashboard = () => {
                   >
                     <span className="text-xl">{item.icon}</span>
                     {isSidebarExpanded && (
-                      <span className="ml-4 text-md  font-bold">
+                      <span className="ml-4 text-md font-medium">
                         {item.label}
                       </span>
                     )}
@@ -622,7 +633,6 @@ const Dashboard = () => {
             <p className=" font-serif text-2xl font-bold">
               {decryptData(localStorage.getItem("username"))}
             </p>
-            <ModeToggle />
             <div
               className="flex items-center cursor-pointer"
               onClick={() => setIsProfilePopupOpen(!isProfilePopupOpen)}

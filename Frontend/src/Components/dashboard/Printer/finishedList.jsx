@@ -113,7 +113,7 @@ const DoneList = () => {
           </thead>
           <tbody>
             {orders.length ? (
-              orders.slice(0, visibleCount).map((order, index) => (
+              orders.slice(0, visibleCount).reverse().map((order, index) => (
                 <tr
                   key={order.id}
                   className={`text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all ${
