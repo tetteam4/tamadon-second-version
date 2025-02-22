@@ -57,7 +57,7 @@ import ChartGraph from "./ChartGraph.jsx";
 import DesignerChart from "./designer/designersChart.jsx";
 import { BiArrowBack, BiArrowFromRight, BiArrowToRight } from "react-icons/bi";
 import WellcomePage from "./wellcomePage.jsx";
-import ModeToggle from "./ModeToggling.jsx";
+import Deliver from "./Reception/deliverOrder.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const Dashboard = () => {
   // Modal visibility state
@@ -218,7 +218,7 @@ const Dashboard = () => {
       "Logout",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
-    2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
+    2: ["defaultPage", "OrderList", "TokenOrders", "deliver", "Logout"],
     4: ["defaultPage", "ReceivedList", "ProcessingList", "DoneList", "Logout"],
   };
   const websiteManagementItems = [
@@ -287,20 +287,26 @@ const Dashboard = () => {
       icon: <MdHome />,
       label: " صفحه اصلی",
     },
+    OrderList: {
+      component: "OrderList",
+      icon: <FaClipboardList />,
+      label: "  لیست سفارشات جدید",
+    },
     TokenOrders: {
       component: "TokenOrders",
       icon: <FaClipboardList />,
       label: "سفارشات گرفته شده",
     },
-    OrderList: {
-      component: "OrderList",
-      icon: <FaClipboardList />,
-      label: "لیست سفارشات",
-    },
+
     "Add Order": {
       component: "AddOrder",
       icon: <FaPlusCircle />,
       label: "سفارشات",
+    },
+    deliver: {
+      component: "deliver",
+      icon: <FaClipboardList />,
+      label: "تحویل سفارشات",
     },
     designerChart: {
       component: "designerChart",
@@ -322,6 +328,7 @@ const Dashboard = () => {
       icon: <FaClipboardList />,
       label: " سفارشات  کامل شده",
     },
+
     Dashboard: {
       component: "DashboardHome",
       icon: <MdDashboard />,
@@ -397,6 +404,10 @@ const Dashboard = () => {
     switch (activeComponent) {
       case "DoneList":
         return <DoneList />;
+      case "deliver":
+        return <Deliver />;
+      case "OrderList":
+        return <OrderList />;
       case "ProcessingList":
         return <ProcessingList />;
       case "TokenOrders":
@@ -411,8 +422,6 @@ const Dashboard = () => {
         return <ReportDashboard />;
       case "AddOrder":
         return <AddOrder />;
-      case "OrderList":
-        return <OrderList />;
       case "UserManagement":
         return <UserManagement />;
       case "designerChart":
