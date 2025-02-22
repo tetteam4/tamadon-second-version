@@ -181,16 +181,9 @@ const ReceivedList = () => {
             </tr>
           </thead>
           <tbody>
-<<<<<<< HEAD
-            {orders.length ? (
-              orders
-                .slice(0, visibleCount)
-                .reverse()
-=======
             {(searchResults.length > 0 ? searchResults : orders).length > 0 ? (
               (searchResults.length > 0 ? searchResults : orders)
                 .slice(0, visibleCount)
->>>>>>> fcca4417b7f79fb3a8c60a6d957add22ddc310c7
                 .map((order, index) => (
                   <tr
                     key={order.id}

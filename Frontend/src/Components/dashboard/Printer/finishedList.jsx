@@ -146,37 +146,6 @@ const DoneList = () => {
             </tr>
           </thead>
           <tbody>
-<<<<<<< HEAD
-            {orders.length ? (
-              orders.slice(0, visibleCount).reverse().map((order, index) => (
-                <tr
-                  key={order.id}
-                  className={`text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all ${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  } hover:bg-gray-100`}
-                >
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {order.customer_name}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {order.order_name}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {categories.find(
-                      (category) => category.id === order.category
-                    )?.name || "دسته‌بندی نامشخص"}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    <button
-                      onClick={() => handleShowDetails(order.id)}
-                      className="secondry-btn"
-                    >
-                      جزئیات
-                    </button>
-                  </td>
-                </tr>
-              ))
-=======
             {(searchResults.length > 0 ? searchResults : orders).length > 0 ? (
               (searchResults.length > 0 ? searchResults : orders)
                 .slice(0, visibleCount)
@@ -208,7 +177,6 @@ const DoneList = () => {
                     </td>
                   </tr>
                 ))
->>>>>>> fcca4417b7f79fb3a8c60a6d957add22ddc310c7
             ) : (
               <tr>
                 <td colSpan="4" className="border p-2 text-center">
