@@ -3,10 +3,7 @@ import { IoSearch } from "react-icons/io5";
 
 const SearchBar = ({ value, onChange, placeholder }) => {
   const handleSearch = () => {
-    // Trigger the search logic in the parent component
-    // This assumes the parent component (DoneList) has the filtering logic.
-    // You'll need to pass a function from DoneList to SearchBar to handle this.
-    // For example:  <SearchBar onSearch={yourSearchFunction} ... />
+ 
   };
 
   return (
@@ -16,7 +13,7 @@ const SearchBar = ({ value, onChange, placeholder }) => {
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className="w-full px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none" // Removed text-ئی class
+          className="w-full px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none"
         />
         <button
           onClick={handleSearch}

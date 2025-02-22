@@ -126,6 +126,7 @@ const DoneList = () => {
         value={searchTerm}
         onChange={handleSearchChange}
       />
+  
       <div className="overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg md:w-full">
         <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
           <thead className="bg-gray-100">
