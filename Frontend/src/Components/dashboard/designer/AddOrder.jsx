@@ -23,15 +23,7 @@ const AddOrder = () => {
   const [attributeChoices, setAttributeChoices] = useState([]);
   const [formData, setFormData] = useState({});
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(10); // Initial visible items
 
-  const showMore = () => {
-    setVisibleCount((prev) => prev + 10); // Show 10 more items
-  };
-
-  const showLess = () => {
-    setVisibleCount(10); // Reset to 10 items
-  };
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
     if (!hashedData) {
@@ -574,10 +566,10 @@ const AddOrder = () => {
           )}
         </div>
       )}
-      <div className="w-[300px] sm:w-[45px] md:w-[700px] mt-10 lg:w-[80%] mx-auto overflow-x-scroll lg:overflow-hidden">
+      <div className="w-[300px] sm:w-[45px] md:w-[700px] mt-10 lg:w-[80%] mx-auto  overflow-x-scroll lg:overflow-hidden">
         <table className="w-full rounded-lg border overflow-auto border-gray-300 shadow-md">
           <thead>
-            <tr className="bg-green text-gray-100 text-center">
+            <tr className="bg-green text-gray-100  text-center">
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 نام مشتری
               </th>

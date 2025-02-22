@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { FaChevronDown, FaSearch } from "react-icons/fa";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { FaChevronDown } from "react-icons/fa";
 import { IoTrashSharp } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -28,6 +28,7 @@ const Attribute = () => {
   const handleSelect = (category) => {
     setSelectedCategory(category.id);
     setIsDropdownOpen(false);
+    setSearchTerm("")
   };
   // Fetch categories from the API
   const fetchCategories = async () => {
@@ -192,50 +193,76 @@ const Attribute = () => {
     setType(attr.attribute_type);
     setSelectedCategory(attr.category);
   };
+  // category section
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filter categories based on search input
+  const filteredCategories = categories.filter((category) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className=" p-4 mt-10 max-w-lg mx-auto bg-white shadow-md rounded-md">
       <h2 className="text-lg font-bold mb-4">انتخاب کتگوری و ویژگی‌ها</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Select Category */}
-        <div>
-         
-          <div className="w-full">
-            <label htmlFor="category" className="block font-medium mb-2">
-              دسته‌بندی
-            </label>
-            <div className="">
-              {/* Dropdown Button */}
-              <div
-                className="mt-1  bg-gray-200 w-full p-2 flex justify-between items-center border border-gray-300 rounded-md shadow-sm focus:ring-blue-500  cursor-pointer"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              >
-                {selectedCategory
-                  ? categories.find((cat) => cat.id === selectedCategory)
-                      ?.name || "-- لطفاً  کتگوری راانتخاب کنید --"
-                  : "لطفاً  کتگوری راانتخاب کنید "}
-                <FaChevronDown className={` transition-all duration-300 ${
-                  isDropdownOpen ? "rotate-180" :""
-                }`} />
+
+        <div className="relative w-full">
+          <label htmlFor="category" className="block font-medium mb-2">
+          کتگوری
+          </label>
+          {/* Dropdown Button */}
+          <div
+            className="bg-gray-200 w-full px-3 py-2 flex justify-between items-center border border-gray-300 rounded-md shadow-sm cursor-pointer"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            {selectedCategory
+              ? categories.find((cat) => cat.id === selectedCategory)?.name ||
+                "-- لطفاً کتگوری را انتخاب کنید --"
+              : "لطفاً کتگوری را انتخاب کنید"}
+            <FaChevronDown
+              className={`transition-all duration-300 ${
+                isDropdownOpen ? "rotate-180" : ""
+              }`}
+            />
+          </div>
+
+          {/* Dropdown List */}
+          {isDropdownOpen && (
+            <div className=" w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 z-10">
+              {/* Search Input */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="جستجو نمودن کتگوری..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full p-2 border-b pl-10 pr-5 outline-none bg-gray-300 placeholder-gray-700"
+                />
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-700" />
               </div>
 
-              {/* Dropdown List */}
-              {isDropdownOpen && (
-                <ul className=" w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 z-10">
-                
-                  {categories.map((category) => (
-                    <li
-                      key={category.id}
-                      className="p-2 hover:bg-gray-200 border-b cursor-pointer"
-                      onClick={() => handleSelect(category)}
-                    >
-                      {category.name}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              {/* Categories List */}
+              <ul className="max-h-[300px] overflow-y-auto">
+                {filteredCategories.map((category) => (
+                  <li
+                    key={category.id}
+                    className="py-2 px-5 hover:bg-gray-200 border-b text-black cursor-pointer"
+                    onClick={() => {
+                      setIsDropdownOpen(true);
+                      handleSelect(category);
+                     
+                    }}
+                  >
+                    {category.name}
+                  </li>
+                ))}
+                {filteredCategories.length === 0 && (
+                  <li className="p-3 text-gray-500">نتیجه‌ای یافت نشد</li>
+                )}
+              </ul>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Attribute Input */}
@@ -270,15 +297,16 @@ const Attribute = () => {
                 onClick={() => setIsTypeDropdownOpen(!isTypeDropdownOpen)}
               >
                 {type || "-- لطفاً انتخاب کنید --"}
-                <FaChevronDown className={` transition-all duration-300 ${
-                  isTypeDropdownOpen ? "rotate-180" :""
-                }`} />
+                <FaChevronDown
+                  className={` transition-all duration-300 ${
+                    isTypeDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
               </div>
 
               {/* Dropdown List */}
               {isTypeDropdownOpen && (
                 <ul className=" w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 z-10">
-                 
                   {attributeTypes.map((attributeType) => (
                     <li
                       key={attributeType}
@@ -295,7 +323,7 @@ const Attribute = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="flex items-center justify-center md:block">
+        <div className="flex w-full items-center justify-center">
           <button type="submit " className="secondry-btn">
             {editingAttributeId ? "ویرایش" : "ارسال"}
           </button>
@@ -317,11 +345,11 @@ const Attribute = () => {
                   onClick={() => handleEdit(attr)}
                   className="text-green hover:scale-105 transition-all duration-300"
                 >
-                 <FaRegEdit size={24} />
+                  <FaRegEdit size={24} />
                 </button>
                 <button
                   onClick={() => handleDelete(attr.id)}
-                 className="text-red-600 hover:scale-105 transition-all duration-300"
+                  className="text-red-600 hover:scale-105 transition-all duration-300"
                 >
                   <IoTrashSharp size={24} />
                 </button>
@@ -329,7 +357,7 @@ const Attribute = () => {
             </li>
           ))
         ) : (
-          <p className="text-gray-600">هیچ ویژگی موجود نیست.</p>
+          <p className="text-gray-600"></p>
         )}
       </ul>
     </div>

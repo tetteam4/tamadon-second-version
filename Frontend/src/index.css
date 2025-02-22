@@ -45,6 +45,11 @@ body {
     @apply bg-green hover:bg-green/90 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300;
   }
 }
+@layer components {
+  .tertiary-btn {
+    @apply bg-red-500  hover:bg-red-600 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300;
+  }
+}
 
 /* Scrollbar styling for the main page */
 body::-webkit-scrollbar {
