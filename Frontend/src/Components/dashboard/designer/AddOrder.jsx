@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
+import Pagination from "../../../Utilities/Pagination";
 import axios from "axios";
 import CryptoJS from "crypto-js";
+import { FaSearch } from "react-icons/fa";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
+import { IoMdAddCircleOutline } from "react-icons/io";
 import { FaChevronDown } from "react-icons/fa";
 import { IoTrashSharp } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
 import Swal from "sweetalert2";
-import { FaPlus } from "react-icons/fa";
+
 
 const AddOrder = () => {
   const [categories, setCategories] = useState([]);
@@ -62,11 +65,6 @@ const AddOrder = () => {
     }));
   };
 
-  const handleCategorySelect = (categoryId) => {
-    setSelectedCategoryId(categoryId);
-    setIsCategoryDropdownOpen(false);
-    setFormData([]); // Reset form data when category changes
-  };
 
   const fetchOrders = async () => {
     try {
@@ -197,8 +195,6 @@ const AddOrder = () => {
         );
       } else {
         // Create new order
-        console.log(payload);
-
         response = await axios.post(`${BASE_URL}/group/orders/`, payload, {
           headers,
         });
@@ -284,6 +280,40 @@ const AddOrder = () => {
     }
   };
 
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Function to handle category selection
+  const handleCategorySelect = (categoryId) => {
+    setSelectedCategoryId(categoryId);
+    setIsCategoryDropdownOpen(false);
+    setSearchTerm(""); // Reset search after selection
+    setFormData([]); // Reset form data when category changes
+  };
+
+  // Sort categories: Move matching ones to the top
+  const filteredCategories = categories
+    .filter((category) =>
+      category.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const startsWithA = a.name
+        .toLowerCase()
+        .startsWith(searchTerm.toLowerCase());
+      const startsWithB = b.name
+        .toLowerCase()
+        .startsWith(searchTerm.toLowerCase());
+      return startsWithB - startsWithA;
+    });
+  //  pagination section
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 15;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(orders.length / postsPerPage);
+  const paginatedOrders = orders.slice(
+    (currentPage - 1) * postsPerPage,
+    currentPage * postsPerPage
+  );
   return (
     <div className="py-10 bg-gray-200 w-full min-h-[91vh] px-5">
       <div className="flex items-center justify-center py-3">
@@ -292,158 +322,160 @@ const AddOrder = () => {
           onClick={() => setIsFormOpen((prev) => !prev)}
         >
           افزودن سفارش
-          <FaPlus />
+          <IoMdAddCircleOutline size={24} />
         </button>
       </div>
-      <div className="max-w-3xl mx-auto py-4 px-5 shadow-lg bg-white rounded-md">
-        {(isFormOpen || isEditing) && (
-          <div>
-            <h2 className="text-xl text-center font-Ray_black  font-bold mb-4">
-              {isEditing ? "Edit Order" : "فورم سفارش"}
-            </h2>
-            <form onSubmit={handleSubmit}>
-              {/* Input Fields in a Row on Larger Screens */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Customer Name */}
-                <div>
-                  <label htmlFor="customer_name" className="block mb-2">
-                    نام مشتری
-                  </label>
-                  <input
-                    id="customer_name"
-                    name="customer_name"
-                    type="text"
-                    value={form1.customer_name}
-                    onChange={handleForm1InputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none bg-gray-200 text-black"
-                    placeholder="نام مشتری را وارد کنید"
-                  />
-                </div>
-
-                {/* Order Name */}
-                <div>
-                  <label htmlFor="order_name" className="block mb-2">
-                    نام سفارش
-                  </label>
-                  <input
-                    id="order_name"
-                    name="order_name"
-                    type="text"
-                    value={form1.order_name}
-                    onChange={handleForm1InputChange}
-                    className="w-full px-3 py-2 border focus:outline-none rounded bg-gray-200 text-black"
-                    placeholder="نام سفارش را وارد کنید"
-                  />
-                </div>
-              </div>
-
-              {/* Category Selection */}
-              <div className="mb-4 mt-3">
-                <label
-                  htmlFor="category"
-                  className="block text-lg font-medium mb-2 text-gray-700"
-                >
-                  کتگوری سفارش
-                </label>
-                <div className="relative">
-                  {/* Dropdown Button */}
-                  <div
-                    className="w-full px-3 py-2 border flex justify-between items-center bg-gray-200 rounded text-black cursor-pointer "
-                    onClick={() =>
-                      setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
-                    }
-                  >
-                    {selectedCategoryId
-                      ? categories.find((cat) => cat.id === selectedCategoryId)
-                          ?.name || "کتگوری را انتخاب کنید"
-                      : "کتگوری را انتخاب کنید"}
-                    <FaChevronDown
-                      className={` transition-all duration-300 ${
-                        isCategoryDropdownOpen ? "rotate-180" : ""
-                      }`}
+      {isFormOpen && (
+        <div className="max-w-3xl mx-auto py-4 px-5 shadow-lg bg-white rounded-md">
+          {(isFormOpen || isEditing) && (
+            <div>
+              <h2 className="text-xl text-center font-Ray_black  font-bold mb-4">
+                {isEditing ? "Edit Order" : "فورم سفارش"}
+              </h2>
+              <form onSubmit={handleSubmit}>
+                {/* Input Fields in a Row on Larger Screens */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Customer Name */}
+                  <div>
+                    <label htmlFor="customer_name" className="block mb-2">
+                      نام مشتری
+                    </label>
+                    <input
+                      id="customer_name"
+                      name="customer_name"
+                      type="text"
+                      value={form1.customer_name}
+                      onChange={handleForm1InputChange}
+                      className="w-full px-3 py-2 border rounded focus:outline-none bg-gray-200 text-black"
+                      placeholder="نام مشتری را وارد کنید"
                     />
                   </div>
 
-                  {/* Dropdown List */}
-                  {isCategoryDropdownOpen && (
-                    <ul className="absolute w-full bg-white text-black border border-gray-300 rounded-md shadow-lg mt-1 z-10">
-                      {categories.map((category) => (
-                        <li
-                          key={category.id}
-                          className="p-3 hover:bg-gray-200 border-b text-black cursor-pointer"
-                          onClick={() => handleCategorySelect(category.id)}
-                        >
-                          {category.name}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
-
-              {/* Dynamic Fields */}
-              <ul className="relative grid grid-cols-1 md:grid-cols-2 gap-4 list-none">
-                {formFields.map((field, index) => (
-                  <li key={index} className="mb-4">
-                    <label htmlFor={field.name} className="block mb-1">
-                      {field.name}
+                  {/* Order Name */}
+                  <div>
+                    <label htmlFor="order_name" className="block mb-2">
+                      نام سفارش
                     </label>
-                    {field.attribute_type === "input" ? (
-                      <input
-                        type="text"
-                        id={field.name}
-                        name={field.name}
-                        value={formData[field.name] || ""}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border rounded text-black"
-                      />
-                    ) : field.attribute_type === "dropdown" ? (
-                      <div className="relative">
-                        {/* Dropdown Button */}
-                        <div
-                          className="w-full px-3 flex justify-between items-center py-2 border rounded text-black bg-white cursor-pointer"
-                          onClick={() =>
-                            setDropdownState((prev) => ({
-                              ...prev,
-                              [field.name]: !prev[field.name], // Toggle dropdown for this field
-                            }))
-                          }
-                        >
-                          {formData[field.name] || `انتخاب ${field.name}`}
-                          <FaChevronDown
-                            className={`transition-all duration-300 ${
-                              dropdownState[field.name] ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
+                    <input
+                      id="order_name"
+                      name="order_name"
+                      type="text"
+                      value={form1.order_name}
+                      onChange={handleForm1InputChange}
+                      className="w-full px-3 py-2 border focus:outline-none rounded bg-gray-200 text-black"
+                      placeholder="نام سفارش را وارد کنید"
+                    />
+                  </div>
+                </div>
 
-                        {/* Dropdown Options */}
-                        {dropdownState[field.name] && (
-                          <ul className="absolute w-full bg-white text-black border border-gray-300 rounded-md shadow-lg mt-1 z-10 overflow-hidden">
+                {/* Category Selection */}
+                <div className="mb-4 mt-3">
+                  <label className="block text-lg font-medium mb-2 text-gray-700">
+                    کتگوری سفارش
+                  </label>
+                  <div className="relative">
+                    {/* Dropdown Button */}
+                    <div
+                      className="w-full px-3 py-2 border flex justify-between items-center bg-gray-200 rounded text-black cursor-pointer"
+                      onClick={() =>
+                        setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
+                      }
+                    >
+                      {selectedCategoryId
+                        ? categories.find(
+                            (cat) => cat.id === selectedCategoryId
+                          )?.name || "کتگوری را انتخاب کنید"
+                        : "کتگوری را انتخاب کنید"}
+                      <FaChevronDown
+                        className={`transition-all duration-300 ${
+                          isCategoryDropdownOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </div>
+
+                    {/* Dropdown List */}
+                    {isCategoryDropdownOpen && (
+                      <div className="absolute w-full bg-white text-black border border-gray-300 rounded-md shadow-lg mt-1 z-10">
+                        {/* Search Input */}
+                        <div className="relative">
+                          {/* Search Input */}
+                          <input
+                            type="text"
+                            placeholder="جستجو نمودن کتگوری..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full p-2 border-b pl-10 pr-5 outline-none focus:border-b border-green bg-gray-300 placeholder-gray-700 "
+                          />
+
+                          {/* Search Icon */}
+                          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-700" />
+                        </div>
+                        {/* Categories List */}
+                        <ul className="max-h-[400px] overflow-y-auto">
+                          {filteredCategories.map((category) => (
                             <li
-                              className="p-3 hover:bg-gray-200 cursor-pointer"
-                              onClick={() => {
-                                handleInputChange({
-                                  target: { name: field.name, value: "" },
-                                });
-                                setDropdownState((prev) => ({
-                                  ...prev,
-                                  [field.name]: false, // Close dropdown
-                                }));
-                              }}
+                              key={category.id}
+                              className="py-2  px-5 hover:bg-gray-200 border-b text-black cursor-pointer"
+                              onClick={() => handleCategorySelect(category.id)}
                             >
-                              انتخاب {field.name}
+                              {category.name}
                             </li>
-                            {field.options.map((option) => (
+                          ))}
+                          {filteredCategories.length === 0 && (
+                            <li className="p-3 text-gray-500">
+                              نتیجه‌ای یافت نشد
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Dynamic Fields */}
+                <ul className="relative grid grid-cols-1 md:grid-cols-2 gap-4 list-none">
+                  {formFields.map((field, index) => (
+                    <li key={index} className="mb-4">
+                      <label htmlFor={field.name} className="block mb-1">
+                        {field.name}
+                      </label>
+                      {field.attribute_type === "input" ? (
+                        <input
+                          type="text"
+                          id={field.name}
+                          name={field.name}
+                          value={formData[field.name] || ""}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border rounded text-black"
+                        />
+                      ) : field.attribute_type === "dropdown" ? (
+                        <div className="relative">
+                          {/* Dropdown Button */}
+                          <div
+                            className="w-full px-3 flex justify-between items-center py-2 border rounded text-black bg-white cursor-pointer"
+                            onClick={() =>
+                              setDropdownState((prev) => ({
+                                ...prev,
+                                [field.name]: !prev[field.name], // Toggle dropdown for this field
+                              }))
+                            }
+                          >
+                            {formData[field.name] || `انتخاب ${field.name}`}
+                            <FaChevronDown
+                              className={`transition-all duration-300 ${
+                                dropdownState[field.name] ? "rotate-180" : ""
+                              }`}
+                            />
+                          </div>
+
+                          {/* Dropdown Options */}
+                          {dropdownState[field.name] && (
+                            <ul className="absolute w-full bg-white text-black border border-gray-300 rounded-md shadow-lg mt-1 z-10 overflow-hidden">
                               <li
-                                key={option.id}
                                 className="p-3 hover:bg-gray-200 cursor-pointer"
                                 onClick={() => {
                                   handleInputChange({
-                                    target: {
-                                      name: field.name,
-                                      value: option.attribute_value,
-                                    },
+                                    target: { name: field.name, value: "" },
                                   });
                                   setDropdownState((prev) => ({
                                     ...prev,
@@ -451,81 +483,99 @@ const AddOrder = () => {
                                   }));
                                 }}
                               >
-                                {option.attribute_value}
+                                انتخاب {field.name}
                               </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    ) : field.attribute_type === "checkbox" ? (
-                      <input
-                        type="checkbox"
-                        id={field.name}
-                        name={field.name}
-                        checked={!!formData[field.name]}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            [field.name]: e.target.checked,
-                          }))
-                        }
-                        className="w-6 h-8 border rounded text-green "
-                      />
-                    ) : field.attribute_type === "date" ? (
-                      <input
-                        type="date"
-                        id={field.name}
-                        name={field.name}
-                        value={formData[field.name] || ""}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border rounded text-black"
-                      />
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
+                              {field.options.map((option) => (
+                                <li
+                                  key={option.id}
+                                  className="p-3 hover:bg-gray-200 cursor-pointer"
+                                  onClick={() => {
+                                    handleInputChange({
+                                      target: {
+                                        name: field.name,
+                                        value: option.attribute_value,
+                                      },
+                                    });
+                                    setDropdownState((prev) => ({
+                                      ...prev,
+                                      [field.name]: false, // Close dropdown
+                                    }));
+                                  }}
+                                >
+                                  {option.attribute_value}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      ) : field.attribute_type === "checkbox" ? (
+                        <input
+                          type="checkbox"
+                          id={field.name}
+                          name={field.name}
+                          checked={!!formData[field.name]}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              [field.name]: e.target.checked,
+                            }))
+                          }
+                          className="w-6 h-8 border rounded text-green "
+                        />
+                      ) : field.attribute_type === "date" ? (
+                        <input
+                          type="date"
+                          id={field.name}
+                          name={field.name}
+                          value={formData[field.name] || ""}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border rounded text-black"
+                        />
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
 
-              {/* Buttons */}
-              <div className="flex items-center justify-center gap-x-5 ">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className={`  ${
-                    submitting
-                      ? "bg-blue-500 cursor-not-allowed opacity-70"
-                      : "secondry-btn"
-                  }`}
-                >
-                  {" "}
-                  {submitting ? "در حال ارسال" : " ثبت"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsFormOpen(false);
-                    setIsEditing(false);
-                    setEditingOrderId(null);
-                    setForm1({
-                      customer_name: "",
-                      order_name: "",
-                      designer: decryptData(localStorage.getItem("email")),
-                      category: "",
-                      status: "pending",
-                    });
-                    setFormData({});
-                    setSelectedCategoryId("");
-                  }}
-                  className=" py-1.5 bg-red-500 hover:bg-red-600 px-5 rounded-lg  text-white  "
-                >
-                  لغو
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-      </div>
-      <div className=" w-[300px] sm:w-[45px] md:w-[700px] mt-10 lg:w-[80%] mx-auto overflow-x-scroll    lg:overflow-hidden">
-        <table className="w-full  rounded-lg border overflow-auto  border-gray-300 shadow-md">
+                {/* Buttons */}
+                <div className="flex items-center justify-center gap-x-5 ">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className={`  ${
+                      submitting
+                        ? "bg-blue-500 cursor-not-allowed opacity-70"
+                        : "secondry-btn"
+                    }`}
+                  >
+                    {" "}
+                    {submitting ? "در حال ارسال" : " ثبت"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsFormOpen(false);
+                      setIsEditing(false);
+                      setEditingOrderId(null);
+                      setForm1({
+                        customer_name: "",
+                        order_name: "",
+                        category: "",
+                      });
+                      setFormData({});
+                      setSelectedCategoryId("");
+                    }}
+                    className=" py-1.5 bg-red-500 hover:bg-red-600 px-5 rounded-lg  text-white  "
+                  >
+                    لغو
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
+      )}
+      <div className="w-[300px] sm:w-[45px] md:w-[700px] mt-10 lg:w-[80%] mx-auto overflow-x-scroll lg:overflow-hidden">
+        <table className="w-full rounded-lg border overflow-auto border-gray-300 shadow-md">
           <thead>
             <tr className="bg-green text-gray-100 text-center">
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
@@ -535,7 +585,7 @@ const AddOrder = () => {
                 نام سفارش
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
-                دسته‌بندی
+                کتگوری
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 عملیات
@@ -543,7 +593,7 @@ const AddOrder = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.slice(0, visibleCount).map((order) => (
+            {paginatedOrders.map((order) => (
               <tr
                 key={order.id}
                 className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -558,7 +608,7 @@ const AddOrder = () => {
                   {categories.find((category) => category.id === order.category)
                     ?.name || "دسته‌بندی نامشخص"}
                 </td>
-                <td className=" flex items-center justify-center  gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
+                <td className="flex items-center justify-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
                   <button
                     onClick={() => handleEdit(order)}
                     className="text-green hover:scale-105 transition-all duration-300"
@@ -576,19 +626,15 @@ const AddOrder = () => {
             ))}
           </tbody>
         </table>
-        {/* Buttons for Show More / Show Less */}
-        <div className="flex justify-center gap-x-4 mt-4">
-          {visibleCount < orders.length && (
-            <button onClick={showMore} className="secondry-btn">
-              نمایش بیشتر
-            </button>
-          )}
-          {visibleCount > 10 && (
-            <button onClick={showLess} className="secondry-btn">
-              نمایش کمتر
-            </button>
-          )}
-        </div>
+
+        {/* Pagination Component */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );

@@ -182,21 +182,21 @@ const Bill = ({ order }) => {
               <div className="mt-5 col-span-1 ">
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>مشتری:</p>
-                  <span className=" underline">{order.customer_name}</span>
+                  <span className=" ">{order.customer_name}</span>
                 </div>
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>دیزاینر:</p>{" "}
-                  <span className=" underline">
+                  <span className=" ">
                     {getDesignerName(order.designer)}
                   </span>
                 </div>
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>نام سفارش:</p>{" "}
-                  <span className=" underline">{order.order_name}</span>
+                  <span className=" ">{order.order_name}</span>
                 </div>
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>جنس:</p>{" "}
-                  <span className=" underline">
+                  <span className=" ">
                     {categories.find(
                       (category) => category.id === order.category
                     )?.name || "نامشخص"}
@@ -204,19 +204,19 @@ const Bill = ({ order }) => {
                 </div>
                 <div className="p-1 gap-x-2 flex items-start">
                   <p>جمله :</p>
-                  <span className="underline">
+                  <span className="">
                     {prices[0]?.price || "unknown"}
                   </span>
                 </div>
                 <div className="p-1 gap-x-2 flex items-start">
                   <p>پیش پرداخت:</p>
-                  <span className="underline">
+                  <span className="">
                     {prices[0]?.receive_price || "unknown"}
                   </span>
                 </div>
                 <div className="p-1 gap-x-2 flex items-start">
                   <p>باقی :</p>
-                  <span className="underline">
+                  <span className="">
                     {prices[0]?.reminder_price || "unknown"}
                   </span>
                 </div>
