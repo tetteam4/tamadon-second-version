@@ -1,10 +1,14 @@
+// DoneList.jsx
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
+import SearchBar from "../../../Utilities/Searching"; // Make sure this path is correct
+import { IoSearch } from "react-icons/io5"; // You don't need this import here
+
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const DoneList = () => {
-  const secretKey = "TET4-1"; // Use a strong secret key
+  const secretKey = "TET4-1";
   const decryptData = (hashedData) => {
     if (!hashedData) {
       console.error("No data to decrypt");
@@ -19,21 +23,23 @@ const DoneList = () => {
       return null;
     }
   };
+
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(20); // Initial visible items
+  const [visibleCount, setVisibleCount] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
   const showMore = () => {
-    setVisibleCount((prev) => prev + 20); // Show 10 more items
+    setVisibleCount((prev) => prev + 20);
   };
 
   const showLess = () => {
-    setVisibleCount(10); // Reset to 10 items
+    setVisibleCount(10);
   };
 
-  // Fetch categories from API
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/categories/`);
@@ -42,10 +48,9 @@ const DoneList = () => {
       console.error("Error fetching categories:", error);
     }
   };
-  // Fetch orders with status "done"
+
   const getDoneList = async () => {
     try {
-      // in the name of alla
       const response = await axios.get(`${BASE_URL}/group/order/done/`);
       setOrders(response.data);
     } catch (err) {
@@ -53,10 +58,9 @@ const DoneList = () => {
     }
   };
 
-  // Fetch details of a specific order
   const handleShowDetails = async (id) => {
     try {
-      const token = decryptData(localStorage.getItem("auth_token")); // Retrieve token from localStorage
+      const token = decryptData(localStorage.getItem("auth_token"));
       const response = await axios.get(`${BASE_URL}/group/orders/${id}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -70,7 +74,6 @@ const DoneList = () => {
     }
   };
 
-  // Close the details popup
   const handleClosePopup = () => {
     setIsModelOpen(false);
     setSelectedOrderDetails(null);
@@ -82,8 +85,33 @@ const DoneList = () => {
     const intervalId = setInterval(() => {
       getDoneList();
     }, 2000);
-    return clearInterval(intervalId);
+    return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const results = orders.filter((order) => {
+        const customerName = order.customer_name || "";
+        const orderName = order.order_name || "";
+        const categoryName =
+          categories.find((category) => category.id === order.category)?.name ||
+          "";
+
+        return (
+          customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTerm, orders, categories]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   return (
     <div
@@ -93,6 +121,12 @@ const DoneList = () => {
       <h2 className="md:text-2xl text-base font-Ray_black text-center font-bold mb-4">
         لیست سفارشات تکمیلی
       </h2>
+      <SearchBar
+        placeholder="جستجو..."
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
+  
       <div className="overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg md:w-full">
         <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
           <thead className="bg-gray-100">
@@ -112,6 +146,7 @@ const DoneList = () => {
             </tr>
           </thead>
           <tbody>
+<<<<<<< HEAD
             {orders.length ? (
               orders.slice(0, visibleCount).reverse().map((order, index) => (
                 <tr
@@ -141,22 +176,56 @@ const DoneList = () => {
                   </td>
                 </tr>
               ))
+=======
+            {(searchResults.length > 0 ? searchResults : orders).length > 0 ? (
+              (searchResults.length > 0 ? searchResults : orders)
+                .slice(0, visibleCount)
+                .map((order, index) => (
+                  <tr
+                    key={order.id}
+                    className={`text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-gray-100`}
+                  >
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {order.customer_name}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {order.order_name}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {categories.find(
+                        (category) => category.id === order.category
+                      )?.name || "دسته‌بندی نامشخص"}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      <button
+                        onClick={() => handleShowDetails(order.id)}
+                        className="secondry-btn"
+                      >
+                        جزئیات
+                      </button>
+                    </td>
+                  </tr>
+                ))
+>>>>>>> fcca4417b7f79fb3a8c60a6d957add22ddc310c7
             ) : (
               <tr>
                 <td colSpan="4" className="border p-2 text-center">
-                  هیچ سفارشی برای وضعیت "تکمیل شده" پیدا نشد.
+                  هیچ سفارشی برای وضعیت "{searchTerm ? "جستجو" : "تکمیل شده"}"
+                  پیدا نشد.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
         <div className="flex justify-center gap-x-4 mt-4">
-          {visibleCount < orders.length && (
+          {visibleCount < orders.length && searchResults.length === 0 && (
             <button onClick={showMore} className="secondry-btn">
               نمایش بیشتر
             </button>
           )}
-          {visibleCount > 20 && (
+          {visibleCount > 20 && searchResults.length === 0 && (
             <button onClick={showLess} className="secondry-btn">
               نمایش کمتر
             </button>
