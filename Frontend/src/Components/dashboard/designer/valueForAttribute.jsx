@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { FaChevronDown } from "react-icons/fa";
+import { FaChevronDown, FaSearch } from "react-icons/fa";
 import Swal from "sweetalert2";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 import { IoTrashSharp } from "react-icons/io5";
@@ -15,13 +15,11 @@ const ValueForAttributes = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [attributeTypes, setAttributeTypes] = useState([]);
-  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isAttributeDropdownOpen, setIsAttributeDropdownOpen] = useState(false);
   const [values, setValues] = useState([]);
   const [selectedAttribute, setSelectedAttribute] = useState("");
   const [filteredValues, setFilteredValues] = useState([]);
   const [editingValue, setEditingValue] = useState(null);
-
 
   useEffect(() => {
     fetchCategories();
@@ -254,6 +252,15 @@ const ValueForAttributes = () => {
     setEditingValue(null);
   };
 
+  //  categories section
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filter categories based on search input
+  const filteredCategories = categories.filter((category) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="py-10 bg-gray-200 w-full min-h-[91vh] px-5">
       <div className="max-w-3xl mx-auto p-2 shadow-lg bg-white rounded-md">
@@ -262,15 +269,14 @@ const ValueForAttributes = () => {
         </h2>
 
         {message && <p className="mb-4 text-green text-center">{message}</p>}
-
-        <div className="mb-6">
+        <div className="mb-4 mt-3">
           <label className="block text-lg font-medium mb-2 text-gray-700">
-            انتخاب کتگوری
+            کتگوری سفارش
           </label>
-          <div className="">
+          <div className="relative">
             {/* Dropdown Button */}
             <div
-              className="p-3 border rounded w-full flex items-center justify-between bg-gray-200 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              className="w-full px-3 py-2 border flex justify-between items-center bg-gray-200 rounded text-black cursor-pointer"
               onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
             >
               {selectedCategory
@@ -278,7 +284,7 @@ const ValueForAttributes = () => {
                   "کتگوری را انتخاب کنید"
                 : "کتگوری را انتخاب کنید"}
               <FaChevronDown
-                className={` transition-all duration-300 ${
+                className={`transition-all duration-300 ${
                   isCategoryDropdownOpen ? "rotate-180" : ""
                 }`}
               />
@@ -286,17 +292,38 @@ const ValueForAttributes = () => {
 
             {/* Dropdown List */}
             {isCategoryDropdownOpen && (
-              <ul className=" w-full bg-white border  border-gray-300 rounded-md shadow-lg mt-1 z-10">
-                {categories.map((category) => (
-                  <li
-                    key={category.id}
-                    className="p-3 hover:bg-gray-200 border-b cursor-pointer"
-                    onClick={() => handleCategorySelect(category.id)}
-                  >
-                    {category.name}
-                  </li>
-                ))}
-              </ul>
+              <div className="absolute w-full bg-white text-black border border-gray-300 rounded-md shadow-lg mt-1 z-10">
+                {/* Search Input */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="جستجو نمودن کتگوری..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full p-2 border-b pl-10 pr-5 outline-none focus:border-green bg-gray-300 placeholder-gray-700"
+                  />
+                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-700" />
+                </div>
+
+                {/* Categories List */}
+                <ul className="max-h-[400px] overflow-y-auto">
+                  {filteredCategories.map((category) => (
+                    <li
+                      key={category.id}
+                      className="py-2 px-5 hover:bg-gray-200 border-b text-black cursor-pointer"
+                      onClick={() => {
+                        handleCategorySelect(category.id);
+                        setIsCategoryDropdownOpen(false); // Close dropdown on selection
+                      }}
+                    >
+                      {category.name}
+                    </li>
+                  ))}
+                  {filteredCategories.length === 0 && (
+                    <li className="p-3 text-gray-500">نتیجه‌ای یافت نشد</li>
+                  )}
+                </ul>
+              </div>
             )}
           </div>
         </div>
@@ -319,20 +346,20 @@ const ValueForAttributes = () => {
                       (attr) => attr.id === selectedAttribute
                     )?.name || "مشخصه را انتخاب کنید"
                   : "مشخصه را انتخاب کنید"}
-                   <FaChevronDown
-                className={` transition-all duration-300 ${
-                  isAttributeDropdownOpen ? "rotate-180" : ""
-                }`} />
+                <FaChevronDown
+                  className={` transition-all duration-300 ${
+                    isAttributeDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
               </div>
 
               {/* Dropdown List */}
               {isAttributeDropdownOpen && (
                 <ul className=" w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1">
-                  
                   {filteredAttributes.map((attribute) => (
                     <li
                       key={attribute.id}
-                      className="p-3 hover:bg-gray-200 border-b cursor-pointer"
+                      className="px-3 py-2 hover:bg-gray-200 border-b cursor-pointer"
                       onClick={() => handleAttributeSelect(attribute.id)}
                     >
                       {attribute.name}
@@ -359,22 +386,22 @@ const ValueForAttributes = () => {
               />
             </div>
 
-          <div className="flex justify-center items-center">
-          <button
-              onClick={handleAddValue}
-              disabled={!newValue}
-              className={`secondry-btn ${
-                newValue ? "bg-blue-500 hover:bg-blue-600" : ""
-              } `}
-            >
-              افزودن مقدار
-            </button>
-          </div>
+            <div className="flex justify-center items-center">
+              <button
+                onClick={handleAddValue}
+                disabled={!newValue}
+                className={`secondry-btn ${
+                  newValue ? "secondry-btn" : ""
+                } `}
+              >
+                افزودن مقدار
+              </button>
+            </div>
           </div>
         )}
       </div>
       {/* Filtered Values List */}
-      <div className="w-[400px] md:w-[700px] mt-10 lg:w-[60%] mx-auto  lg:overflow-hidden">
+      <div className="w-[400px] md:w-[700px] mt-10 lg:w-[60%] mx-auto rounded-md  lg:overflow-hidden">
         {filteredValues.length > 0 && (
           <ul className="space-y-1">
             {filteredValues.map((value) => (
