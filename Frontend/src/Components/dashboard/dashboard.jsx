@@ -59,6 +59,7 @@ import { BiArrowBack, BiArrowFromRight, BiArrowToRight } from "react-icons/bi";
 import WellcomePage from "./wellcomePage.jsx";
 import Deliver from "./Reception/deliverOrder.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
+import ModeToggle from './ModeToggling.jsx'
 const Dashboard = () => {
   // Modal visibility state
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -555,7 +556,7 @@ const Dashboard = () => {
                       }`}
                       onClick={() => {
                         setActiveComponent(item.component);
-                        setIsSideOpen(!isSideOpen);
+                        setIsSideOpen(false);
                       }}
                     >
                       <span className="text-xl">{item.icon}</span>
@@ -622,7 +623,7 @@ const Dashboard = () => {
                       : ""
                   }`}
                   onClick={() => {
-                    setIsSideOpen(!isSideOpen);
+                    setIsSideOpen(false);
                     if (item === "Logout") {
                       handleLogout();
                       return null;
