@@ -49,6 +49,7 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
   const [unreadMsg, setUnreadMsg] = useState([]);
   const [sortedUnreadMsg, setSortedUnreadMsg] = useState([]);
 
+  //last messages from me to any account
   const fetchLastSenderMessages = async () => {
     const senderId = decryptData(localStorage.getItem("id")); // Retrieve the id from localStorage
 
@@ -335,10 +336,8 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
       if (!receiverId) {
         throw new Error("Receiver ID not found in local storage.");
       }
-
       // Construct the API URL
       const apiUrl = `${BASE_URL}/users/get-message/${senderId}/${receiverId}/`;
-
       // Fetch data from the API
       const response = await axios.get(apiUrl);
 
