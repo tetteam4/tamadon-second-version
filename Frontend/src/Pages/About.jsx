@@ -6,10 +6,8 @@ import WhyChooseUs from "../Components/WhyChooseUs";
 const About = () => {
   return (
     <section className="container  mx-auto md:mt-10     space-y-14 transition-colors duration-300">
-      {/* First Section */}
       <div className="">
         <div className="grid grid-cols-1 p-5 lg:p-0 gap-10 lg:grid-cols-2">
-          {/* Image Section */}
           <div className="flex  order-1 lg:order-2 justify-center">
             <img
               src='/image1.jpg'
@@ -19,7 +17,6 @@ const About = () => {
            
           </div>
 
-          {/* Info Section */}
           <div className="space-y-4 order-2 lg:order-1">
             <h1 className="text-xl md:text-2xl lg:text-3xl font-Ray_black font-bold text-gray-800 dark:text-white mb-2">
               درباره مطبعه تمدن
