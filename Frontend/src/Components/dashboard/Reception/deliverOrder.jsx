@@ -113,16 +113,14 @@ const Deliver = () => {
     }
   };
 
-  const MySwal = withReactContent(Swal);
-
   const markAsDelivered = async (id) => {
     // Show confirmation alert before proceeding
     const result = await Swal.fire({
       title: "آیا مطمئن هستید؟",
-      text: "پس از تحویل، وضعیت سفارش تغییر خواهد کرد!",
+      text: "این سفارش به وضعیت 'تحویل داده شد' تغییر خواهد کرد!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "بله، تحویل داده شد",
+      confirmButtonText: "بله، انجام بده",
       cancelButtonText: "لغو",
       reverseButtons: true,
     });
@@ -143,7 +141,7 @@ const Deliver = () => {
         // Show success message
         Swal.fire({
           icon: "success",
-          title: "سفارش تحویل داده شد",
+          title: "سفارش تحویل شد",
           text: "وضعیت سفارش با موفقیت به 'تحویل داده شد' تغییر کرد.",
           confirmButtonText: "باشه",
         });
