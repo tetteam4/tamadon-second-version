@@ -1,11 +1,13 @@
+// ReceivedList.jsx
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
 import Swal from "sweetalert2";
+import SearchBar from "../../../Utilities/Searching"; // Correct the path
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const ReceivedList = () => {
-  const secretKey = "TET4-1"; // Use a strong secret key
+  const secretKey = "TET4-1";
   const decryptData = (hashedData) => {
     if (!hashedData) {
       console.error("No data to decrypt");
@@ -20,18 +22,21 @@ const ReceivedList = () => {
       return null;
     }
   };
+
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState({});
-  const [visibleCount, setVisibleCount] = useState(20); // Initial visible items
+  const [visibleCount, setVisibleCount] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
   const showMore = () => {
-    setVisibleCount((prev) => prev + 20); // Show 10 more items
+    setVisibleCount((prev) => prev + 20);
   };
 
   const showLess = () => {
-    setVisibleCount(10); // Reset to 10 items
+    setVisibleCount(10);
   };
 
   const fetchCategories = async () => {
@@ -54,7 +59,7 @@ const ReceivedList = () => {
 
   const getDetails = async (id) => {
     try {
-      const token = decryptData(localStorage.getItem("auth_token")); // Retrieve token from localStorage
+      const token = decryptData(localStorage.getItem("auth_token"));
       const response = await axios.get(`${BASE_URL}/group/orders/${id}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -69,7 +74,6 @@ const ReceivedList = () => {
   };
 
   const handleAdd = async (id) => {
-    // Show confirmation alert before proceeding
     const result = await Swal.fire({
       title: "آیا مطمئن هستید؟",
       text: "این سفارش به وضعیت 'در حال پردازش' تغییر خواهد کرد!",
@@ -82,18 +86,15 @@ const ReceivedList = () => {
 
     if (result.isConfirmed) {
       try {
-        // Update the order status
         await axios.post(`${BASE_URL}/group/update-order-status/`, {
           order_id: id,
           status: "processing",
         });
 
-        // Remove the order from the orders state after the status update
         setOrders((prevOrders) =>
           prevOrders.filter((order) => order.id !== id)
         );
 
-        // Show success message
         Swal.fire({
           icon: "success",
           title: "سفارش بروزرسانی شد",
@@ -103,7 +104,6 @@ const ReceivedList = () => {
       } catch (err) {
         console.error("Error changing status", err);
 
-        // Show error message
         Swal.fire({
           icon: "error",
           title: "خطا در تغییر وضعیت",
@@ -127,11 +127,41 @@ const ReceivedList = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  useEffect(() => {
+    if (searchTerm) {
+      const results = orders.filter((order) => {
+        const customerName = order.customer_name || "";
+        const orderName = order.order_name || "";
+        const categoryName =
+          categories.find((category) => category.id === order.category)?.name ||
+          "";
+
+        return (
+          customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTerm, orders, categories]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   return (
     <div className="w-[400px] md:w-[700px]  mt-10 lg:w-[70%] mx-auto  lg:overflow-hidden">
       <h2 className="md:text-2xl text-base font-Ray_black text-center font-bold mb-4">
         لیست سفارشات دریافتی
       </h2>
+      <SearchBar
+        placeholder="جستجو..."
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
       <div className="overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg md:w-full">
         <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
           <thead className="bg-gray-100">
@@ -151,57 +181,60 @@ const ReceivedList = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.length ? (
-              orders.slice(0, visibleCount).map((order, index) => (
-                <tr
-                  key={order.id}
-                  className={`text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all ${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  } hover:bg-gray-100`}
-                >
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {order.customer_name}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {order.order_name}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {categories.find(
-                      (category) => category.id === order.category
-                    )?.name || "دسته‌بندی نامشخص"}
-                  </td>
-                  <td className="border-gray-300 px-6  flex items-center gap-x-5 justify-center text-gray-700">
-                    <button
-                      onClick={() => handleAdd(order.id)}
-                      className="secondry-btn"
-                    >
-                      تایید دریافت‌
-                    </button>
-                    <button
-                      onClick={() => getDetails(order.id)}
-                      className="m-2 bg-blue-500 rounded p-2 hover:bg-blue-700 text-white"
-                    >
-                      جزئیات
-                    </button>
-                  </td>
-                </tr>
-              ))
+            {(searchResults.length > 0 ? searchResults : orders).length > 0 ? (
+              (searchResults.length > 0 ? searchResults : orders)
+                .slice(0, visibleCount)
+                .map((order, index) => (
+                  <tr
+                    key={order.id}
+                    className={`text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-gray-100`}
+                  >
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {order.customer_name}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {order.order_name}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {categories.find(
+                        (category) => category.id === order.category
+                      )?.name || "دسته‌بندی نامشخص"}
+                    </td>
+                    <td className="border-gray-300 px-6  flex items-center gap-x-5 justify-center text-gray-700">
+                      <button
+                        onClick={() => handleAdd(order.id)}
+                        className="secondry-btn"
+                      >
+                        تایید دریافت‌
+                      </button>
+                      <button
+                        onClick={() => getDetails(order.id)}
+                        className="m-2 bg-blue-500 rounded p-2 hover:bg-blue-700 text-white"
+                      >
+                        جزئیات
+                      </button>
+                    </td>
+                  </tr>
+                ))
             ) : (
               <tr>
                 <td colSpan="4" className="border p-2 text-center">
-                  هیچ سفارشی برای وضعیت "در انتظار" پیدا نشد.
+                  هیچ سفارشی برای وضعیت "{searchTerm ? "جستجو" : "در انتظار"}"
+                  پیدا نشد.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
         <div className="flex justify-center gap-x-4 mt-4">
-          {visibleCount < orders.length && (
+          {visibleCount < orders.length && searchResults.length === 0 && (
             <button onClick={showMore} className="secondry-btn">
               نمایش بیشتر
             </button>
           )}
-          {visibleCount > 20 && (
+          {visibleCount > 20 && searchResults.length === 0 && (
             <button onClick={showLess} className="secondry-btn">
               نمایش کمتر
             </button>
@@ -209,7 +242,6 @@ const ReceivedList = () => {
         </div>
       </div>
 
-      {/* Popup */}
       {isModelOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
