@@ -5,7 +5,7 @@ import jwt_decode from "jwt-decode";
 import axios from "axios";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const Deliver = () => {
-  const secretKey = "TET4-1"; // Use a strong secret key
+  const secretKey = "TET4-1"; 
   const decryptData = (hashedData) => {
     if (!hashedData) {
       console.error("No data to decrypt");
@@ -21,7 +21,7 @@ const Deliver = () => {
     }
   };
   const [orders, setOrders] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(10); // Initial visible items
+  const [visibleCount, setVisibleCount] = useState(10);
   const [categories, setCategories] = useState([]);
   const [token, setToken] = useState(
     decryptData(localStorage.getItem("auth_token"))
@@ -126,18 +126,15 @@ const Deliver = () => {
 
     if (result.isConfirmed) {
       try {
-        // Update the order status
         await axios.post(`${BASE_URL}/group/update-order-status/`, {
           order_id: id,
           status: "delivered",
         });
 
-        // Remove the order from the orders state
         setOrders((prevOrders) =>
           prevOrders.filter((order) => order.id !== id)
         );
 
-        // Show success message
         Swal.fire({
           icon: "success",
           title: "سفارش تحویل شد",
@@ -147,7 +144,6 @@ const Deliver = () => {
       } catch (err) {
         console.error("Error updating order status:", err);
 
-        // Show error message
         Swal.fire({
           icon: "error",
           title: "خطا در تغییر وضعیت",
