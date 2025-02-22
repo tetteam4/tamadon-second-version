@@ -152,40 +152,43 @@ const ReceivedList = () => {
           </thead>
           <tbody>
             {orders.length ? (
-              orders.slice(0, visibleCount).map((order, index) => (
-                <tr
-                  key={order.id}
-                  className={`text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all ${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  } hover:bg-gray-100`}
-                >
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {order.customer_name}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {order.order_name}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {categories.find(
-                      (category) => category.id === order.category
-                    )?.name || "دسته‌بندی نامشخص"}
-                  </td>
-                  <td className="border-gray-300 px-6  flex items-center gap-x-5 justify-center text-gray-700">
-                    <button
-                      onClick={() => handleAdd(order.id)}
-                      className="secondry-btn"
-                    >
-                      تایید دریافت‌
-                    </button>
-                    <button
-                      onClick={() => getDetails(order.id)}
-                      className="m-2 bg-blue-500 rounded p-2 hover:bg-blue-700 text-white"
-                    >
-                      جزئیات
-                    </button>
-                  </td>
-                </tr>
-              ))
+              orders
+                .slice(0, visibleCount)
+                .reverse()
+                .map((order, index) => (
+                  <tr
+                    key={order.id}
+                    className={`text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-gray-100`}
+                  >
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {order.customer_name}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {order.order_name}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {categories.find(
+                        (category) => category.id === order.category
+                      )?.name || "دسته‌بندی نامشخص"}
+                    </td>
+                    <td className="border-gray-300 px-6  flex items-center gap-x-5 justify-center text-gray-700">
+                      <button
+                        onClick={() => handleAdd(order.id)}
+                        className="secondry-btn"
+                      >
+                        تایید دریافت‌
+                      </button>
+                      <button
+                        onClick={() => getDetails(order.id)}
+                        className="m-2 bg-blue-500 rounded p-2 hover:bg-blue-700 text-white"
+                      >
+                        جزئیات
+                      </button>
+                    </td>
+                  </tr>
+                ))
             ) : (
               <tr>
                 <td colSpan="4" className="border p-2 text-center">
