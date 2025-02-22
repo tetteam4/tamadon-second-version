@@ -5,6 +5,7 @@ import { MdPermDeviceInformation } from "react-icons/md";
 import { RxArrowLeft, RxArrowRight } from "react-icons/rx";
 import { PiUsersFour } from "react-icons/pi";
 import Tamadon from "../../../public/tamadon.png";
+import ModeTogle from "./ModeToggling.jsx"
 import { MdHome } from "react-icons/md";
 import {
   FaSun,
@@ -469,7 +470,7 @@ const Dashboard = () => {
           <p className=" font-serif text-2xl text-white font-bold">
             {decryptData(localStorage.getItem("username"))}
           </p>
-          <ModeToggle />
+          <ModeTogle />
           <div
             className="flex items-center cursor-pointer"
             onClick={() => setIsProfilePopupOpen(!isProfilePopupOpen)}
