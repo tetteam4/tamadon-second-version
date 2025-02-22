@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import { IoTrashSharp } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
+import Pagination from "../../../Utilities/Pagination";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Category = () => {
@@ -15,16 +16,6 @@ const Category = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [responseMessage, setResponseMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [visibleCount, setVisibleCount] = useState(10); // Initial visible items
-
-  const showMore = () => {
-    setVisibleCount((prev) => prev + 10); // Show 10 more items
-  };
-
-  const showLess = () => {
-    setVisibleCount(10); // Reset to 10 items
-  };
-
   // Fetch categories
   const fetchCategories = async () => {
     try {
@@ -184,6 +175,17 @@ const Category = () => {
     }
   }, [responseMessage, errorMessage]);
 
+  //  pagination section
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+  const paginatedCategories = filteredCategories.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="py-10 bg-gray-200 w-full px-5">
       <div className="max-w-3xl mx-auto p-2  bg-white rounded-md">
@@ -215,24 +217,26 @@ const Category = () => {
               required
             />
           </div>
-          <button
-            type="submit"
-            className={` secondry-btn ${editingCategory ? "bg-green" : ""}`}
-          >
-            {editingCategory ? "ویرایش" : "اضافه کردن"}
-          </button>
-          {editingCategory && (
+          <div className="flex justify-center items-center gap-x-5">
             <button
-              type="button"
-              onClick={() => {
-                setEditingCategory(null);
-                setCategoryName("");
-              }}
-              className="ml-2 px-4 py-1 bg-red-500 mr-6 text-white rounded hover:bg-red-600 hover:scale-105 transition-all duration-300"
+              type="submit"
+              className={` secondry-btn ${editingCategory ? "bg-green" : ""}`}
             >
-              انصراف
+              {editingCategory ? "ویرایش" : "اضافه کردن"}
             </button>
-          )}
+            {editingCategory && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingCategory(null);
+                  setCategoryName("");
+                }}
+                className="tertiary-btn"
+              >
+                انصراف
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -259,10 +263,10 @@ const Category = () => {
             </button>
           </div>
         </div>
-        <div className="bg-white p-5">
+        <div className="bg-white p-5 rounded-md">
           <ul className="mt-4 space-y-2 ">
-            {filteredCategories.length > 0 ? (
-              filteredCategories.slice(0, visibleCount).map((category) => (
+            {paginatedCategories.length > 0 ? (
+              paginatedCategories.map((category) => (
                 <li
                   key={category.id}
                   className="px-4 py-2 border  border-gray-300 rounded-md  hover:bg-gray-200 flex justify-between gap-x-5 items-center"
@@ -289,17 +293,13 @@ const Category = () => {
             )}
           </ul>
         </div>
-      </div>
-      <div className="flex justify-center gap-x-4 mt-4">
-        {visibleCount < filteredCategories.length && (
-          <button onClick={showMore} className="secondry-btn">
-            نمایش بیشتر
-          </button>
-        )}
-        {visibleCount > 10 && (
-          <button onClick={showLess} className="secondry-btn">
-            نمایش کمتر
-          </button>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         )}
       </div>
     </div>
