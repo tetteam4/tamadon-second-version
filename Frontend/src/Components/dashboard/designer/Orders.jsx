@@ -39,8 +39,7 @@ const OrderTable = () => {
     fetchData();
   }, []);
 
-  // Handle delete operation
-  const handleDelete = async (id) => {
+   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("auth_token");
       const response = await axios.delete(
@@ -53,13 +52,11 @@ const OrderTable = () => {
     }
   };
 
-  // Open the popup for editing
   const openEditPopup = (order) => {
     setEditingOrder(order);
     setIsPopupOpen(true);
   };
 
-  // Handle save (edit) operation
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("auth_token");
@@ -134,7 +131,6 @@ const OrderTable = () => {
                 key === "attribute" &&
                 typeof editingOrder[key] === "object"
               ) {
-                // Render nested attribute keys
                 return (
                   <div key={key} className="mb-4">
                     <h4 className="font-semibold mb-2">ویژگی‌ها:</h4>
@@ -160,7 +156,6 @@ const OrderTable = () => {
                   </div>
                 );
               } else {
-                // Render other fields
                 return (
                   <div key={key} className="mb-4">
                     <label className="block mb-2">
