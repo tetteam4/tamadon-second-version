@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GrGallery } from "react-icons/gr";
 import { MdPermDeviceInformation } from "react-icons/md";
-import { RxArrowLeft, RxArrowRight } from "react-icons/rx";
 import { PiUsersFour } from "react-icons/pi";
-import Tamadon from "../../../public/tamadon.png";
+import ModeTogle from "./ModeToggling.jsx"
 import { MdHome } from "react-icons/md";
 import {
   FaSun,
@@ -453,7 +452,7 @@ const Dashboard = () => {
           <div className="lg:flex items-center hidden  gap-x-5">
             <Link to="" className="">
               <img
-                src={Tamadon}
+                src='/Tamadon.png'
                 alt="Logo"
                 className={` ${
                   isSidebarExpanded ? "h-10 w-10" : "h-10 w-10"
@@ -470,7 +469,7 @@ const Dashboard = () => {
           <p className=" font-serif text-2xl text-white font-bold">
             {decryptData(localStorage.getItem("username"))}
           </p>
-          <ModeToggle />
+          <ModeTogle />
           <div
             className="flex items-center cursor-pointer"
             onClick={() => setIsProfilePopupOpen(!isProfilePopupOpen)}

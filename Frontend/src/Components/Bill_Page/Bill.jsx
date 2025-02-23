@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import { FaTelegramPlane, FaEnvelope } from "react-icons/fa";
 import { PiPhoneCallFill } from "react-icons/pi";
 import { CiGlobe } from "react-icons/ci";
-import { IoQrCode } from "react-icons/io5";
-import bill from "../../../public/bill.jpeg";
-import logo from "../../../public/Tamadon.png";
 import axios from "axios";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import CryptoJS from "crypto-js";
@@ -118,7 +115,7 @@ const Bill = ({ order }) => {
         <div className="w-full relative pr-5">
           {/* Backdrop image */}
           <img
-            src={logo}
+            src="/Tamadon.png"
             alt="logo"
             className="absolute   opacity-5 top-20 -bottom-10 right-5 mt-5 w-[600px] object-cover overflow-hidden "
           />
@@ -168,7 +165,7 @@ const Bill = ({ order }) => {
 
               {/* Logo */}
               <img
-                src={logo}
+                src="/Tamadon.png"
                 alt="Tamadon Logo"
                 className="w-24 h-24 object-contain"
               />
@@ -186,9 +183,7 @@ const Bill = ({ order }) => {
                 </div>
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>دیزاینر:</p>{" "}
-                  <span className=" ">
-                    {getDesignerName(order.designer)}
-                  </span>
+                  <span className=" ">{getDesignerName(order.designer)}</span>
                 </div>
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>نام سفارش:</p>{" "}
@@ -204,9 +199,7 @@ const Bill = ({ order }) => {
                 </div>
                 <div className="p-1 gap-x-2 flex items-start">
                   <p>جمله :</p>
-                  <span className="">
-                    {prices[0]?.price || "unknown"}
-                  </span>
+                  <span className="">{prices[0]?.price || "unknown"}</span>
                 </div>
                 <div className="p-1 gap-x-2 flex items-start">
                   <p>پیش پرداخت:</p>
@@ -303,7 +296,7 @@ const Bill = ({ order }) => {
           </div>
         </div>
         <div className="">
-          <img src={bill} alt="" className="h-full w-[300px]" />
+          <img src="/bill.jpeg" alt="" className="h-full w-[300px]" />
         </div>
       </div>
     </div>
