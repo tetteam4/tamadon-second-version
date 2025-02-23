@@ -9,6 +9,7 @@ import Bill from "../../Bill_Page/Bill.jsx";
 import Swal from "sweetalert2";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
+
 const OrderList = () => {
   const [showBill, setShowBill] = useState(false); // State to control Bill rendering
   const [orders, setOrders] = useState([]);
@@ -291,58 +292,10 @@ const OrderList = () => {
   // Handle form submission in modal (update order)
 
   const handleModalSubmit = async () => {
-    // Convert to numbers for validation
-    const totalPrice = Number(modalData.total_price);
-    const receivePrice = Number(modalData.receive_price);
-    const deliveryDate = new Date(modalData.deliveryDate);
-
-    // Validate total_price and receive_price (must be positive numbers)
-    if (isNaN(totalPrice) || totalPrice <= 0) {
-      Swal.fire({
-        icon: "error",
-        title: "خطای ورودی",
-        text: "لطفاً قیمت کل را به درستی وارد کنید (باید عددی مثبت باشد).",
-        confirmButtonText: "متوجه شدم",
-      });
-      return;
-    }
-
-    if (isNaN(receivePrice) || receivePrice < 0) {
-      Swal.fire({
-        icon: "error",
-        title: "خطای ورودی",
-        text: "لطفاً قیمت دریافت شده را به درستی وارد کنید (نمی‌تواند منفی باشد).",
-        confirmButtonText: "متوجه شدم",
-      });
-      return;
-    }
-
-    if (receivePrice > totalPrice) {
-      Swal.fire({
-        icon: "error",
-        title: "خطای ورودی",
-        text: "قیمت دریافت شده نمی‌تواند بیشتر از قیمت کل باشد.",
-        confirmButtonText: "متوجه شدم",
-      });
-      return;
-    }
-
-    // Validate delivery_date (must be a valid future date)
-    const today = new Date().setHours(0, 0, 0, 0);
-    if (isNaN(deliveryDate.getTime()) || deliveryDate < today) {
-      Swal.fire({
-        icon: "error",
-        title: "خطای ورودی",
-        text: "لطفاً تاریخ تحویل معتبر و آینده را انتخاب کنید.",
-        confirmButtonText: "متوجه شدم",
-      });
-      return;
-    }
-
     const updatedOrder = {
-      price: totalPrice,
-      receive_price: receivePrice,
-      delivery_date: modalData.deliveryDate,
+      price: modalData.total_price || null,
+      receive_price: modalData.receive_price || null,
+      delivery_date: modalData.deliveryDate || null,
       order: selectedOrder || null,
     };
 
