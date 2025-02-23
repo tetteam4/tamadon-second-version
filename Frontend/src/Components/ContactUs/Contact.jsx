@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 import axios from "axios";
-
-
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 function Contact() {
