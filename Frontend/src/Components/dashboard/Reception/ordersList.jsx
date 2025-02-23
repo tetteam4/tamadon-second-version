@@ -36,6 +36,7 @@ const OrderList = () => {
       console.error("No data to decrypt");
       return null;
     }
+
     try {
       const bytes = CryptoJS.AES.decrypt(hashedData, secretKey);
       const decrypted = bytes.toString(CryptoJS.enc.Utf8);
@@ -44,6 +45,7 @@ const OrderList = () => {
       console.error("Decryption failed:", error);
       return null;
     }
+
   };
   const [modalData, setModalData] = useState({
     receive_price: "",
@@ -96,7 +98,7 @@ const OrderList = () => {
     }
   };
 
-  // Fetch orders from API
+
   const fetchOrders = async () => {
     if (!token) {
       setError("No authentication token found.");
