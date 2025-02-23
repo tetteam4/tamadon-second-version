@@ -10,7 +10,6 @@ import { IoTrashSharp } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
 import Swal from "sweetalert2";
 
-
 const AddOrder = () => {
   const [categories, setCategories] = useState([]);
   const [dropdownState, setDropdownState] = useState({});
@@ -56,7 +55,6 @@ const AddOrder = () => {
       [name]: value,
     }));
   };
-
 
   const fetchOrders = async () => {
     try {
@@ -303,10 +301,9 @@ const AddOrder = () => {
 
   // Calculate pagination
   const totalPages = Math.ceil(orders.length / postsPerPage);
-  const paginatedOrders = orders.slice(
-    (currentPage - 1) * postsPerPage,
-    currentPage * postsPerPage
-  );
+  const paginatedOrders = [...orders] // Create a copy to avoid mutation
+    .reverse()
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
   return (
     <div className="py-10 bg-gray-200 w-full min-h-[91vh] px-5">
       <div className="flex items-center justify-center py-3">
@@ -323,7 +320,7 @@ const AddOrder = () => {
           {(isFormOpen || isEditing) && (
             <div>
               <h2 className="text-xl text-center font-Ray_black  font-bold mb-4">
-                {isEditing ? "Edit Order" : "فورم سفارش"}
+                {isEditing ? "ویرایش سفارش" : "فورم سفارش"}
               </h2>
               <form onSubmit={handleSubmit}>
                 {/* Input Fields in a Row on Larger Screens */}
@@ -463,7 +460,7 @@ const AddOrder = () => {
 
                           {/* Dropdown Options */}
                           {dropdownState[field.name] && (
-                            <ul className="absolute w-full bg-white text-black border border-gray-300 rounded-md shadow-lg mt-1 z-10 overflow-hidden">
+                            <ul className="absolute max-h-[400px] overflow-y-auto w-full bg-white text-black border border-gray-300 rounded-md shadow-lg mt-1 z-10 overflow-hidden">
                               <li
                                 className="p-3 hover:bg-gray-200 cursor-pointer"
                                 onClick={() => {
@@ -567,7 +564,7 @@ const AddOrder = () => {
           )}
         </div>
       )}
-      <div className="w-[300px] sm:w-[45px] md:w-[700px] mt-10 lg:w-[80%] mx-auto  overflow-x-scroll lg:overflow-hidden">
+      <div className="w-[350px] sm:w-[450px] md:w-[700px] mt-10 lg:w-[80%] mx-auto  overflow-x-scroll lg:overflow-hidden">
         <table className="w-full rounded-lg border overflow-auto border-gray-300 shadow-md">
           <thead>
             <tr className="bg-green text-gray-100  text-center">
@@ -603,7 +600,10 @@ const AddOrder = () => {
                 </td>
                 <td className="flex items-center justify-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
                   <button
-                    onClick={() => handleEdit(order)}
+                    onClick={() => {
+                      handleEdit(order);
+                      setIsFormOpen(true);
+                    }}
                     className="text-green hover:scale-105 transition-all duration-300"
                   >
                     <FaRegEdit size={24} />
