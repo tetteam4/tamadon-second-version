@@ -1,11 +1,15 @@
+// Deliver.jsx
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import CryptoJS from "crypto-js";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
+import SearchBar from "../../../Utilities/Searching"; // Correct the path
+
 const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const Deliver = () => {
-  const secretKey = "TET4-1"; 
+  const secretKey = "TET4-1";
   const decryptData = (hashedData) => {
     if (!hashedData) {
       console.error("No data to decrypt");
@@ -20,6 +24,7 @@ const Deliver = () => {
       return null;
     }
   };
+
   const [orders, setOrders] = useState([]);
   const [visibleCount, setVisibleCount] = useState(10);
   const [categories, setCategories] = useState([]);
@@ -29,21 +34,26 @@ const Deliver = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [refreshingToken, setRefreshingToken] = useState(false); // Add this line
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
   const showMore = () => {
-    setVisibleCount((prev) => prev + 10); // Show 10 more items
+    setVisibleCount((prev) => prev + 10);
   };
 
   const showLess = () => {
-    setVisibleCount(10); // Reset to 10 items
+    setVisibleCount(10);
   };
+
   const isTokenExpired = (token) => {
     const decoded = jwt_decode(token);
     const currentTime = Date.now() / 1000;
     return decoded.exp < currentTime;
   };
+
   const refreshAuthToken = async () => {
-    if (refreshingToken) return; // Prevent multiple refresh requests
+    if (refreshingToken) return;
 
     setRefreshingToken(true);
     try {
@@ -64,10 +74,32 @@ const Deliver = () => {
       setRefreshingToken(false);
     }
   };
+
   useEffect(() => {
     fetchOrders();
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const results = orders.filter((order) => {
+        const customerName = order.customer_name || "";
+        const orderName = order.order_name || "";
+        const categoryName =
+          categories.find((category) => category.id == order.category)?.name ||
+          "";
+
+        return (
+          customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTerm, orders, categories]);
 
   const fetchCategories = async () => {
     if (!token) {
@@ -113,7 +145,6 @@ const Deliver = () => {
   };
 
   const markAsDelivered = async (id) => {
-    // Show confirmation alert before proceeding
     const result = await Swal.fire({
       title: "آیا مطمئن هستید؟",
       text: "این سفارش به وضعیت 'تحویل داده شد' تغییر خواهد کرد!",
@@ -154,11 +185,20 @@ const Deliver = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   return (
     <div className="w-[400px] md:w-[700px]  mt-10 lg:w-[90%] mx-auto  lg:overflow-hidden">
       <h2 className="md:text-2xl text-base font-Ray_black text-center font-bold mb-4">
         لیست تحویلی سفارشات
       </h2>
+      <SearchBar
+        placeholder="جستجو..."
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
       <div className=" overflow-x-scroll  bg-white w-full rounded-lg md:w-full">
         <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
           <thead className="">
@@ -178,49 +218,59 @@ const Deliver = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.length > 0 &&
-              orders.slice(0, visibleCount).map((order) => (
-                <tr
-                  key={order.id}
-                  className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
-                >
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {order.customer_name}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {order.order_name}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {categories.find(
-                      (category) => category.id == order.category
-                    )?.name || "دسته‌بندی نامشخص"}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {order.status === "done" ? (
-                      <button
-                        onClick={() => markAsDelivered(order.id)}
-                        className="secondry-btn"
-                      >
-                        تحویل سفارش
-                      </button>
-                    ) : (
-                      <span className="text-green-600 font-semibold">
-                        تحویل داده شد
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+            {(searchResults.length > 0 ? searchResults : orders).length > 0 ? (
+              (searchResults.length > 0 ? searchResults : orders)
+                .slice(0, visibleCount)
+                .map((order) => (
+                  <tr
+                    key={order.id}
+                    className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
+                  >
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {order.customer_name}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {order.order_name}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {categories.find(
+                        (category) => category.id == order.category
+                      )?.name || "دسته‌بندی نامشخص"}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {order.status === "done" ? (
+                        <button
+                          onClick={() => markAsDelivered(order.id)}
+                          className="secondry-btn"
+                        >
+                          تحویل سفارش
+                        </button>
+                      ) : (
+                        <span className="text-green-600 font-semibold">
+                          تحویل داده شد
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="border p-2 text-center">
+                  هیچ سفارشی برای وضعیت {searchTerm ? "جستجو" : "تکمیل شده"}{" "}
+                  پیدا نشد.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
         {/* Buttons for Show More / Show Less */}
         <div className="flex justify-center gap-x-4 mt-4">
-          {visibleCount < orders.length && (
+          {visibleCount < orders.length && searchResults.length === 0 && (
             <button onClick={showMore} className="secondry-btn">
               نمایش بیشتر
             </button>
           )}
-          {visibleCount > 10 && (
+          {visibleCount > 10 && searchResults.length === 0 && (
             <button onClick={showLess} className="secondry-btn">
               نمایش کمتر
             </button>
