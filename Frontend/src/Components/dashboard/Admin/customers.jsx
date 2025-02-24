@@ -4,6 +4,7 @@ import CryptoJS from "crypto-js";
 import { IoTrashSharp } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
 import Swal from "sweetalert2";
+import Pagination from "../../../Utilities/Pagination";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const Customer = () => {
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -30,15 +31,6 @@ const Customer = () => {
   });
   const [errors, setErrors] = useState({});
   const [editingCustomerId, setEditingCustomerId] = useState(null);
-   const [visibleCount, setVisibleCount] = useState(10); // Initial visible items
-  
-    const showMore = () => {
-      setVisibleCount((prev) => prev + 10); // Show 10 more items
-    };
-  
-    const showLess = () => {
-      setVisibleCount(10); // Reset to 10 items
-    };
 
   // Set axios default header for Authorization using token in localStorage
   useEffect(() => {
@@ -179,6 +171,15 @@ const Customer = () => {
     }
   };
 
+  //  pagination section
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(customers.length / postsPerPage);
+  const paginatedOrders = [...customers] // Create a copy to avoid mutation
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+
   return (
     <div className="py-10 bg-gray-200 w-full">
       <div className="max-w-3xl mx-auto p-2 shadow-lg bg-white rounded-md">
@@ -253,21 +254,30 @@ const Customer = () => {
         <table className="w-full  rounded-lg border border-gray-300 overflow-x-scroll shadow-md">
           <thead>
             <tr className="bg-green text-gray-100 text-center">
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">نام</th>
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">تصویر</th>
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">عملیات</th>
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                نام
+              </th>
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                تصویر
+              </th>
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                عملیات
+              </th>
             </tr>
           </thead>
           <tbody>
             {customers.length > 0 ? (
-             customers.slice(0, visibleCount).map((customer) => (
-                <tr key={customer.id}  className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all">
+              paginatedOrders.map((customer) => (
+                <tr
+                  key={customer.id}
+                  className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
+                >
                   <td className="border px-4 py-2">{customer.name}</td>
                   <td className="border px-4 py-2">
                     <img
                       src={`${customer.image}`} // Make sure this URL is correctly pointing to the image
                       alt={customer.name}
-                        className="w-14 h-10 object-cover rounded-lg border  border-gray-300 shadow-sm"
+                      className="w-14 h-10 object-cover rounded-lg border  border-gray-300 shadow-sm"
                     />
                   </td>
                   <td className="border px-4 py-2">
@@ -281,7 +291,7 @@ const Customer = () => {
                       onClick={() => handleDelete(customer.id)}
                       className=" text-red-500 px-1 py-1 rounded-md transition-all disabled:opacity-50"
                     >
-                     <IoTrashSharp size={24} />
+                      <IoTrashSharp size={24} />
                     </button>
                   </td>
                 </tr>
@@ -295,19 +305,14 @@ const Customer = () => {
             )}
           </tbody>
         </table>
-          {/* Buttons for Show More / Show Less */}
-          <div className="flex justify-center gap-x-4 mt-4">
-            {visibleCount < customers.length && (
-              <button onClick={showMore} className="secondry-btn">
-                نمایش بیشتر
-              </button>
-            )}
-            {visibleCount > 10 && (
-              <button onClick={showLess} className="secondry-btn">
-                نمایش کمتر
-              </button>
-            )}
-          </div>
+        {/* Pagination Component */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );
