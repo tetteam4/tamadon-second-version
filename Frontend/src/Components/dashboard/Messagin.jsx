@@ -8,7 +8,7 @@ import { TbArrowBackUp } from "react-icons/tb";
 import { IoArrowBackCircle } from "react-icons/io5";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";
-
+import moment from "moment-jalaali";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const MessagingComponent = ({ setIsMessagingOpen }) => {
@@ -487,11 +487,7 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
                     >
                       {/* Date */}
                       <span className="absolute top-2 left-2 text-xs text-gray-500">
-                        {new Date(msg.date).toLocaleDateString("fa-IR", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
+                        {moment(msg.date).format("jYYYY/jMM/jDD")}
                       </span>
 
                       {/* Sender Info */}
