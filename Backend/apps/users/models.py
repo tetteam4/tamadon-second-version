@@ -45,14 +45,15 @@ class User(AbstractBaseUser):
     Reception = 2
     SuperDesigner = 3
     Printer = 4
+    Delivered = 5 
     ROLE_CHOICES = (
         (Designer, "Designer"),
         (Reception, "Reception"),
         (SuperDesigner, "SuperDesigner"),
         (Admin, "Admin"),
         (Printer, "Printer"),
+        (Delivered, "Delivered"), 
     )
-
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(max_length=255, unique=True)
