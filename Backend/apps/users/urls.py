@@ -64,4 +64,5 @@ urlpatterns = [
         name="update-message-read-status",
     ),
     path("unread/", FalseMessageReadStatusView.as_view(), name="unread_messages"),
+
 ]

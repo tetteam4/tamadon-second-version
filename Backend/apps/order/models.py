@@ -1,15 +1,43 @@
+from django.db import models
 from django.contrib.auth import get_user_model
 from collections import deque
-import time
 
 User = get_user_model()
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('waiting', 'Waiting'),
+        ('assigned', 'Assigned'),
+        ('completed', 'Completed'),
+    ]
+    
+    order_id = models.CharField(max_length=20, unique=True) 
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='waiting')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Order {self.order_id} - {self.status}"
+
+    def assign_user(self, user):
+        """Assign a user to this order."""
+        self.user = user
+        self.status = 'assigned'
+        self.save()
+
+    def complete_order(self):
+        """Complete the order and free the user."""
+        if self.user:
+            self.user.is_free = True
+            self.user.save()
+        self.status = 'completed'
+        self.save()
 
 
 class OrderSystem:
     def __init__(self):
-        self.orders = {}
-        self.order_queue = deque()
-        self.order_counter = 1
+        self.order_queue = deque()  # Queue for orders waiting for a user
+        self.order_counter = 1  # Start from 1 for the order ID
 
     def generate_order_id(self):
         """Generate an incremental order ID."""
@@ -19,82 +47,65 @@ class OrderSystem:
 
     def create_order(self):
         """Create an order and assign it to an available user."""
-        order_id = self.generate_order_id()
-        print(f"Generating Order ID: {order_id}")
+        
+        # Delete all previous 'waiting' orders when a new order is created
+        self.delete_previous_waiting_orders()
 
-        # Find an available user who is free
+        # Create the new order
+        order_id = self.generate_order_id()
+        order = Order.objects.create(order_id=order_id, status='waiting')
+        
+        # Check if there is an available user to assign the order
         available_user = self.find_available_user()
 
         if available_user:
-            # Mark the user as busy
-            available_user.is_free = False
-            available_user.save()
-
-            # Assign order to the found user
-            self.orders[order_id] = available_user
-            print(
-                f"Order {order_id} assigned to {available_user.first_name} {available_user.last_name} ({available_user.get_role()})"
-            )
+            order.assign_user(available_user)  # Assign user to the order
         else:
-            # If no users are available, add to the waiting list
-            self.order_queue.append(order_id)
-            print(f"Order {order_id} is waiting for a user.")
+            self.order_queue.append(order)  # Add to queue if no user is available
+        
+        return order
+
+    def delete_previous_waiting_orders(self):
+        """Delete all existing orders with 'waiting' status."""
+        # Delete all 'waiting' orders from the database
+        waiting_orders = Order.objects.filter(status='waiting')
+        waiting_orders.delete()
 
     def find_available_user(self):
         """Find an available user with is_free=True."""
-        # Find users that are free and are active
         available_users = User.objects.filter(is_free=True, is_active=True)
-
         if available_users.exists():
             # For simplicity, choose the first available user
-            return available_users.first()
+            user = available_users.first()
+            user.is_free = False
+            user.save()
+            return user
         return None
 
     def user_available(self):
         """Simulate a user becoming available."""
-        if self.order_queue:
-            order_id = self.order_queue.popleft()
+        # Fetch waiting orders in the order they were created
+        waiting_orders = Order.objects.filter(status='waiting').order_by('created_at')  # Sort by created_at to prioritize earliest orders
+        
+        if waiting_orders.exists():
+            # Get the first waiting order (earliest created)
+            order = waiting_orders.first()
+
+            # Find an available user to assign this order
             user = self.find_available_user()
+            
             if user:
-                # Mark the user as busy
-                user.is_free = False
-                user.save()
+                # Assign the waiting order to the available user
+                order.assign_user(user)
+                return order
 
-                self.orders[order_id] = user
-                print(
-                    f"Order {order_id} is now assigned to {user.first_name} {user.last_name}"
-                )
-        else:
-            print("No orders are waiting.")
+        return None
 
-    def checkout_order(self, order_id):
-        """Simulate completing the checkout and marking the user as free again."""
-        if order_id in self.orders:
-            user = self.orders.pop(order_id)
-            # Mark the user as free again
-            user.is_free = True
-            user.save()
-            print(
-                f"Order {order_id} completed by {user.first_name} {user.last_name} ({user.get_role()})."
-            )
-        else:
-            print(f"Order {order_id} not found.")
-
-
-# Example of how the system would work
-order_system = OrderSystem()
-
-# Create orders
-order_system.create_order()
-time.sleep(1)  # Simulate waiting time
-order_system.create_order()
-time.sleep(1)
-order_system.create_order()
-
-# Simulate users becoming available
-time.sleep(2)
-order_system.user_available()  # User becomes available and takes the next order
-
-# Check out orders
-time.sleep(1)
-order_system.checkout_order("ORD-123456")  # Checkout the specific order
+    def complete_order(self, order_id):
+        """Complete the order and mark the user as free again."""
+        try:
+            order = Order.objects.get(order_id=order_id)
+            order.complete_order()  # Mark as completed
+            return order
+        except Order.DoesNotExist:
+            return None
