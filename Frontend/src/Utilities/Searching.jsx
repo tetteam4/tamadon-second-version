@@ -2,18 +2,16 @@ import React, { useState } from "react";
 import { IoSearch } from "react-icons/io5";
 
 const SearchBar = ({ value, onChange, placeholder }) => {
-  const handleSearch = () => {
- 
-  };
+  const handleSearch = () => {};
 
   return (
     <div className="mb-4 flex items-center justify-center">
-      <div className="flex items-center border rounded-lg shadow-md overflow-hidden max-w-md w-full">
+      <div className="flex items-center justify-evenly border  overflow-hidden max-w-md w-full">
         <input
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className="w-full px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none"
+          className=" w-[80%] px-4 py-2 text-md text-gray-700 rounded-md  placeholder-gray-500 focus:outline-none "
         />
         <button
           onClick={handleSearch}
