@@ -270,18 +270,17 @@ const Dashboard = () => {
     {
       component: "attribute",
       label: "مشخصه",
-      icon: <FaTags />, // Tags icon to represent attributes
+      icon: <FaTags />, 
       element: <Attribute />,
     },
     {
       component: "valueForAttributes",
       label: "مقدار مشخصه‌ها",
-      icon: <FaListOl />, // Ordered list icon for attribute values
+      icon: <FaListOl />,
       element: <ValueForAttributes />,
     },
   ];
 
-  // Menu items configuration
   const menuItems = {
     defaultPage: {
       component: "defaultPage",
