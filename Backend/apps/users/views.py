@@ -515,8 +515,7 @@ class UpdateMessageReadStatusView(APIView):
                 {"error": "message_id, sender_id, and receiver_id are required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-        # Update messages with ids less than or equal to message_id
+            
         updated_count = ChatMassage.objects.filter(
             id__lte=message_id, sender_id=sender_id, receiver_id=receiver_id
         ).update(is_read=True)
@@ -545,7 +544,6 @@ class FalseMessageReadStatusView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Filter unread messages for the given receiver
         unread_messages = ChatMassage.objects.filter(
             receiver_id=receiver_id, is_read=False
         )
@@ -563,9 +561,6 @@ class FalseMessageReadStatusView(APIView):
             {"unread_messages": serializer.data},
             status=status.HTTP_200_OK,
         )
-
-
-
 
 
 class ContactViewSet(viewsets.ModelViewSet):
