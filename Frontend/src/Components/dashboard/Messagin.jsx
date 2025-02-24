@@ -8,6 +8,7 @@ import { TbArrowBackUp } from "react-icons/tb";
 import { IoArrowBackCircle } from "react-icons/io5";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";
+
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const MessagingComponent = ({ setIsMessagingOpen }) => {
@@ -49,6 +50,10 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
   const [unreadMsg, setUnreadMsg] = useState([]);
   const [sortedUnreadMsg, setSortedUnreadMsg] = useState([]);
 
+  
+  const [selectedUserInfo, setSelectedUserInfo] = useState(null);
+  const [showUserInfoPopup, setShowUserInfoPopup] = useState(false);
+
   //last messages from me to any account
   const fetchLastSenderMessages = async () => {
     const senderId = decryptData(localStorage.getItem("id")); // Retrieve the id from localStorage
@@ -80,9 +85,12 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
       }, {});
       setSortedUnreadMsg(senderCounts);
     } else {
-      setSortedUnreadMsg([]); // Reset unread messages when there are none left
+      setSortedUnreadMsg([]); 
     }
   };
+
+
+
 
   const fetchUnreadMsg = async () => {
     try {
@@ -112,9 +120,9 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
     }
   };
 
-  // taking number of unread messages for any sender
+ 
   const getMessageCount = (key) => {
-    return sortedUnreadMsg[key] || null; // Returns the value if key exists, otherwise returns 0
+    return sortedUnreadMsg[key] || null; 
   };
 
   useEffect(() => {
@@ -124,7 +132,8 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
     }, 3000);
     return () => clearInterval(interval);
   }, [unreadMsg]);
-  // useEffect to call the function on component mount
+
+
   useEffect(() => {
     fetchLastSenderMessages();
   }, []); // Empty dependency array ensures it runs only once
@@ -424,6 +433,18 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
     return () => clearInterval(interval);
   }, [messages, lastSenderMessages]); // Re-run whenever messages or lastSenderMessages change
 
+  // Function to open the user info popup
+  const openUserInfoPopup = (user) => {
+    setSelectedUserInfo(user);
+    setShowUserInfoPopup(true);
+  };
+
+  // Function to close the user info popup
+  const closeUserInfoPopup = () => {
+    setShowUserInfoPopup(false);
+    setSelectedUserInfo(null);
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-center">
       {!conversationMode ? (
@@ -463,7 +484,17 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
                       </span>
 
                       {/* Sender Info */}
-                      <div className="flex items-center mb-1">
+                      <div
+                        className="flex items-center mb-1 cursor-pointer" // Added cursor-pointer
+                        onClick={() => {
+                          // Determine which user's info to show
+                          const userToShow =
+                            msg.sender === userId
+                              ? msg.receiver_profile
+                              : msg.sender_profile;
+                          openUserInfoPopup(userToShow);
+                        }}
+                      >
                         <img
                           src={
                             msg.sender === userId
@@ -599,20 +630,34 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
           <div className="bg-blue-600 rounded p-2 gap-2 flex items-center mb-4 sticky top-0 z-10">
             {conversation.length > 0 ? (
               <>
-                <img
-                  src={
-                    conversation[0]?.sender === userId
-                      ? conversation[0].receiver_profile.profile_pic
-                      : conversation[0].sender_profile.profile_pic
+                {/* WRAP IMAGE AND NAME IN A DIV WITH ONCLICK */}
+                <div
+                  className="flex items-center cursor-pointer"
+                  onClick={() => {
+                    // Determine which user's info to show
+                    const userToShow =
+                      conversation[0]?.sender === userId
+                        ? conversation[0].receiver_profile
+                        : conversation[0].sender_profile;
+                    openUserInfoPopup(userToShow);
+                  }}
+                >
+                  <img
+                    src={
+                      conversation[0]?.sender === userId
+                        ? conversation[0].receiver_profile.profile_pic
+                        : conversation[0].sender_profile.profile_pic
+                    }
+                    alt="Profile"
+                    className="w-10 h-10 rounded-full mr-3"
+                  />{console.log(conversation[0].sender_profile)
                   }
-                  alt="Profile"
-                  className="w-10 h-10 rounded-full mr-3"
-                />
-                <span className="text-lg font-semibold">
-                  {conversation[0]?.sender === userId
-                    ? conversation[0].receiver_profile.full_name
-                    : conversation[0].sender_profile.full_name}
-                </span>
+                  <span className="text-lg font-semibold">
+                    {conversation[0]?.sender === userId
+                      ? conversation[0].receiver_profile.full_name
+                      : conversation[0].sender_profile.full_name}
+                  </span>
+                </div>
               </>
             ) : (
               <p>مشخصات ارسال کننده در دسترس نیست</p>
@@ -703,6 +748,45 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
             >
               <FaPaperPlane size={16} />
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* User Info Popup */}
+      {showUserInfoPopup && selectedUserInfo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+            {/* Profile Picture */}
+            <div className="flex justify-center mb-4">
+              <img
+                src={selectedUserInfo.profile_picture} // Assuming profile_picture is a URL
+                alt="Profile"
+                className="w-24 h-24 rounded-full object-cover border-2 border-blue-500"
+              />
+            </div>
+
+            <h2 className="text-2xl font-bold mb-4 text-center">
+              اطلاعات کاربر
+            </h2>
+            <div className="mb-4">
+              <strong>نام کاربری:</strong> {selectedUserInfo.username}
+            </div>
+            <div className="mb-4">
+              <strong>ایمیل:</strong> {selectedUserInfo.email}
+            </div>
+            <div className="mb-4">
+              <strong>نام:</strong> {selectedUserInfo.first_name}{" "}
+              {selectedUserInfo.last_name}
+            </div>
+            {/* Add more user info here if available */}
+            <div className="flex justify-center">
+              <button
+                onClick={closeUserInfoPopup}
+                className="bg-green hover:bg-blue-green text-white font-bold py-2 px-4 rounded"
+              >
+                بستن
+              </button>
+            </div>
           </div>
         </div>
       )}
