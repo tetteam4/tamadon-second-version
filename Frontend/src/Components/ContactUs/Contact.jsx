@@ -53,7 +53,7 @@ function Contact() {
 
     try {
       const response = await axios.post(
-        `${BASE_URL}/profile/contact/`,
+        `${BASE_URL}/users/api/contact/`,
         formData,
         {
           headers: {
@@ -157,7 +157,7 @@ function Contact() {
         </div>
         <div className="w-full border bg-white lg:w-[25%] order-1 lg:order-2 h-[300px] lg:h-[500px] rounded-lg overflow-hidden">
           <img
-            src='/contact-us.png'
+            src="/contact-us.png"
             alt="image for contact"
             className="w-full h-full object-cover"
           />
