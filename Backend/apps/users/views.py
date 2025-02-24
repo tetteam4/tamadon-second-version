@@ -20,8 +20,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-
-from .models import User, UserProfile
+from .models import User, UserProfile, Contact
 from .serializers import (
     CreateUserSerializer,
     MassageSerializer,
@@ -30,9 +29,10 @@ from .serializers import (
     ProfileSerializer,
     UpdateUserSerializer,
     UserSerializer,
+    ContactSerializer
 )
 from .tasks import send_email_notification_task
-from .utils import send_email_notification
+from .utils import send_admin_notification, send_email_notification
 
 # Get the custom User model
 User = get_user_model()
@@ -43,7 +43,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [
         AllowAny
-    ]  # Change this if you want to require authentication globally
+    ]  
 
     @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
     def create_user(self, request):
@@ -563,3 +563,23 @@ class FalseMessageReadStatusView(APIView):
             {"unread_messages": serializer.data},
             status=status.HTTP_200_OK,
         )
+
+
+
+
+
+class ContactViewSet(viewsets.ModelViewSet):
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+    permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        contact = Contact.objects.get(id=response.data['id'])
+
+        # Send the email notification to the admin
+        email_subject = "New Contact Message"
+        email_template = 'accounts/emails/contact_message_notification.html'  
+        send_admin_notification(request, contact, email_subject, email_template)
+
+        return response

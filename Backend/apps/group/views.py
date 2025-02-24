@@ -194,10 +194,26 @@ class OrderViewSet(viewsets.ModelViewSet):
     search_fields = ["secret_key"]  # Allows searching by secret_key
 
     def get_queryset(self):
-        """
-        Return all orders for any user role.
-        """
-        return Order.objects.all()
+        user = self.request.user
+        print(f"User role: {user.role}")
+
+        if user.role in [0, 2]:
+            return Order.objects.all()
+
+        if user.role == 3:  # SuperDesigner
+            queryset = Order.objects.filter(designer=user)
+            print(
+                f"SuperDesigner orders: {queryset}"
+            )  # Debugging output for SuperDesigner orders
+            return queryset
+
+        if user.role == 1:  # Designer
+            return Order.objects.filter(designer=user)
+
+        if user.role == 4:  # Printer
+            return Order.objects.filter(Q(printer=user) | Q(printer__isnull=True))
+
+        return Order.objects.none()
 
     def perform_create(self, serializer):
         user = self.request.user
