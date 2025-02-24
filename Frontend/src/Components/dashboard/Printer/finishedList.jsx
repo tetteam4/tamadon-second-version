@@ -2,7 +2,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
-import SearchBar from "../../../Utilities/Searching"; // Make sure this path is correct
+import SearchBar from "../../../Utilities/Searching";
 import { IoSearch } from "react-icons/io5"; // You don't need this import here
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -40,6 +40,7 @@ const DoneList = () => {
     setVisibleCount(10);
   };
 
+
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/categories/`);
@@ -49,6 +50,7 @@ const DoneList = () => {
     }
   };
 
+
   const getDoneList = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/order/done/`);
@@ -57,6 +59,7 @@ const DoneList = () => {
       console.log("Error fetching done orders:", err);
     }
   };
+
 
   const handleShowDetails = async (id) => {
     try {
@@ -113,7 +116,9 @@ const DoneList = () => {
     setSearchTerm(e.target.value);
   };
 
+
   return (
+    
     <div
       dir="rtl"
       className="w-[400px] md:w-[700px] mt-10 lg:w-[70%] mx-auto lg:overflow-hidden"

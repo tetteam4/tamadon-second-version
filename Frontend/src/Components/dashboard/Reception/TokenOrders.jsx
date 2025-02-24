@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
-import ReactDOM from "react-dom";
 import Bill from "../../Bill_Page/Bill";
 import { IoSearch } from "react-icons/io5";
 import SearchBar from "./searchRecords";
