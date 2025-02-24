@@ -175,8 +175,8 @@ const Bill = ({ order }) => {
           {/* contain */}
 
           <div className="flex justify-center mt-2 items-center ">
-            <div className="border border-gray-400 h-[300px]  w-[800px]  rounded-lg bg-white grid overflow-hidden grid-cols-4  px-4 shadow-md">
-              <div className="mt-5 col-span-1 ">
+            <div className="border border-gray-400 h-[280px]  w-[800px]  rounded-lg bg-white grid overflow-hidden grid-cols-4  px-4 shadow-md">
+              <div className="mt-3 col-span-1 ">
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>مشتری:</p>
                   <span className=" ">{order.customer_name}</span>
@@ -293,6 +293,9 @@ const Bill = ({ order }) => {
                 tamadonprintingpress.com
               </p>
             </div>
+          </div>
+          <div className="text-center text-md mt-2 text-red-600 ">
+            نوت: لطفاً هنگام دریافت سفارش، بل سفارش را همراه داشته باشید.
           </div>
         </div>
         <div className="">
