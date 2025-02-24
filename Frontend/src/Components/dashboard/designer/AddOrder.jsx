@@ -13,7 +13,6 @@ import Swal from "sweetalert2";
 const AddOrder = () => {
   const [categories, setCategories] = useState([]);
   const [dropdownState, setDropdownState] = useState({});
-
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [orders, setOrders] = useState([]);
@@ -533,7 +532,7 @@ const AddOrder = () => {
                     disabled={submitting}
                     className={`  ${
                       submitting
-                        ? "bg-blue-500 cursor-not-allowed opacity-70"
+                        ? "cursor-not-allowed opacity-70 text-green"
                         : "secondry-btn"
                     }`}
                   >
@@ -554,7 +553,7 @@ const AddOrder = () => {
                       setFormData({});
                       setSelectedCategoryId("");
                     }}
-                    className=" py-1.5 bg-red-500 hover:bg-red-600 px-5 rounded-lg  text-white  "
+                    className=" tertiary-btn "
                   >
                     لغو
                   </button>
