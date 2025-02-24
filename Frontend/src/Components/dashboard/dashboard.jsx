@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { GrGallery } from "react-icons/gr";
 import { MdPermDeviceInformation } from "react-icons/md";
 import { PiUsersFour } from "react-icons/pi";
-import ModeTogle from "./ModeToggling.jsx"
 import { MdHome } from "react-icons/md";
 import {
   FaSun,
@@ -22,8 +21,7 @@ import {
   FaThList,
   FaTags,
   FaListOl,
-  FaCommentAlt,
-  FaBuromobelexperte,
+  
 } from "react-icons/fa";
 import jwtDecode from "jwt-decode";
 import { MdDashboard, MdMenu } from "react-icons/md";
@@ -439,10 +437,190 @@ const Dashboard = () => {
   }
 
   return (
-    <div className={`bg-gray-100 text-gray-800 h-screen w-full flex flex-col`}>
-      {/* Navbar */}
-      <nav className="flex fixed right-0 left-0 bg-green top-0 justify-between lg:justify-between gap-x-5 items-center p-4  z-10">
-        <div>
+    <div
+      className={`${
+        darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"
+      } h-screen flex`}
+    >
+      {/* side bar section */}
+      <aside
+        className={`bg-white text-gray-900 ${
+          isSideOpen ? "w-[60%] md:w-auto h-screen  z-20" : "hidden"
+        } items-center z-20  lg:flex flex-col fixed max-w-[250px] px-5 md:relative top-0 h-screen right-0 bottom-0 transition-all ease-in-out  duration-200`}
+      >
+        <div
+          className={` hidden relative  w-full  ${
+            isSidebarExpanded
+              ? "px-4   justify-evenly "
+              : "px-1 justify-center  "
+          }   py-2 lg:flex  items-center  mt-0 `}
+        >
+          <Link to="" className="">
+            <img
+              src='Tamadon.png'
+              alt="Logo"
+              className={` ${
+                isSidebarExpanded ? "h-10 w-10" : "h-10 w-10"
+              } object-contain`}
+            />
+          </Link>
+
+          <div className={` ${isSidebarExpanded ? "block" : "hidden"} `}>
+            <p className="text-black font-bold text-2xl ">چاپخانه تمدن</p>
+          </div>
+        </div>
+
+        <div className={`w-full space-y-1 `}>
+          <button
+            onClick={() => {
+              setIsSideOpen(!isSideOpen);
+            }}
+            className="lg:hidden  text-2xl focus:outline-none"
+          >
+            <FaBars />
+          </button>
+          {role[0] == 0 && (
+            <li className="flex flex-col space-y-1 ">
+              <div
+                className={`flex items-center justify-between font-bold pr-2 py-2  hover:bg-green hover:text-white rounded cursor-pointer`}
+                onClick={() => {
+                  setIsWebsiteManagementOpen((prev) => !prev);
+                }}
+              >
+                <div className="flex items-center font-bold gap-x-4">
+                  <span
+                    className={`
+                  ${isSidebarExpanded ? "text-xl" : " text-2xl"}
+                  `}
+                  >
+                    <FaUsers />
+                  </span>
+
+                  <span
+                    className={`  ml-5 text-md font-bold flex items-center  ${
+                      isSidebarExpanded ? "block" : " hidden"
+                    } `}
+                  >
+                    مدیریت وبسایت
+                  </span>
+                </div>
+
+                <span
+                  className={`text-sm flex pl-3 ${
+                    isSidebarExpanded ? "block" : " hidden"
+                  } `}
+                >
+                  <FaChevronDown
+                    className={`transition-transform duration-300 ${
+                      isWebsiteManagementOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </span>
+              </div>
+              {isWebsiteManagementOpen &&
+                websiteManagementItems.map((item) => (
+                  <div
+                    key={item.component}
+                    className={`flex items-center gap-x-3 space-y-1 py-2 font-bold  px-5  hover:bg-green hover:text-white rounded cursor-pointer ${
+                      activeComponent === item.component
+                        ? "bg-green text-white"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      setActiveComponent(item.component);
+                      setIsSideOpen(!isSideOpen);
+                    }}
+                  >
+                    <span className="text-xl">{item.icon}</span>
+
+                    {isSidebarExpanded && (
+                      <span className="ml-4 text-md ">{item.label}</span>
+                    )}
+                  </div>
+                ))}
+            </li>
+          )}
+          {role[0] == 3 && (
+            <li className="flex flex-col space-y-1">
+              <div
+                className="flex p-2 items-center gap-x-3 hover:text-white hover:bg-green rounded cursor-pointer"
+                onClick={() => {
+                  setIsCategoryManagementOpen((prev) => !prev);
+                }}
+              >
+                <span className="text-lg ">
+                  <FaChevronDown
+                    className={`transition-transform duration-300 ${
+                      isCategoryManagementOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </span>
+                {isSidebarExpanded && (
+                  <span className="ml-4 text-md flex  items-center">
+                    مدیریت کتگوری
+                  </span>
+                )}
+              </div>
+              {isCategoryManagementOpen &&
+                categoryManagementItems.map((item) => (
+                  <div
+                    key={item.component}
+                    className={`ml-8 flex gap-x-3 items-center p-2  hover:bg-green hover:text-white rounded cursor-pointer ${
+                      activeComponent === item.component
+                        ? "bg-green text-white"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      setActiveComponent(item.component);
+                      setIsSideOpen(!isSideOpen);
+                    }}
+                  >
+                    <span className="text-xl">{item.icon}</span>
+                    {isSidebarExpanded && (
+                      <span className="ml-4 text-md font-medium">
+                        {item.label}
+                      </span>
+                    )}
+                  </div>
+                ))}
+            </li>
+          )}
+          <ul className="space-y-1  ">
+            {filteredMenuItems.map((item) => (
+              <li
+                key={item}
+                className={` flex items-center font-bold justify-start px-2  gap-x-4 py-2  hover:bg-green hover:text-white rounded cursor-pointer ${
+                  activeComponent === menuItems[item].component
+                    ? "bg-green text-white"
+                    : ""
+                }`}
+                onClick={() => {
+                  setIsSideOpen(!isSideOpen);
+                  if (item === "Logout") {
+                    handleLogout();
+                    return null;
+                  } else {
+                    setActiveComponent(menuItems[item].component);
+                  }
+                }}
+              >
+                <span
+                  className={`
+                  ${isSidebarExpanded ? "text-xl" : " text-2xl"}
+                  `}
+                >
+                  {menuItems[item].icon}
+                </span>
+                {isSidebarExpanded && (
+                  <span className=" text-md ">{menuItems[item].label}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+      <div className="flex-1  md:overflow-y-auto">
+        <nav className="flex fixed right-0 left-0 top-0 justify-between lg:justify-end gap-x-5 items-center p-4 bg-white z-10">
           <button
             className="lg:hidden"
             onClick={() => setIsSideOpen(!isSideOpen)}
@@ -464,7 +642,7 @@ const Dashboard = () => {
               <p className="text-white font-bold text-2xl ">چاپخانه تمدن</p>
             </div>
           </div>
-        </div>
+    
         <div className="flex items-center gap-x-4">
           <p className=" font-serif text-2xl text-white font-bold">
             {decryptData(localStorage.getItem("username"))}
@@ -676,6 +854,7 @@ const Dashboard = () => {
       {isMessagingOpen && (
         <MessagingComponent setIsMessagingOpen={setIsMessagingOpen} />
       )}
+    </div>
     </div>
   );
 };
