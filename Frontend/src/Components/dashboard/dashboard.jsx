@@ -87,9 +87,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
-  const [isWebsiteManagementOpen, setIsWebsiteManagementOpen] = useState(false); // Track
+  const [isWebsiteManagementOpen, setIsWebsiteManagementOpen] = useState(false); 
   const [isCategoryManagementOpen, setIsCategoryManagementOpen] =
-    useState(false); // Track if the Website Management menu is open
+    useState(false); 
   const [user, setUser] = useState({});
   const [unreadMsg, setUnreadMsg] = useState([]);
   const [userId, setUserId] = useState(decryptData(localStorage.getItem("id")));
