@@ -87,9 +87,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
-  const [isWebsiteManagementOpen, setIsWebsiteManagementOpen] = useState(false);
+  const [isWebsiteManagementOpen, setIsWebsiteManagementOpen] = useState(false); 
   const [isCategoryManagementOpen, setIsCategoryManagementOpen] =
-    useState(false);
+    useState(false); 
   const [user, setUser] = useState({});
   const [unreadMsg, setUnreadMsg] = useState([]);
   const [userId, setUserId] = useState(decryptData(localStorage.getItem("id")));
