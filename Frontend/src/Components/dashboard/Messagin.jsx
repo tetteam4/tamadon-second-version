@@ -50,7 +50,6 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
   const [unreadMsg, setUnreadMsg] = useState([]);
   const [sortedUnreadMsg, setSortedUnreadMsg] = useState([]);
 
-  
   const [selectedUserInfo, setSelectedUserInfo] = useState(null);
   const [showUserInfoPopup, setShowUserInfoPopup] = useState(false);
 
@@ -85,12 +84,9 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
       }, {});
       setSortedUnreadMsg(senderCounts);
     } else {
-      setSortedUnreadMsg([]); 
+      setSortedUnreadMsg([]);
     }
   };
-
-
-
 
   const fetchUnreadMsg = async () => {
     try {
@@ -120,19 +116,17 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
     }
   };
 
- 
   const getMessageCount = (key) => {
-    return sortedUnreadMsg[key] || null; 
+    return sortedUnreadMsg[key] || null;
   };
 
   useEffect(() => {
     fetchUnreadMsg();
-    const interval = setInterval(() => {
-      fetchUnreadMsg();
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [unreadMsg]);
-
+    // const interval = setInterval(() => {
+    //   fetchUnreadMsg();
+    // }, 3000);
+    // return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     fetchLastSenderMessages();
@@ -329,9 +323,9 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
   };
   useEffect(() => {
     fetchMessages();
-    const intervalId = setInterval(fetchMessages, 2000);
+    // const intervalId = setInterval(fetchMessages, 2000);
 
-    return () => clearInterval(intervalId);
+    // return () => clearInterval(intervalId);
   }, []);
 
   // getting messages for conversation mode
@@ -357,19 +351,19 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
       throw error;
     }
   };
-  useEffect(() => {
-    if (senderId !== null) {
-      // Fetch messages immediately
-      getMessages(senderId);
-      // Set up the interval
-      const intervalId = setInterval(() => {
-        getMessages(senderId);
-      }, 2000);
+  // useEffect(() => {
+  //   if (senderId !== null) {
+  //     // Fetch messages immediately
+  //     getMessages(senderId);
+  //     // Set up the interval
+  //     const intervalId = setInterval(() => {
+  //       getMessages(senderId);
+  //     }, 2000);
 
-      // Cleanup interval on component unmount or senderId change
-      return () => clearInterval(intervalId);
-    }
-  }, [senderId]);
+  //     // Cleanup interval on component unmount or senderId change
+  //     return () => clearInterval(intervalId);
+  //   }
+  // }, [senderId]);
 
   // useEffect(()=>{
 
@@ -422,20 +416,37 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
   };
   useEffect(() => {
     mixMessages();
-    const interval = setInterval(() => {
-      mixMessages();
-      fetchMessages();
-      fetchLastMessage();
-      fetchLastSenderMessages();
-    }, 2000); // Run every 2 seconds
+    // const interval = setInterval(() => {
+    //   mixMessages();
+    //   fetchMessages();
+    //   fetchLastMessage();
+    //   fetchLastSenderMessages();
+    // }, 2000); // Run every 2 seconds
 
     // Clear the interval when the component unmounts
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
   }, [messages, lastSenderMessages]); // Re-run whenever messages or lastSenderMessages change
 
+  const getUserData = async (userId, setSelectedUserInfo) => {
+    try {
+      const response = await fetch(`${BASE_URL}/users/api/users/${userId}/`);
+      const data = await response.json();
+
+      setSelectedUserInfo(data);
+      console.log(data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
   // Function to open the user info popup
-  const openUserInfoPopup = (user) => {
-    setSelectedUserInfo(user);
+  const openUserInfoPopup = async (user) => {
+    await getUserData(user.id, setSelectedUserInfo);
+
+    setSelectedUserInfo((prev) => ({
+      ...prev,
+      profile_pic: user.profile_pic,
+    }));
     setShowUserInfoPopup(true);
   };
 
@@ -650,8 +661,7 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
                     }
                     alt="Profile"
                     className="w-10 h-10 rounded-full mr-3"
-                  />{console.log(conversation[0].sender_profile)
-                  }
+                  />
                   <span className="text-lg font-semibold">
                     {conversation[0]?.sender === userId
                       ? conversation[0].receiver_profile.full_name
@@ -758,24 +768,23 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
           <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
             <div className="flex justify-center mb-4">
               <img
-                src={selectedUserInfo.profile_picture} 
+                src={selectedUserInfo.profile_pic}
                 alt="Profile"
                 className="w-24 h-24 rounded-full object-cover border-2 border-blue-500"
               />
             </div>
-
             <h2 className="text-2xl font-bold mb-4 text-center">
               اطلاعات کاربر
             </h2>
-            <div className="mb-4">
-              <strong>نام کاربری:</strong> {selectedUserInfo.username}
-            </div>
             <div className="mb-4">
               <strong>ایمیل:</strong> {selectedUserInfo.email}
             </div>
             <div className="mb-4">
               <strong>نام:</strong> {selectedUserInfo.first_name}{" "}
               {selectedUserInfo.last_name}
+            </div>{" "}
+            <div className="mb-4">
+              <strong>رول:</strong> {selectedUserInfo.role_display}
             </div>
             <div className="flex justify-center">
               <button

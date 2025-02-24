@@ -21,7 +21,6 @@ import {
   FaThList,
   FaTags,
   FaListOl,
-  
 } from "react-icons/fa";
 import jwtDecode from "jwt-decode";
 import { MdDashboard, MdMenu } from "react-icons/md";
@@ -56,7 +55,7 @@ import { BiArrowBack, BiArrowFromRight, BiArrowToRight } from "react-icons/bi";
 import WellcomePage from "./wellcomePage.jsx";
 import Deliver from "./Reception/deliverOrder.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-import ModeToggle from './ModeToggling.jsx'
+import ModeToggle from "./ModeToggling.jsx";
 const Dashboard = () => {
   // Modal visibility state
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -190,19 +189,19 @@ const Dashboard = () => {
   useEffect(() => {
     let previousCount = 0;
 
-    const interval = setInterval(async () => {
-      const messages = await fetchUnreadMsg();
-      const currentCount = Array.isArray(messages) ? messages.length : 0;
+    // const interval = setInterval(async () => {
+    //   const messages = await fetchUnreadMsg();
+    //   const currentCount = Array.isArray(messages) ? messages.length : 0;
 
-      if (currentCount > previousCount) {
-        const audio = new Audio("/notification.mp3");
-        audio.play();
-      }
+    //   if (currentCount > previousCount) {
+    //     const audio = new Audio("/notification.mp3");
+    //     audio.play();
+    //   }
 
-      previousCount = currentCount;
-    }, 3000);
+    //   previousCount = currentCount;
+    // }, 3000);
 
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
   }, [userId]); // Ensuring it runs when userId changes
 
   // Define user role permissions
@@ -457,7 +456,7 @@ const Dashboard = () => {
         >
           <Link to="" className="">
             <img
-              src='Tamadon.png'
+              src="Tamadon.png"
               alt="Logo"
               className={` ${
                 isSidebarExpanded ? "h-10 w-10" : "h-10 w-10"
@@ -630,7 +629,7 @@ const Dashboard = () => {
           <div className="lg:flex items-center hidden  gap-x-5">
             <Link to="" className="">
               <img
-                src='/Tamadon.png'
+                src="/Tamadon.png"
                 alt="Logo"
                 className={` ${
                   isSidebarExpanded ? "h-10 w-10" : "h-10 w-10"
@@ -642,219 +641,219 @@ const Dashboard = () => {
               <p className="text-white font-bold text-2xl ">چاپخانه تمدن</p>
             </div>
           </div>
-    
-        <div className="flex items-center gap-x-4">
-          <p className=" font-serif text-2xl text-white font-bold">
-            {decryptData(localStorage.getItem("username"))}
-          </p>
-          <ModeTogle />
-          <div
-            className="flex items-center cursor-pointer"
-            onClick={() => setIsProfilePopupOpen(!isProfilePopupOpen)}
-          >
-            {userImage !== 0 ? (
-              <img
-                src={userImage || <CgProfile />}
-                alt="User"
-                className="w-10 h-10 rounded-full border-2"
-              />
-            ) : (
-              <CgProfile size={28} />
-            )}
-          </div>
-        </div>
-      </nav>
-      {/* side bar section */}
 
-      {/* Main Content */}
-      <div className="flex flex-1 pt-[74px] overflow-hidden ">
-        <aside
-          className={`bg-white text-gray-900 py-3 ${
-            isSideOpen ? "w-[60%]  z-20" : "hidden"
-          } lg:flex flex-col fixed w-[250px]  px-5 md:relative 
+          <div className="flex items-center gap-x-4">
+            <p className=" font-serif text-2xl text-white font-bold">
+              {decryptData(localStorage.getItem("username"))}
+            </p>
+            <ModeToggle />
+            <div
+              className="flex items-center cursor-pointer"
+              onClick={() => setIsProfilePopupOpen(!isProfilePopupOpen)}
+            >
+              {userImage !== 0 ? (
+                <img
+                  src={userImage || <CgProfile />}
+                  alt="User"
+                  className="w-10 h-10 rounded-full border-2"
+                />
+              ) : (
+                <CgProfile size={28} />
+              )}
+            </div>
+          </div>
+        </nav>
+        {/* side bar section */}
+
+        {/* Main Content */}
+        <div className="flex flex-1 pt-[74px] overflow-hidden ">
+          <aside
+            className={`bg-white text-gray-900 py-3 ${
+              isSideOpen ? "w-[60%]  z-20" : "hidden"
+            } lg:flex flex-col fixed w-[250px]  px-5 md:relative 
     top-0 h-screen right-0 bottom-0 
     transition-all ease-in-out duration-200`}
-        >
-          <div className={`w-full space-y-1  overflow-hidden `}>
-            <button
-              onClick={() => {
-                setIsSideOpen(!isSideOpen);
-              }}
-              className="lg:hidden  text-2xl focus:outline-none"
-            >
-              <FaBars />
-            </button>
-            {role[0] == 0 && (
-              <li className="flex flex-col space-y-1 ">
-                <div
-                  className={`flex items-center justify-between font-bold pr-2 py-2  hover:bg-green hover:text-white rounded cursor-pointer`}
-                  onClick={() => {
-                    setIsWebsiteManagementOpen((prev) => !prev);
-                  }}
-                >
-                  <div className="flex items-center font-bold gap-x-4">
+          >
+            <div className={`w-full space-y-1  overflow-hidden `}>
+              <button
+                onClick={() => {
+                  setIsSideOpen(!isSideOpen);
+                }}
+                className="lg:hidden  text-2xl focus:outline-none"
+              >
+                <FaBars />
+              </button>
+              {role[0] == 0 && (
+                <li className="flex flex-col space-y-1 ">
+                  <div
+                    className={`flex items-center justify-between font-bold pr-2 py-2  hover:bg-green hover:text-white rounded cursor-pointer`}
+                    onClick={() => {
+                      setIsWebsiteManagementOpen((prev) => !prev);
+                    }}
+                  >
+                    <div className="flex items-center font-bold gap-x-4">
+                      <span
+                        className={`
+                  ${isSidebarExpanded ? "text-xl" : " text-2xl"}
+                  `}
+                      >
+                        <FaUsers />
+                      </span>
+
+                      <span
+                        className={`  ml-5 text-md font-bold flex items-center  ${
+                          isSidebarExpanded ? "block" : " hidden"
+                        } `}
+                      >
+                        مدیریت وبسایت
+                      </span>
+                    </div>
+
+                    <span
+                      className={`text-sm flex pl-3 ${
+                        isSidebarExpanded ? "block" : " hidden"
+                      } `}
+                    >
+                      <FaChevronDown
+                        className={`transition-transform duration-300 ${
+                          isWebsiteManagementOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </span>
+                  </div>
+                  {isWebsiteManagementOpen &&
+                    websiteManagementItems.map((item) => (
+                      <div
+                        key={item.component}
+                        className={`flex items-center gap-x-3 space-y-1 py-2 font-bold  px-5  hover:bg-green hover:text-white rounded cursor-pointer ${
+                          activeComponent === item.component
+                            ? "bg-green text-white"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          setActiveComponent(item.component);
+                          setIsSideOpen(false);
+                        }}
+                      >
+                        <span className="text-xl">{item.icon}</span>
+
+                        {isSidebarExpanded && (
+                          <span className="ml-4 text-md ">{item.label}</span>
+                        )}
+                      </div>
+                    ))}
+                </li>
+              )}
+              {role[0] == 3 && (
+                <li className="flex flex-col space-y-1">
+                  <div
+                    className="flex p-2 items-center gap-x-3 hover:text-white hover:bg-green rounded cursor-pointer"
+                    onClick={() => {
+                      setIsCategoryManagementOpen((prev) => !prev);
+                    }}
+                  >
+                    <span className="text-lg ">
+                      <FaChevronDown
+                        className={`transition-transform duration-300 ${
+                          isCategoryManagementOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </span>
+                    {isSidebarExpanded && (
+                      <span className=" text-md flex font-bold  items-center">
+                        مدیریت کتگوری
+                      </span>
+                    )}
+                  </div>
+                  {isCategoryManagementOpen &&
+                    categoryManagementItems.map((item) => (
+                      <div
+                        key={item.component}
+                        className={`flex gap-x-3 items-center p-2  hover:bg-green hover:text-white rounded cursor-pointer ${
+                          activeComponent === item.component
+                            ? "bg-green text-white"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          setActiveComponent(item.component);
+                          setIsSideOpen(false);
+                        }}
+                      >
+                        <span className="text-xl">{item.icon}</span>
+                        {isSidebarExpanded && (
+                          <span className="text-md  font-bold">
+                            {item.label}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                </li>
+              )}
+              <ul className="space-y-1  ">
+                {filteredMenuItems.map((item) => (
+                  <li
+                    key={item}
+                    className={` flex items-center font-bold justify-start px-2  gap-x-4 py-2  hover:bg-green hover:text-white rounded cursor-pointer ${
+                      activeComponent === menuItems[item].component
+                        ? "bg-green text-white"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      setIsSideOpen(false);
+                      if (item === "Logout") {
+                        handleLogout();
+                        return null;
+                      } else {
+                        setActiveComponent(menuItems[item].component);
+                      }
+                    }}
+                  >
                     <span
                       className={`
                   ${isSidebarExpanded ? "text-xl" : " text-2xl"}
                   `}
                     >
-                      <FaUsers />
+                      {menuItems[item].icon}
                     </span>
+                    {isSidebarExpanded && (
+                      <span className=" text-md ">{menuItems[item].label}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </aside>
+          <main className="flex-1 overflow-y-auto p-6 lg:p-0 bg-gray-200">
+            {renderComponent()}
+          </main>
+        </div>
 
-                    <span
-                      className={`  ml-5 text-md font-bold flex items-center  ${
-                        isSidebarExpanded ? "block" : " hidden"
-                      } `}
-                    >
-                      مدیریت وبسایت
-                    </span>
-                  </div>
-
-                  <span
-                    className={`text-sm flex pl-3 ${
-                      isSidebarExpanded ? "block" : " hidden"
-                    } `}
-                  >
-                    <FaChevronDown
-                      className={`transition-transform duration-300 ${
-                        isWebsiteManagementOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </span>
-                </div>
-                {isWebsiteManagementOpen &&
-                  websiteManagementItems.map((item) => (
-                    <div
-                      key={item.component}
-                      className={`flex items-center gap-x-3 space-y-1 py-2 font-bold  px-5  hover:bg-green hover:text-white rounded cursor-pointer ${
-                        activeComponent === item.component
-                          ? "bg-green text-white"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        setActiveComponent(item.component);
-                        setIsSideOpen(false);
-                      }}
-                    >
-                      <span className="text-xl">{item.icon}</span>
-
-                      {isSidebarExpanded && (
-                        <span className="ml-4 text-md ">{item.label}</span>
-                      )}
-                    </div>
-                  ))}
-              </li>
+        <div
+          className="fixed bottom-6 left-6 flex items-center gap-3 px-4 py-2 bg-blue-600 text-white rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition-all duration-300 z-50"
+          onClick={() => setIsMessagingOpen(true)}
+        >
+          <IoChatbubbleEllipses className="text-3xl" />
+          <span className="hidden md:flex items-center gap-2">
+            پیام‌رسانی
+            {unreadMsg.length > 0 && (
+              <span className="bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                {unreadMsg.length}
+              </span>
             )}
-            {role[0] == 3 && (
-              <li className="flex flex-col space-y-1">
-                <div
-                  className="flex p-2 items-center gap-x-3 hover:text-white hover:bg-green rounded cursor-pointer"
-                  onClick={() => {
-                    setIsCategoryManagementOpen((prev) => !prev);
-                  }}
-                >
-                  <span className="text-lg ">
-                    <FaChevronDown
-                      className={`transition-transform duration-300 ${
-                        isCategoryManagementOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </span>
-                  {isSidebarExpanded && (
-                    <span className=" text-md flex font-bold  items-center">
-                      مدیریت کتگوری
-                    </span>
-                  )}
-                </div>
-                {isCategoryManagementOpen &&
-                  categoryManagementItems.map((item) => (
-                    <div
-                      key={item.component}
-                      className={`flex gap-x-3 items-center p-2  hover:bg-green hover:text-white rounded cursor-pointer ${
-                        activeComponent === item.component
-                          ? "bg-green text-white"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        setActiveComponent(item.component);
-                        setIsSideOpen(false);
-                      }}
-                    >
-                      <span className="text-xl">{item.icon}</span>
-                      {isSidebarExpanded && (
-                        <span className="text-md  font-bold">
-                          {item.label}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-              </li>
-            )}
-            <ul className="space-y-1  ">
-              {filteredMenuItems.map((item) => (
-                <li
-                  key={item}
-                  className={` flex items-center font-bold justify-start px-2  gap-x-4 py-2  hover:bg-green hover:text-white rounded cursor-pointer ${
-                    activeComponent === menuItems[item].component
-                      ? "bg-green text-white"
-                      : ""
-                  }`}
-                  onClick={() => {
-                    setIsSideOpen(false);
-                    if (item === "Logout") {
-                      handleLogout();
-                      return null;
-                    } else {
-                      setActiveComponent(menuItems[item].component);
-                    }
-                  }}
-                >
-                  <span
-                    className={`
-                  ${isSidebarExpanded ? "text-xl" : " text-2xl"}
-                  `}
-                  >
-                    {menuItems[item].icon}
-                  </span>
-                  {isSidebarExpanded && (
-                    <span className=" text-md ">{menuItems[item].label}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </aside>
-        <main className="flex-1 overflow-y-auto p-6 lg:p-0 bg-gray-200">
-          {renderComponent()}
-        </main>
-      </div>
+          </span>
+        </div>
 
-      <div
-        className="fixed bottom-6 left-6 flex items-center gap-3 px-4 py-2 bg-blue-600 text-white rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition-all duration-300 z-50"
-        onClick={() => setIsMessagingOpen(true)}
-      >
-        <IoChatbubbleEllipses className="text-3xl" />
-        <span className="hidden md:flex items-center gap-2">
-          پیام‌رسانی
-          {unreadMsg.length > 0 && (
-            <span className="bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-              {unreadMsg.length}
-            </span>
-          )}
-        </span>
+        {/* Conditionally render the UpdateProfile modal */}
+        {isProfilePopupOpen && (
+          <UpdateProfile
+            setIsProfilePopupOpen={setIsProfilePopupOpen}
+            userImage={userImage}
+          />
+        )}
+        {isMessagingOpen && (
+          <MessagingComponent setIsMessagingOpen={setIsMessagingOpen} />
+        )}
       </div>
-
-      {/* Conditionally render the UpdateProfile modal */}
-      {isProfilePopupOpen && (
-        <UpdateProfile
-          setIsProfilePopupOpen={setIsProfilePopupOpen}
-          userImage={userImage}
-        />
-      )}
-      {isMessagingOpen && (
-        <MessagingComponent setIsMessagingOpen={setIsMessagingOpen} />
-      )}
-    </div>
     </div>
   );
 };
