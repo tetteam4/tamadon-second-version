@@ -1,6 +1,7 @@
+from operator import concat
 from django.contrib import admin
 
-from .models import ChatMassage, User, UserProfile
+from .models import ChatMassage, User, UserProfile, Contact
 
 
 class ChatAdmin(admin.ModelAdmin):
@@ -22,3 +23,40 @@ class AdminUser(admin.ModelAdmin):
 
 
 admin.site.register(User, AdminUser)
+
+
+from django.contrib import admin
+from .models import Contact
+
+
+# Custom admin class for the Contact model
+
+class ContactAdmin(admin.ModelAdmin):
+    list_display = ('email', 'name', 'content')
+
+    search_fields = ('email', 'name')
+
+
+    fieldsets = (
+        (None, {
+            'fields': ('email', 'name', 'content')
+        }),
+        ('Date Information', {
+            'fields': ('created_at',),
+            'classes': ('collapse',),
+        }),
+    )
+
+    actions = ['delete_selected']
+
+    def delete_selected(self, request, queryset):
+        """
+        Custom action to delete selected messages
+        """
+        queryset.delete()
+        self.message_user(request, "Selected contact messages deleted successfully.")
+
+    delete_selected.short_description = "Delete selected messages"
+
+
+admin.site.register(Contact,ContactAdmin)

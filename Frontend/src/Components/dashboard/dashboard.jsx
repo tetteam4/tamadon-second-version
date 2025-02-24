@@ -4,7 +4,6 @@ import { GrGallery } from "react-icons/gr";
 import { MdPermDeviceInformation } from "react-icons/md";
 import { RxArrowLeft, RxArrowRight } from "react-icons/rx";
 import { PiUsersFour } from "react-icons/pi";
-import Tamadon from "../../../public/tamadon.png";
 import { MdHome } from "react-icons/md";
 import {
   FaSun,
@@ -23,8 +22,7 @@ import {
   FaThList,
   FaTags,
   FaListOl,
-  FaCommentAlt,
-  FaBuromobelexperte,
+  
 } from "react-icons/fa";
 import jwtDecode from "jwt-decode";
 import { MdDashboard, MdMenu } from "react-icons/md";
@@ -449,7 +447,7 @@ const Dashboard = () => {
         >
           <Link to="" className="">
             <img
-              src={Tamadon}
+              src='Tamadon.png'
               alt="Logo"
               className={` ${
                 isSidebarExpanded ? "h-10 w-10" : "h-10 w-10"
