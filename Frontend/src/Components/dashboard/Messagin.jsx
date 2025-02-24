@@ -544,33 +544,6 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
                       {/* Message Content */}
 
                       <p className="text-gray-800">{msg.message}</p>
-
-                      {/* Reply Button */}
-                      <button
-                        onClick={() => setReplyTo(msg.id)}
-                        className="mt-2 text-blue-500 text-sm hover:underline"
-                      >
-                        پاسخ دادن
-                      </button>
-
-                      {/* Reply Mode */}
-                      {replyTo === msg.id && (
-                        <div className="mt-2">
-                          <textarea
-                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            rows="2"
-                            placeholder="پاسخ خود را اینجا بنویسید..."
-                            value={replyMessage}
-                            onChange={(e) => setReplyMessage(e.target.value)}
-                          ></textarea>
-                          <button
-                            onClick={() => handleReply(msg)}
-                            className="mt-2 w-full bg-blue-500 text-white py-1 rounded-lg hover:bg-blue-600 transition"
-                          >
-                            ارسال پاسخ
-                          </button>
-                        </div>
-                      )}
                     </div>
                   ))
                 ) : (

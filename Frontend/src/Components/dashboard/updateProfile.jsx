@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import { FaXmark } from "react-icons/fa6";
+import Swal from "sweetalert2";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
@@ -45,6 +46,7 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
   };
 
   const navigate = useNavigate();
+
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -52,7 +54,12 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
     setSuccessMessage("");
 
     if (form.password !== form.confirm_password) {
-      setError("رمز عبور ها با هم مطابقت ندارند.");
+      Swal.fire({
+        icon: "error",
+        title: "خطا!",
+        text: "رمز عبور ها با هم مطابقت ندارند.",
+        confirmButtonText: "باشه",
+      });
       setLoading(false);
       return;
     }
@@ -78,17 +85,35 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
       );
 
       if (response.status === 200) {
-        setSuccessMessage("پروفایل با موفقیت به روز شد!");
+        Swal.fire({
+          icon: "success",
+          title: "موفقیت!",
+          text: "پروفایل با موفقیت به روز شد!",
+          timer: 3000, // Auto-close after 3 seconds
+          showConfirmButton: false,
+        });
+
         setTimeout(() => {
           localStorage.clear();
           navigate("/login");
         }, 3000); // Redirect after 3 seconds
+
         setIsProfilePopupOpen(false);
       } else {
-        setError("به روز رسانی پروفایل با مشکل مواجه شد.");
+        Swal.fire({
+          icon: "error",
+          title: "خطا!",
+          text: "به روز رسانی پروفایل با مشکل مواجه شد.",
+          confirmButtonText: "باشه",
+        });
       }
     } catch (err) {
-      setError(err.response?.data?.message || "خطا در به روز رسانی پروفایل.");
+      Swal.fire({
+        icon: "error",
+        title: "خطا!",
+        text: err.response?.data?.message || "خطا در به روز رسانی پروفایل.",
+        confirmButtonText: "باشه",
+      });
       console.error("Error:", err);
     } finally {
       setLoading(false);
@@ -102,7 +127,6 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
       [id]: value,
     }));
   };
-
   const handleProfilePicSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -117,7 +141,7 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
 
       const response = await axios.put(
         `${BASE_URL}/users/profile/${form.email}/`,
-        { profile_pic: form.profile_picture },
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -125,16 +149,34 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
           },
         }
       );
+
       if (response.status === 200) {
-        showSuccessMessage("پروفایل با موفقیت به روز شد!");
-        setTimeout(() => {}, 3000); // Redirect after 3 seconds
+        Swal.fire({
+          icon: "success",
+          title: "موفقیت!",
+          text: "عکس پروفایل با موفقیت به روز شد!",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+
+        setTimeout(() => {
+          // You can refresh the profile picture or reload the page if needed.
+        }, 3000);
       } else {
-        setError("به روز رسانی عکس پروفایل با مشکل مواجه شد.");
+        Swal.fire({
+          icon: "error",
+          title: "خطا!",
+          text: "به روز رسانی عکس پروفایل با مشکل مواجه شد.",
+          confirmButtonText: "باشه",
+        });
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message || "خطا در به روز رسانی عکس پروفایل."
-      );
+      Swal.fire({
+        icon: "error",
+        title: "خطا!",
+        text: err.response?.data?.message || "خطا در به روز رسانی عکس پروفایل.",
+        confirmButtonText: "باشه",
+      });
     } finally {
       setLoading(false);
     }
@@ -252,7 +294,7 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
                 onChange={handleChange}
                 required
                 autoComplete="tel"
-             className="w-full py-1.5  px-5 mt-2 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
+                className="w-full py-1.5  px-5 mt-2 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
               />
             </div>
           </div>
@@ -271,7 +313,7 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
                 onChange={handleChange}
                 required
                 autoComplete="new-password"
-               className="w-full py-1.5  px-5 mt-2 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
+                className="w-full py-1.5  px-5 mt-2 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
               />
             </div>
             <div>
@@ -311,15 +353,11 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
               />
             </div>
           </div>
-         <div className="flex items-center justify-center">
-         <button
-            type="submit"
-            disabled={loading}
-            className="secondry-btn"
-          >
-            {loading ? "در حال به روز رسانی..." : "به روز رسانی پروفایل"}
-          </button>
-         </div>
+          <div className="flex items-center justify-center">
+            <button type="submit" disabled={loading} className="secondry-btn">
+              {loading ? "در حال به روز رسانی..." : "به روز رسانی پروفایل"}
+            </button>
+          </div>
         </form>
         {isImageModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-70 top-0 flex justify-center items-center z-30">
@@ -343,15 +381,15 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
           </div>
         )}
         {/* Other form fields */}
-       <div className="flex items-center justify-center pb-5">
-       <button
-          type="button"
-          onClick={() => setIsProfilePopupOpen(false)}
-          className="py-1.5 px-10 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-700"
-        >
-          لغو
-        </button>
-       </div>
+        <div className="flex items-center justify-center pb-5">
+          <button
+            type="button"
+            onClick={() => setIsProfilePopupOpen(false)}
+            className="py-1.5 px-10 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-700"
+          >
+            لغو
+          </button>
+        </div>
       </div>
     </div>
   );
