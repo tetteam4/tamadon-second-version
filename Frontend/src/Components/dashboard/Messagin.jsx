@@ -756,10 +756,9 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
       {showUserInfoPopup && selectedUserInfo && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
           <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-            {/* Profile Picture */}
             <div className="flex justify-center mb-4">
               <img
-                src={selectedUserInfo.profile_picture} // Assuming profile_picture is a URL
+                src={selectedUserInfo.profile_picture} 
                 alt="Profile"
                 className="w-24 h-24 rounded-full object-cover border-2 border-blue-500"
               />
@@ -778,7 +777,6 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
               <strong>نام:</strong> {selectedUserInfo.first_name}{" "}
               {selectedUserInfo.last_name}
             </div>
-            {/* Add more user info here if available */}
             <div className="flex justify-center">
               <button
                 onClick={closeUserInfoPopup}
