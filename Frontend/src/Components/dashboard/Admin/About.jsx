@@ -5,6 +5,7 @@ import CryptoJS from "crypto-js";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 import { IoTrashSharp } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
+import Pagination from "../../../Utilities/Pagination";
 
 const About = () => {
   const fileInputRef = useRef(null);
@@ -18,15 +19,7 @@ const About = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImageId, setSelectedImageId] = useState(null);
   const secretKey = "TET4-1"; // Use a strong secret key
-  const [visibleCount, setVisibleCount] = useState(10); // Initial visible items
 
-  const showMore = () => {
-    setVisibleCount((prev) => prev + 10); // Show 10 more items
-  };
-
-  const showLess = () => {
-    setVisibleCount(10); // Reset to 10 items
-  };
   const decryptData = (hashedData) => {
     if (!hashedData) {
       console.error("No data to decrypt");
@@ -246,6 +239,15 @@ const About = () => {
       return () => clearTimeout(timer);
     }
   }, [error]);
+
+  //  pagination section
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 15;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(abouts.length / postsPerPage);
+  const paginatedOrders = [...abouts] // Create a copy to avoid mutation
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
   return (
     <div className="py-10 bg-gray-200 w-full ">
       <div className="max-w-3xl mx-auto p-2 shadow-lg bg-white rounded-md">
@@ -315,7 +317,7 @@ const About = () => {
           </thead>
           <tbody>
             {abouts.length > 0 ? (
-              abouts.slice(0, visibleCount).map((About) => (
+              paginatedOrders.map((About) => (
                 <tr
                   key={About.id}
                   className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -361,20 +363,15 @@ const About = () => {
             )}
           </tbody>
         </table>
-        {/* Buttons for Show More / Show Less */}
-        <div className="flex justify-center gap-x-4 mt-4">
-          {visibleCount < abouts.length && (
-            <button onClick={showMore} className="secondry-btn">
-              نمایش بیشتر
-            </button>
-          )}
-          {visibleCount > 10 && (
-            <button onClick={showLess} className="secondry-btn">
-              نمایش کمتر
-            </button>
-          )}
-        </div>
       </div>
+      {/* Pagination Component */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 };
