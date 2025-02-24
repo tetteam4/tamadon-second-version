@@ -54,6 +54,7 @@ LOCAL_APPS = [
     "apps.api.apps.ApiConfig",
     "apps.common.apps.CommonConfig",
     "apps.group.apps.GroupConfig",
+    "apps.order.apps.OrderConfig",
 ]
 
 
