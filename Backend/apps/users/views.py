@@ -579,7 +579,7 @@ class ContactViewSet(viewsets.ModelViewSet):
 
         # Send the email notification to the admin
         email_subject = "New Contact Message"
-        email_template = 'accounts/emails/contact_message_notification.html'  
+        email_template = 'account/email/contact_notification.html'  
         send_admin_notification(request, contact, email_subject, email_template)
 
         return response
