@@ -219,8 +219,9 @@ const Dashboard = () => {
       "Logout",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
-    2: ["defaultPage", "OrderList", "TokenOrders", "deliver", "Logout"],
+    2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
     4: ["defaultPage", "ReceivedList", "ProcessingList", "DoneList", "Logout"],
+    5: ["defaultPage", "deliver"],
   };
   const websiteManagementItems = [
     {
