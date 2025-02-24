@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
 import Swal from "sweetalert2";
 import SearchBar from "../../../Utilities/Searching"; // Correct the path
+import Pagination from "../../../Utilities/Pagination";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -153,14 +154,29 @@ const ProcessingList = () => {
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
+  // Pagination section
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 15;
 
+  // تعیین داده‌ای که باید صفحه‌بندی شود (نتایج جستجو یا سفارش‌های دریافتی)
+  const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
+
+  // ریست کردن صفحه فعلی هنگام تغییر جستجو
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
+  const paginatedOrders = [...dataToPaginate]
+    .reverse()
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
   return (
     <div
       dir="rtl"
       className="w-[400px] md:w-[700px] mt-10 lg:w-[70%] mx-auto lg:overflow-hidden"
     >
       <h2 className="md:text-2xl text-base font-Ray_black text-center font-bold mb-4">
-        لیست سفارشات در حال پردازش
+        لیست سفارشات در حال کار
       </h2>
       <SearchBar
         placeholder="جستجو..."
@@ -186,43 +202,41 @@ const ProcessingList = () => {
             </tr>
           </thead>
           <tbody>
-            {(searchResults.length > 0 ? searchResults : orders).length > 0 ? (
-              (searchResults.length > 0 ? searchResults : orders)
-                .slice(0, visibleCount)
-                .map((order, index) => (
-                  <tr
-                    key={order.id}
-                    className={`text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all ${
-                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                    } hover:bg-gray-100`}
-                  >
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {order.customer_name}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {order.order_name}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {categories.find(
-                        (category) => category.id === order.category
-                      )?.name || "دسته‌بندی نامشخص"}
-                    </td>
-                    <td className="border-gray-300 px-6 flex items-center gap-x-5 justify-center text-gray-700">
-                      <button
-                        onClick={() => handleAdd(order.id)}
-                        className="secondry-btn"
-                      >
-                        تایید تکمیلی
-                      </button>
-                      <button
-                        onClick={() => handleShowDetails(order.id)}
-                        className="m-2 bg-blue-500 rounded p-2 hover:bg-blue-700 text-white"
-                      >
-                        جزئیات
-                      </button>
-                    </td>
-                  </tr>
-                ))
+            {dataToPaginate.length > 0 ? (
+              paginatedOrders.map((order, index) => (
+                <tr
+                  key={order.id}
+                  className={`text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all ${
+                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                  } hover:bg-gray-100`}
+                >
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {order.customer_name}
+                  </td>
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {order.order_name}
+                  </td>
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {categories.find(
+                      (category) => category.id === order.category
+                    )?.name || "دسته‌بندی نامشخص"}
+                  </td>
+                  <td className="border-gray-300 px-6 flex items-center gap-x-5 justify-center text-gray-700">
+                    <button
+                      onClick={() => handleAdd(order.id)}
+                      className="secondry-btn"
+                    >
+                      تایید تکمیلی
+                    </button>
+                    <button
+                      onClick={() => handleShowDetails(order.id)}
+                      className="m-2 bg-blue-500 rounded-lg hover:!scale-105 duration-300 py-2 px-5 text-sm hover:bg-blue-700 text-white"
+                    >
+                      جزئیات
+                    </button>
+                  </td>
+                </tr>
+              ))
             ) : (
               <tr>
                 <td colSpan="4" className="border p-2 text-center">
@@ -232,19 +246,15 @@ const ProcessingList = () => {
             )}
           </tbody>
         </table>
-        <div className="flex justify-center gap-x-4 mt-4">
-          {visibleCount < orders.length && searchResults.length === 0 && (
-            <button onClick={showMore} className="secondry-btn">
-              نمایش بیشتر
-            </button>
-          )}
-          {visibleCount > 20 && searchResults.length === 0 && (
-            <button onClick={showLess} className="secondry-btn">
-              نمایش کمتر
-            </button>
-          )}
-        </div>
       </div>
+      {/* Pagination Component */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
 
       {isModelOpen && selectedOrderDetails && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
@@ -264,12 +274,14 @@ const ProcessingList = () => {
                   </div>
                 ))}
             </div>
-            <button
+            <div className="flex justify-center items-center w-full">
+          <button
               onClick={handleClosePopup}
-              className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                 className="tertiary-btn"
             >
               بستن
             </button>
+          </div>
           </div>
         </div>
       )}
