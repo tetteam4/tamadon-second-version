@@ -4,6 +4,7 @@ import { FaUserPlus } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import axios from "axios";
 import CryptoJS from "crypto-js";
+import Swal from "sweetalert2";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const SignUp = () => {
@@ -43,6 +44,7 @@ const SignUp = () => {
     { id: 2, name: "Reception" },
     { id: 3, name: "SuperDesigner" },
     { id: 4, name: "Printer" },
+    { id: 5, name: "Delivery Agent" },
   ];
   const [selectedRole, setSelectedRole] = useState(user.role || "");
 
@@ -63,24 +65,105 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (user.password !== user.passwordConfirm) {
-      setError("Passwords do not match.");
+    // Destructure user inputs
+    const {
+      firstName,
+      lastName,
+      username,
+      email,
+      phoneNumber,
+      role,
+      password,
+      passwordConfirm,
+    } = user;
+
+    // Validate required fields
+    if (
+      !firstName ||
+      !lastName ||
+      !username ||
+      !email ||
+      !phoneNumber ||
+      !role ||
+      !password ||
+      !passwordConfirm
+    ) {
+      Swal.fire({
+        icon: "warning",
+        title: "خطا!",
+        text: "لطفاً تمام فیلدها را پر کنید.",
+        confirmButtonText: "باشه",
+      });
+      return;
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Swal.fire({
+        icon: "error",
+        title: "خطا!",
+        text: "لطفاً یک ایمیل معتبر وارد کنید.",
+        confirmButtonText: "باشه",
+      });
+      return;
+    }
+
+    // Phone number validation (10-14 digits)
+    const phoneRegex = /^\d{10,14}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      Swal.fire({
+        icon: "error",
+        title: "خطا!",
+        text: "شماره تلفن معتبر نیست. لطفاً یک شماره تلفن صحیح وارد کنید.",
+        confirmButtonText: "باشه",
+      });
+      return;
+    }
+
+    // Password match validation
+    if (password !== passwordConfirm) {
+      Swal.fire({
+        icon: "error",
+        title: "خطا!",
+        text: "رمز عبور ها با هم مطابقت ندارند.",
+        confirmButtonText: "باشه",
+      });
+      return;
+    }
+
+    // Password strength validation
+    if (password.length < 8) {
+      Swal.fire({
+        icon: "error",
+        title: "خطا!",
+        text: "رمز عبور باید حداقل ۸ کاراکتر باشد.",
+        confirmButtonText: "باشه",
+      });
       return;
     }
 
     setLoading(true);
     setError("");
+
+    // Get authentication token
     const token = decryptData(localStorage.getItem("auth_token"));
     if (!token) {
-      console.error("No authentication token found in localStorage.");
+      Swal.fire({
+        icon: "error",
+        title: "خطا!",
+        text: "توکن احراز هویت یافت نشد، لطفاً دوباره وارد شوید.",
+        confirmButtonText: "باشه",
+      });
+      setLoading(false);
       return;
     }
+
     try {
       const headers = {
         Authorization: `Bearer ${token}`, // Add the Authorization header
         "Content-Type": "application/json", // Ensure the content type is set
       };
-      const storedEmail = decryptData(localStorage.getItem("email"));
 
       const response = await axios.post(
         `${BASE_URL}/users/create/`,
@@ -97,11 +180,14 @@ const SignUp = () => {
         { headers }
       );
 
-      const data = await response.data;
-      if (response.status == 201) {
-        setMessage(
-          "کاربر گرامی، حساب شما با موفقیت ایجاد شد! لطفاً ایمیل خود را بررسی کنید تا حساب‌تان را فعال کنید. ✅📩"
-        );
+      if (response.status === 201) {
+        Swal.fire({
+          icon: "success",
+          title: "موفقیت!",
+          text: "کاربر گرامی، حساب شما با موفقیت ایجاد شد! لطفاً ایمیل خود را بررسی کنید تا حساب‌تان را فعال کنید. ✅📩",
+          confirmButtonText: "باشه",
+        });
+
         setUser({
           firstName: "",
           lastName: "",
@@ -112,17 +198,22 @@ const SignUp = () => {
           password: "",
           passwordConfirm: "",
         });
+        setSelectedRole("");
       } else {
         throw new Error(response.data.message || "خطا در ثبت کاربر");
       }
-      // Handle success (optional)
-      console.log("User created successfully:", data);
     } catch (err) {
-      setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "خطا!",
+        text: err.response?.data?.message || "مشکلی در ثبت کاربر رخ داده است.",
+        confirmButtonText: "باشه",
+      });
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
@@ -258,7 +349,6 @@ const SignUp = () => {
                 {/* Dropdown List */}
                 {isSelectOpen && (
                   <ul className="absolute w-full bg-white border border-gray-300  shadow-lg mt-1 z-10">
-                    
                     {roles.map((role) => (
                       <li
                         key={role.id}

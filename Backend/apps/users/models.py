@@ -1,4 +1,5 @@
 from profile import Profile
+from pyexpat import model
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
@@ -44,20 +45,21 @@ class User(AbstractBaseUser):
     Reception = 2
     SuperDesigner = 3
     Printer = 4
+    Delivered = 5 
     ROLE_CHOICES = (
         (Designer, "Designer"),
         (Reception, "Reception"),
         (SuperDesigner, "SuperDesigner"),
         (Admin, "Admin"),
         (Printer, "Printer"),
+        (Delivered, "Delivered"), 
     )
-
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(max_length=255, unique=True)
     role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, blank=True, null=True)
     phone_number = models.CharField(max_length=13, blank=True, null=True)
-
+    is_free = models.BooleanField(default=False, blank=True, null=True)
     otp = models.CharField(max_length=8, blank=True, null=True)
     refresh_token = models.CharField(max_length=1000, blank=True, null=True)
 
@@ -139,3 +141,15 @@ class ChatMassage(models.Model):
     def receiver_profile(self):
         receiver_profile = UserProfile.objects.get(user=self.receiver)
         return receiver_profile
+
+
+class Contact(models.Model):
+    email = models.EmailField(unique=True, max_length=300)
+    name = models.CharField(max_length=255)
+    content = models.TextField()
+    
+    
+    def __str__(self):
+        return self.email
+    
+    

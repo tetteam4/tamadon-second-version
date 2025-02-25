@@ -4,8 +4,7 @@ import Swal from "sweetalert2";
 import CryptoJS from "crypto-js";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
-import SearchBar from "../../../Utilities/Searching"; // Correct the path
-
+import Pagination from "../../../Utilities/Pagination";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Deliver = () => {
@@ -26,7 +25,6 @@ const Deliver = () => {
   };
 
   const [orders, setOrders] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(10);
   const [categories, setCategories] = useState([]);
   const [token, setToken] = useState(
     decryptData(localStorage.getItem("auth_token"))
@@ -37,14 +35,6 @@ const Deliver = () => {
   const [refreshingToken, setRefreshingToken] = useState(false); // Add this line
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-
-  const showMore = () => {
-    setVisibleCount((prev) => prev + 10);
-  };
-
-  const showLess = () => {
-    setVisibleCount(10);
-  };
 
   const isTokenExpired = (token) => {
     const decoded = jwt_decode(token);
@@ -184,6 +174,14 @@ const Deliver = () => {
       }
     }
   };
+  //  pagination section
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 15;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(orders.length / postsPerPage);
+  const paginatedOrders = [...orders] // Create a copy to avoid mutation
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -194,13 +192,8 @@ const Deliver = () => {
       <h2 className="md:text-2xl text-base font-Ray_black text-center font-bold mb-4">
         لیست تحویلی سفارشات
       </h2>
-      <SearchBar
-        placeholder="جستجو..."
-        value={searchTerm}
-        onChange={handleSearchChange}
-      />
-      <div className=" overflow-x-scroll  bg-white w-full rounded-lg md:w-full">
-        <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
+      <div className=" overflow-x-scroll lg:overflow-hidden bg-white w-full md:w-full">
+        <table className="min-w-full bg-white  rounded-lg border border-gray-200">
           <thead className="">
             <tr className="bg-green text-gray-100 text-center">
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
@@ -217,66 +210,51 @@ const Deliver = () => {
               </th>
             </tr>
           </thead>
-          <tbody>
-            {(searchResults.length > 0 ? searchResults : orders).length > 0 ? (
-              (searchResults.length > 0 ? searchResults : orders)
-                .slice(0, visibleCount)
-                .map((order) => (
-                  <tr
-                    key={order.id}
-                    className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
-                  >
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {order.customer_name}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {order.order_name}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {categories.find(
-                        (category) => category.id == order.category
-                      )?.name || "دسته‌بندی نامشخص"}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {order.status === "done" ? (
-                        <button
-                          onClick={() => markAsDelivered(order.id)}
-                          className="secondry-btn"
-                        >
-                          تحویل سفارش
-                        </button>
-                      ) : (
-                        <span className="text-green-600 font-semibold">
-                          تحویل داده شد
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))
-            ) : (
-              <tr>
-                <td colSpan="4" className="border p-2 text-center">
-                  هیچ سفارشی برای وضعیت {searchTerm ? "جستجو" : "تکمیل شده"}{" "}
-                  پیدا نشد.
-                </td>
-              </tr>
-            )}
+          <tbody className="">
+            {orders.length > 0 &&
+              paginatedOrders.map((order) => (
+                <tr
+                  key={order.id}
+                  className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
+                >
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {order.customer_name}
+                  </td>
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {order.order_name}
+                  </td>
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {categories.find(
+                      (category) => category.id == order.category
+                    )?.name || "دسته‌بندی نامشخص"}
+                  </td>
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {order.status === "done" ? (
+                      <button
+                        onClick={() => markAsDelivered(order.id)}
+                        className="secondry-btn"
+                      >
+                        تحویل سفارش
+                      </button>
+                    ) : (
+                      <span className="text-green-600 font-semibold">
+                        تحویل داده شد
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
-        {/* Buttons for Show More / Show Less */}
-        <div className="flex justify-center gap-x-4 mt-4">
-          {visibleCount < orders.length && searchResults.length === 0 && (
-            <button onClick={showMore} className="secondry-btn">
-              نمایش بیشتر
-            </button>
-          )}
-          {visibleCount > 10 && searchResults.length === 0 && (
-            <button onClick={showLess} className="secondry-btn">
-              نمایش کمتر
-            </button>
-          )}
-        </div>
       </div>
+      {/* Pagination Component */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 };

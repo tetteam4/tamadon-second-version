@@ -59,7 +59,7 @@ import { BiArrowBack, BiArrowFromRight, BiArrowToRight } from "react-icons/bi";
 import WellcomePage from "./wellcomePage.jsx";
 import Deliver from "./Reception/deliverOrder.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-import ModeToggle from './ModeToggling.jsx'
+import ModeToggle from "./ModeToggling.jsx";
 const Dashboard = () => {
   // Modal visibility state
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -87,9 +87,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
-  const [isWebsiteManagementOpen, setIsWebsiteManagementOpen] = useState(false); 
+  const [isWebsiteManagementOpen, setIsWebsiteManagementOpen] = useState(false);
   const [isCategoryManagementOpen, setIsCategoryManagementOpen] =
-    useState(false); 
+    useState(false);
   const [user, setUser] = useState({});
   const [unreadMsg, setUnreadMsg] = useState([]);
   const [userId, setUserId] = useState(decryptData(localStorage.getItem("id")));
@@ -219,8 +219,9 @@ const Dashboard = () => {
       "Logout",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
-    2: ["defaultPage", "OrderList", "TokenOrders", "deliver", "Logout"],
+    2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
     4: ["defaultPage", "ReceivedList", "ProcessingList", "DoneList", "Logout"],
+    5: ["defaultPage", "deliver", "Logout"],
   };
   const websiteManagementItems = [
     {
@@ -270,7 +271,7 @@ const Dashboard = () => {
     {
       component: "attribute",
       label: "مشخصه",
-      icon: <FaTags />, 
+      icon: <FaTags />,
       element: <Attribute />,
     },
     {
@@ -604,9 +605,7 @@ const Dashboard = () => {
                     >
                       <span className="text-xl">{item.icon}</span>
                       {isSidebarExpanded && (
-                        <span className="text-md  font-bold">
-                          {item.label}
-                        </span>
+                        <span className="text-md  font-bold">{item.label}</span>
                       )}
                     </div>
                   ))}

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import image from "../../public/notfound.png";
+
 
 const NotFound = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const NotFound = () => {
     <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-white to-gray-200 text-slate-900 px-6">
       {/* تصویر */}
       <img
-        src={image} // جایگزین با تصویر دلخواه شما
+        src='/notfound.png' // جایگزین با تصویر دلخواه شما
         alt="404 Not Found"
         className="w-64 md:w-96 mb-6 animate-pulse"
       />

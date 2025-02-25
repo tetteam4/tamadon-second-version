@@ -10,7 +10,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import ChatMassage, User, UserProfile
+from .models import ChatMassage, Contact, User, UserProfile
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -221,3 +221,9 @@ class MassageSerializer(serializers.ModelSerializer):
             "is_read",
             "date",
         ]
+
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['id', 'email', 'name', 'content']

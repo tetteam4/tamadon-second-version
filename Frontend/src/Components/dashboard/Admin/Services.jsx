@@ -5,6 +5,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 import { IoTrashSharp } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
 import SubcategoryForm from "./subproduct";
+import Pagination from "../../../Utilities/Pagination";
 const Services = () => {
   const fileInputRef = useRef(null);
   const [services, setServices] = useState([]);
@@ -18,15 +19,6 @@ const Services = () => {
   });
   const [editingService, setEditingService] = useState(null);
   const [currentImage, setCurrentImage] = useState("");
-  const [visibleCount, setVisibleCount] = useState(5); // Initial visible items
-
-  const showMore = () => {
-    setVisibleCount((prev) => prev + 5); // Show 10 more items
-  };
-
-  const showLess = () => {
-    setVisibleCount(5); // Reset to 10 items
-  };
   // Fetch services data
   useEffect(() => {
     const fetchServices = async () => {
@@ -190,6 +182,15 @@ const Services = () => {
     });
   };
 
+  //  pagination section
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 15;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(services.length / postsPerPage);
+  const paginatedOrders = [...services] // Create a copy to avoid mutation
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+
   return (
     <div className="bg-gray-200 w-full py-10 ">
       <div className="max-w-3xl mx-auto p-2 shadow-lg bg-white rounded-md">
@@ -280,7 +281,7 @@ const Services = () => {
           </thead>
           <tbody>
             {services.length > 0 ? (
-              services.slice(0, visibleCount).map((service) => (
+              paginatedOrders.map((service) => (
                 <tr
                   key={service.id}
                   className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -334,21 +335,15 @@ const Services = () => {
             )}
           </tbody>
         </table>
-
-        {/* Buttons for Show More / Show Less */}
-        <div className="flex justify-center gap-x-4 mt-4">
-          {visibleCount < services.length && (
-            <button onClick={showMore} className="secondry-btn">
-              نمایش بیشتر
-            </button>
-          )}
-          {visibleCount > 10 && (
-            <button onClick={showLess} className="secondry-btn">
-              نمایش کمتر
-            </button>
-          )}
-        </div>
       </div>
+      {/* Pagination Component */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
       <SubcategoryForm />
     </div>
   );

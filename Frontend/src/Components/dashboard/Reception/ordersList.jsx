@@ -7,6 +7,7 @@ import jwt_decode from "jwt-decode";
 import CryptoJS from "crypto-js";
 import Bill from "../../Bill_Page/Bill.jsx";
 import Swal from "sweetalert2";
+import Pagination from "../../../Utilities/Pagination.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 
@@ -22,15 +23,6 @@ const OrderList = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [users, setUsers] = useState([]);
   const secretKey = "TET4-1"; // Use a strong secret key
-  const [visibleCount, setVisibleCount] = useState(10); // Initial visible items
-
-  const showMore = () => {
-    setVisibleCount((prev) => prev + 10); // Show 10 more items
-  };
-
-  const showLess = () => {
-    setVisibleCount(10); // Reset to 10 items
-  };
   const decryptData = (hashedData) => {
     if (!hashedData) {
       console.error("No data to decrypt");
@@ -381,6 +373,14 @@ const OrderList = () => {
   const handleClosePopup = () => {
     setIsViewModelOpen(false);
   };
+  //  pagination section
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 15;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(orders.length / postsPerPage);
+  const paginatedOrders = [...orders] // Create a copy to avoid mutation
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
   return (
     <div className="w-[400px] md:w-[700px]  mt-10 lg:w-[90%] mx-auto  lg:overflow-hidden">
@@ -391,7 +391,7 @@ const OrderList = () => {
       {loading && <p>در حال بارگذاری...</p>}
 
       <center>
-        <div className=" overflow-x-scroll  bg-white w-full rounded-lg md:w-full">
+        <div className=" overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg md:w-full">
           <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
             <thead className="">
               <tr className="bg-green text-gray-100 text-center">
@@ -417,7 +417,7 @@ const OrderList = () => {
             </thead>
             <tbody>
               {orders.length > 0 ? (
-                orders.slice(0, visibleCount).map((order) => (
+                paginatedOrders.map((order) => (
                   <tr
                     key={order.id}
                     className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -474,68 +474,63 @@ const OrderList = () => {
               )}
             </tbody>
           </table>
-
-          {/* Buttons for Show More / Show Less */}
-          <div className="flex justify-center gap-x-4 mt-4">
-            {visibleCount < orders.length && (
-              <button onClick={showMore} className="secondry-btn">
-                نمایش بیشتر
-              </button>
-            )}
-            {visibleCount > 10 && (
-              <button onClick={showLess} className="secondry-btn">
-                نمایش کمتر
-              </button>
-            )}
-          </div>
+          {/* Pagination Component */}
         </div>
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </center>
 
       {/* Modal for Price and Delivery Date */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded shadow-lg w-[350px]  md:w-[600px]">
-            <h3 className="text-lg text-center font-bold mb-4">
-              اضافه کردن قیمت و تاریخ تحویل
-            </h3>
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">قیمت:</label>
-              <input
-                type="number"
-                name="total_price"
-                value={modalData.total_price || ""}
-                onChange={handleModalChange}
-                className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
-                placeholder="قیمت را وارد کنید"
-              />
-            </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col gap-5 items-center justify-center">
+          <div className="bg-white">
+            <div className="bg-white p-6 rounded  w-[350px]  md:w-[600px]">
+              <h3 className="text-lg text-center font-bold mb-4">
+                اضافه کردن قیمت و تاریخ تحویل
+              </h3>
+              <div className="mb-4">
+                <label className="block mb-1 font-medium">قیمت:</label>
+                <input
+                  type="number"
+                  name="total_price"
+                  value={modalData.total_price || ""}
+                  onChange={handleModalChange}
+                  className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
+                  placeholder="قیمت را وارد کنید"
+                />
+              </div>
 
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">قیمت دریافتی:</label>
-              <input
-                type="number"
-                name="receive_price"
-                value={modalData.receive_price}
-                onChange={handleModalChange}
-                className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
-                placeholder="قیمت دریافتی را وارد کنید"
-                required
-              />
-            </div>
+              <div className="mb-4">
+                <label className="block mb-1 font-medium">قیمت دریافتی:</label>
+                <input
+                  type="number"
+                  name="receive_price"
+                  value={modalData.receive_price}
+                  onChange={handleModalChange}
+                  className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
+                  placeholder="قیمت دریافتی را وارد کنید"
+                  required
+                />
+              </div>
 
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">تاریخ تحویل:</label>
-              <input
-                type="date"
-                name="deliveryDate"
-                value={modalData.deliveryDate}
-                onChange={handleModalChange}
-                className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
-                required
-              />
+              <div className="mb-4">
+                <label className="block mb-1 font-medium">تاریخ تحویل:</label>
+                <input
+                  type="date"
+                  name="deliveryDate"
+                  value={modalData.deliveryDate}
+                  onChange={handleModalChange}
+                  className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
+                  required
+                />
+              </div>
             </div>
-
-            <div className="flex justify-center items-center gap-2">
+            <div className="flex justify-center pb-6 items-center gap-2">
               <button
                 onClick={handleModalSubmit}
                 className="bg-green text-white px-7 font-bold py-2 rounded hover:bg-green/90"
