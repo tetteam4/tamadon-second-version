@@ -60,7 +60,7 @@ const chartData = [
   },
 ];
 
-const OrdersTrendChart = () => {
+const PrinterMainPage = () => {
   return (
     <ResponsiveContainer width="100%" height={400}>
       <AreaChart data={chartData}>
