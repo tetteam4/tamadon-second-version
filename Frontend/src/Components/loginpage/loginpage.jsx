@@ -59,7 +59,7 @@ function LoginPage() {
       dispatch({
         type: "login",
       });
-      navigate("/dashboard"); // Redirect to dashboard if already logged in
+      navigate("/dashboard"); 
     }
   }, [navigate]);
 
@@ -121,7 +121,8 @@ function LoginPage() {
           } else {
             dispatch({
               type: "setError",
-              errorMessage: "Authentication failed. Please try again.",
+             errorMessage:("احراز هویت ناموفق بود. لطفاً دوباره امتحان کنید.")
+              
             });
           }
         } catch (error) {
@@ -135,14 +136,13 @@ function LoginPage() {
           } else {
             dispatch({
               type: "setError",
-              errorMessage: "An error occurred while trying to login.",
+              errorMessage: "هنگام تلاش برای ورود به سیستم خطایی رخ داد..",
             });
           }
         }
       }
 
       signIn();
-
       return () => {
         source.cancel();
       };
@@ -161,7 +161,6 @@ function LoginPage() {
             </div>
           </div>
 
-          {/* Login Form Section */}
           <div className="px-4 py-12">
             <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
               ورود به حساب
@@ -235,7 +234,6 @@ function LoginPage() {
                 ورود
               </button>
             </form>
-            {/* Forgot Password Link */}
             <div className="mt-6 text-center">
               <Link
                 to="/forgot-password"
