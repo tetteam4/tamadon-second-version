@@ -191,7 +191,7 @@ const AdminDashboard = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacityb: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
