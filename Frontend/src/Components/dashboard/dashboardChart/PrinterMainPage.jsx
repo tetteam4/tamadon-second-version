@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const OrdersTrendChart = ({ chartData }) => {
+const PrinterMainPage = ({ chartData }) => {
   return (
     <ResponsiveContainer width="100%" height={400}>
       <AreaChart data={chartData}>
@@ -58,4 +58,4 @@ const OrdersTrendChart = ({ chartData }) => {
   );
 };
 
-export default OrdersTrendChart;
+export default PrinterMainPage;
