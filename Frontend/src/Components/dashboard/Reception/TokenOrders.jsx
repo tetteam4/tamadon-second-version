@@ -26,11 +26,8 @@ const TokenOrders = () => {
   const [loading, setLoading] = useState(true);
   const [selectedAttribute, setSelectedAttribute] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState({});
-  const [visibleCount, setVisibleCount] = useState(10);
   const [searchTerm, setSearchTerm] = useState(""); // Search term state
   const [searchResults, setSearchResults] = useState([]); // Search results state
-  const [currentPage, setCurrentPage] = useState(1); // Pagination State
-  const postsPerPage = 10; // Number of posts per page
   const secretKey = "TET4-1";
 
   const decryptData = (hashedData) => {
@@ -231,28 +228,22 @@ const TokenOrders = () => {
     setSelectedStatus(status);
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
+
+  const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
+  const paginatedOrders = [...dataToPaginate] // Create a copy to avoid mutation
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
-
-  const showMore = () => {
-    setVisibleCount((prev) => prev + 10);
-  };
-
-  const showLess = () => {
-    setVisibleCount(10);
-  };
-
-  // Get current posts for pagination
-  const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
-
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentOrders = dataToPaginate.slice(indexOfFirstPost, indexOfLastPost);
-
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -303,8 +294,8 @@ const TokenOrders = () => {
               </tr>
             </thead>
             <tbody className="">
-              {currentOrders.length > 0 ? (
-                currentOrders.map((order) => (
+              {orders.length > 0 ? (
+                paginatedOrders.map((order) => (
                   <tr
                     key={order.id}
                     className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -356,15 +347,15 @@ const TokenOrders = () => {
             </tbody>
           </table>
         </div>
+        {/* Pagination Component */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </center>
-
-      {/* Pagination */}
-      <Pagination
-        postsPerPage={postsPerPage}
-        totalPosts={dataToPaginate.length}
-        paginate={paginate}
-        currentPage={currentPage}
-      />
 
       {/* Popup */}
       {isModelOpen && (
