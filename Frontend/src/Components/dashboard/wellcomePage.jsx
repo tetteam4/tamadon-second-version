@@ -1,9 +1,9 @@
-import AdminCards from "./dashboardChart/AdminCards";
-import MonthlyOrdersChart from "./dashboardChart/monthlyOrdersChart";
-import OrdersComparisonChart from "./dashboardChart/ordersCamparisonChart";
-import OrdersStatusPieChart from "./dashboardChart/orderStatusPieChart";
-import OrdersTrendChart from "./dashboardChart/ordersTrendChart";
 import CryptoJS from "crypto-js";
+import AdminMainPage from "./dashboardChart/AdminMainPage";
+import ReceptionMainPage from "./dashboardChart/ReceptionMainPage";
+import PrinterMainPage from "./dashboardChart/PrinterMainPage";
+import SuperDesignerMainPage from "./dashboardChart/SuperDesignerMainPage";
+import DesignerMainPage from "./dashboardChart/DesignerMainPage";
 
 const AdminDashboard = () => {
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -24,11 +24,11 @@ const AdminDashboard = () => {
   const role = decryptData(localStorage.getItem("role"));
   return (
     <div className="p-6 bg-gray-100 h-screen">
-      {role == "0" && <AdminCards />}
-      {role == "1" && <MonthlyOrdersChart chartData={chartData} />}
-      {role == "2" && <OrdersComparisonChart chartData={chartData} />}
-      {role == "3" && <OrdersStatusPieChart chartData={chartData} />}
-      {role == "4" && <OrdersTrendChart chartData={chartData} />}
+      {role == "0" && <AdminMainPage />}
+      {role == "1" && <DesignerMainPage />}
+      {role == "2" && <ReceptionMainPage />}
+      {role == "3" && <SuperDesignerMainPage />}
+      {role == "4" && <PrinterMainPage />}
     </div>
   );
 };
