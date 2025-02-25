@@ -9,6 +9,14 @@ import {
 
 const colors = ["#8884d8", "#82ca9d", "#FFBB28", "#FF8042", "#AF19FF"];
 
+const chartData = [
+  { name: "Completed", value: 40 },
+  { name: "Processing", value: 25 },
+  { name: "Taken", value: 15 },
+  { name: "Pending", value: 10 },
+  { name: "Delivered", value: 10 },
+];
+
 const SuperDesignerMainPage = () => {
   return (
     <ResponsiveContainer width="100%" height={400}>
