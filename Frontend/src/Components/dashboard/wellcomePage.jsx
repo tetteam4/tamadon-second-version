@@ -4,6 +4,7 @@ import ReceptionMainPage from "./dashboardChart/ReceptionMainPage";
 import PrinterMainPage from "./dashboardChart/PrinterMainPage";
 import SuperDesignerMainPage from "./dashboardChart/SuperDesignerMainPage";
 import DesignerMainPage from "./dashboardChart/DesignerMainPage";
+import DeliverMainPage from "./dashboardChart/DeliverMainPage";
 
 const AdminDashboard = () => {
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -24,12 +25,12 @@ const AdminDashboard = () => {
   const role = decryptData(localStorage.getItem("role"));
   return (
     <div className="p-6 bg-gray-100 h-screen">
-      {role == "0" && <AdminCards />}
-      {role == "1" && <MonthlyOrdersChart />}
-      {role == "2" && <OrdersComparisonChart />}
-      {role == "3" && <OrdersStatusPieChart />}
-      {role == "4" && <OrdersTrendChart />}
-      {role == "5" && <OrdersTrendChart />}
+      {role == "0" && <AdminMainPage />}
+      {role == "1" && <DesignerMainPage />}
+      {role == "2" && <ReceptionMainPage />}
+      {role == "3" && <SuperDesignerMainPage />}
+      {role == "4" && <PrinterMainPage />}
+      {role == "5" && <DeliverMainPage />}
     </div>
   );
 };
