@@ -433,7 +433,6 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
       const data = await response.json();
 
       setSelectedUserInfo(data);
-      console.log(data);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
