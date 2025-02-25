@@ -25,10 +25,11 @@ const AdminDashboard = () => {
   return (
     <div className="p-6 bg-gray-100 h-screen">
       {role == "0" && <AdminCards />}
-      {role == "1" && <MonthlyOrdersChart chartData={chartData} />}
-      {role == "2" && <OrdersComparisonChart chartData={chartData} />}
-      {role == "3" && <OrdersStatusPieChart chartData={chartData} />}
-      {role == "4" && <OrdersTrendChart chartData={chartData} />}
+      {role == "1" && <MonthlyOrdersChart />}
+      {role == "2" && <OrdersComparisonChart />}
+      {role == "3" && <OrdersStatusPieChart />}
+      {role == "4" && <OrdersTrendChart />}
+      {role == "5" && <OrdersTrendChart />}
     </div>
   );
 };

@@ -9,7 +9,58 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const OrdersTrendChart = ({ chartData }) => {
+const chartData = [
+  {
+    name: "حمل",
+    completed: 40,
+    processing: 70,
+    taken: 100,
+    pending: 100,
+    delivered: 70,
+  },
+  {
+    name: "ثور",
+    completed: 50,
+    processing: 40,
+    taken: 30,
+    pending: 20,
+    delivered: 60,
+  },
+  {
+    name: "جوزا",
+    completed: 60,
+    processing: 50,
+    taken: 40,
+    pending: 30,
+    delivered: 70,
+  },
+  {
+    name: "سرطان",
+    completed: 70,
+    processing: 60,
+    taken: 50,
+    pending: 40,
+    delivered: 30,
+  },
+  {
+    name: "اسد",
+    completed: 80,
+    processing: 70,
+    taken: 60,
+    pending: 50,
+    delivered: 90,
+  },
+  {
+    name: "سنبله",
+    completed: 90,
+    processing: 110,
+    taken: 70,
+    pending: 60,
+    delivered: 10,
+  },
+];
+
+const OrdersTrendChart = () => {
   return (
     <ResponsiveContainer width="100%" height={400}>
       <AreaChart data={chartData}>
