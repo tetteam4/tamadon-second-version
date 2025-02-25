@@ -3,19 +3,18 @@ import axios from "axios";
 import jwt_decode from "jwt-decode";
 import Bill from "../../Bill_Page/Bill";
 import { IoSearch } from "react-icons/io5";
-import SearchBar from "./searchRecords";
 import { FaArrowRightLong } from "react-icons/fa6";
 import CryptoJS from "crypto-js";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import vazirmatnFont from "/vazirmatnBase64.txt"; // Ensure this is a valid Base64 font
+import SearchBar from "../../../Utilities/Searching"; // Adjust path if needed
+import Pagination from "../../../Utilities/Pagination"; // Adjust path if needed
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const TokenOrders = () => {
-  const [searchResults, setSearchResults] = useState([]); // State to hold search results
   const [orders, setOrders] = useState([]);
-
   const [passedOrder, setPassedOrder] = useState([]);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -25,18 +24,15 @@ const TokenOrders = () => {
   const [remaindedPrices, setRemaindedPrices] = useState({});
   const [DDate, setDDate] = useState({});
   const [loading, setLoading] = useState(true);
-  const [selectedAttribute, setSelectedAttribute] = useState([]); // State for popup data
-  const [selectedStatus, setSelectedStatus] = useState({}); // State for popup data
-  const [visibleCount, setVisibleCount] = useState(10); // Initial visible items
+  const [selectedAttribute, setSelectedAttribute] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState({});
+  const [visibleCount, setVisibleCount] = useState(10);
+  const [searchTerm, setSearchTerm] = useState(""); // Search term state
+  const [searchResults, setSearchResults] = useState([]); // Search results state
+  const [currentPage, setCurrentPage] = useState(1); // Pagination State
+  const postsPerPage = 10; // Number of posts per page
+  const secretKey = "TET4-1";
 
-  const showMore = () => {
-    setVisibleCount((prev) => prev + 10); // Show 10 more items
-  };
-
-  const showLess = () => {
-    setVisibleCount(10); // Reset to 10 items
-  };
-  const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
     if (!hashedData) {
       console.error("No data to decrypt");
@@ -54,42 +50,32 @@ const TokenOrders = () => {
 
   const printBill = async () => {
     const element = document.getElementById("bill-content");
-
     if (!element) {
       console.error("Bill content not found!");
       return;
     }
 
     try {
-      // Create jsPDF instance
       const pdf = new jsPDF({
         orientation: "landscape",
         unit: "mm",
         format: [350, 500],
       });
 
-      // Load and set Vazirmatn font
       pdf.addFileToVFS("Vazirmatn.ttf", vazirmatnFont);
       pdf.addFont("vazirmatn.ttf", "vazirmatn", "normal");
       pdf.setFont("vazirmatn");
 
-      // Capture the element as a high-quality image
       const canvas = await html2canvas(element, {
-        scale: 2, // Reduced scale for smaller image size
-        useCORS: true, // Fixes CORS issues if images are external
+        scale: 2,
+        useCORS: true,
       });
+      const imgData = canvas.toDataURL("image/jpeg", 0.5);
 
-      // Convert canvas to image with lower quality and JPEG format
-      const imgData = canvas.toDataURL("image/jpeg", 0.5); // Reduce quality to 50%
-
-      // Calculate image dimensions to fit the PDF
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width; // Maintain aspect ratio
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-      // Add the image to the PDF
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-
-      // Save the PDF file with compression
       pdf.save("bill.pdf", { compress: true });
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -141,6 +127,7 @@ const TokenOrders = () => {
         await Promise.all([
           axios.get(`${BASE_URL}/group/order/`, {
             headers: { Authorization: `Bearer ${token}` },
+            params: { status: "done" }, // Fetch only "done" orders
           }),
           axios.get(`${BASE_URL}/group/categories/`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -169,7 +156,6 @@ const TokenOrders = () => {
 
             const data1 = priceResponse.data;
 
-            // Check if data1 exists and is not empty before accessing its properties
             if (data1 && data1.length > 0) {
               newPrices[order.id] = data1[0].price;
               newReceived[order.id] = data1[0].receive_price;
@@ -187,7 +173,6 @@ const TokenOrders = () => {
         })
       );
 
-      // Merge new data with existing state
       setPrices((prevPrices) => ({ ...prevPrices, ...newPrices }));
       setReceivedPrices((prevReceived) => ({
         ...prevReceived,
@@ -207,11 +192,29 @@ const TokenOrders = () => {
 
   useEffect(() => {
     fetchData();
-    // const intervalId = setInterval(() => {
-    //   fetchData();
-    // }, 2000);
-    // return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const results = orders.filter((order) => {
+        const customerName = order.customer_name || "";
+        const orderName = order.order_name || "";
+        const categoryName =
+          categories.find((category) => category.id === order.category)?.name ||
+          "";
+
+        return (
+          customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+      setSearchResults(results);
+      setCurrentPage(1); // Reset to first page on new search
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTerm, orders, categories]);
 
   const getCategoryName = (categoryId) => {
     const category = categories.find((cat) => cat.id === categoryId);
@@ -224,21 +227,46 @@ const TokenOrders = () => {
   };
 
   const handleShowAttribute = (order, status) => {
-    // Convert JSON object to an array
-
-    // Update state
     setPassedOrder(order);
     setSelectedStatus(status);
   };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const showMore = () => {
+    setVisibleCount((prev) => prev + 10);
+  };
+
+  const showLess = () => {
+    setVisibleCount(10);
+  };
+
+  // Get current posts for pagination
+  const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
+
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentOrders = dataToPaginate.slice(indexOfFirstPost, indexOfLastPost);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   if (loading) return <div>Loading...</div>;
 
   return (
     <div className="mt-8 px-10 ">
       <h2 className="md:text-2xl text-base text-center font-Ray_black font-bold mb-4">
-        لیست سفارشات گرفته شده
+        لیست سفارشات تکمیلی
       </h2>
-      <SearchBar setSearchResults={setSearchResults} />
+
+      {/* Search Bar */}
+      <SearchBar
+        placeholder="جستجو در سفارشات"
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
 
       <center>
         <div className="overflow-x-scroll lg:overflow-hidden w-[420px] md:w-full rounded-lg">
@@ -275,8 +303,8 @@ const TokenOrders = () => {
               </tr>
             </thead>
             <tbody className="">
-              {searchResults.length > 0 ? (
-                searchResults.reverse().map((order) => (
+              {currentOrders.length > 0 ? (
+                currentOrders.map((order) => (
                   <tr
                     key={order.id}
                     className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -318,107 +346,34 @@ const TokenOrders = () => {
                     </td>
                   </tr>
                 ))
-              ) : orders.length > 0 ? (
-                orders
-                  .slice(0, visibleCount)
-                  .reverse()
-                  .map((order) => (
-                    <tr
-                      key={order.id}
-                      className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
-                    >
-                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                        {order.customer_name || "در حال بارگذاری..."}
-                      </td>
-                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                        {order.order_name || "در حال بارگذاری..."}
-                      </td>
-                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                        {getCategoryName(order.category) ||
-                          "در حال بارگذاری..."}
-                      </td>
-                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                        {getDesignerName(order.designer) ||
-                          "در حال بارگذاری..."}
-                      </td>
-                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                        {prices[order.id] || "در حال بارگذاری..."}
-                      </td>
-                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                        {receivedPrices[order.id] || "در حال بارگذاری..."}
-                      </td>
-                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                        {remaindedPrices[order.id] || "در حال بارگذاری..."}
-                      </td>
-                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                        {DDate[order.id] || "در حال بارگذاری..."}
-                      </td>
-                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                        <button
-                          onClick={() => {
-                            handleShowAttribute(order, order.status);
-                            setIsModelOpen(true);
-                          }}
-                          className="secondry-btn"
-                        >
-                          نمایش
-                        </button>
-                      </td>
-                    </tr>
-                  ))
               ) : (
                 <tr>
                   <td colSpan="9" className="border p-3 text-center">
-                    هیچ سفارشی وجود ندارد
+                    هیچ سفارشی با وضعیت 'تکمیل شده' وجود ندارد.
                   </td>
                 </tr>
               )}
             </tbody>
-          </table>{" "}
-          {/* Buttons for Show More / Show Less */}
-          <div className="flex justify-center gap-x-4 mt-4">
-            {visibleCount < orders.length && (
-              <button onClick={showMore} className="secondry-btn">
-                نمایش بیشتر
-              </button>
-            )}
-            {visibleCount > 10 && (
-              <button onClick={showLess} className="secondry-btn">
-                نمایش کمتر
-              </button>
-            )}
-          </div>
-          {searchResults.length > 0 && (
-            <div
-              className={`{${
-                selectedAttribute > 0
-              }:hidded } items-center flex justify-center`}
-            >
-              <button
-                onClick={() => setSearchResults("")}
-                className="bg-blue-500 p-1 rounded-lg flex items-center gap-2 "
-              >
-                <span>
-                  <FaArrowRightLong />
-                </span>
-                <span>بازگشت</span>
-              </button>
-            </div>
-          )}
+          </table>
         </div>
       </center>
 
-      {/* Popup */}
+      {/* Pagination */}
+      <Pagination
+        postsPerPage={postsPerPage}
+        totalPosts={dataToPaginate.length}
+        paginate={paginate}
+        currentPage={currentPage}
+      />
 
+      {/* Popup */}
       {isModelOpen && (
         <>
-          {/* Overlay to disable interaction with the rest of the page */}
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            onClick={() => setIsModelOpen(false)} // Optional: Close modal on overlay click
+            onClick={() => setIsModelOpen(false)}
           ></div>
 
-          {/* Modal Content */}
           <div
             id="bill-content"
             className="scale-75 fixed inset-0 bg-opacity-75 flex items-center justify-center z-50"

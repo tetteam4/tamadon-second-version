@@ -3,7 +3,6 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
 import SearchBar from "../../../Utilities/Searching";
-import { IoSearch } from "react-icons/io5"; // You don't need this import here
 import Pagination from "../../../Utilities/Pagination";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -113,14 +112,11 @@ const DoneList = () => {
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
-  // Pagination section
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 15;
 
-  // تعیین داده‌ای که باید صفحه‌بندی شود (نتایج جستجو یا سفارش‌های دریافتی)
   const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
 
-  // ریست کردن صفحه فعلی هنگام تغییر جستجو
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
