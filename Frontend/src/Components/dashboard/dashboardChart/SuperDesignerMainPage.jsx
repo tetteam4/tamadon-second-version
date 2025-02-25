@@ -9,7 +9,7 @@ import {
 
 const colors = ["#8884d8", "#82ca9d", "#FFBB28", "#FF8042", "#AF19FF"];
 
-const OrdersStatusPieChart = ({ chartData }) => {
+const SuperDesignerMainPage = ({ chartData }) => {
   return (
     <ResponsiveContainer width="100%" height={400}>
       <PieChart>
@@ -33,4 +33,4 @@ const OrdersStatusPieChart = ({ chartData }) => {
   );
 };
 
-export default OrdersStatusPieChart;
+export default SuperDesignerMainPage;
