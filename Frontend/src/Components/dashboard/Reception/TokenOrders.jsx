@@ -241,7 +241,7 @@ const TokenOrders = () => {
       <SearchBar setSearchResults={setSearchResults} />
 
       <center>
-        <div className="overflow-x-scroll w-[420px] md:w-full rounded-lg">
+        <div className="overflow-x-scroll lg:overflow-hidden w-[420px] md:w-full rounded-lg">
           <table className="w-full  rounded-lg border  border-gray-300 shadow-md">
             <thead className=" ">
               <tr className="bg-green text-gray-100 text-center">

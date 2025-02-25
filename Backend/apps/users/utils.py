@@ -58,3 +58,33 @@ def send_email_notification(request, user, email_subject, email_template, link=N
     email.send()
 
     print(f"Sent email to {user.email} with subject: {email_subject}")
+
+
+
+
+def send_admin_notification(request, contact, email_subject, email_template):
+    current_site = get_current_site(request)
+    protocol = "https" if request.is_secure() else "http"
+
+    email_message = render_to_string(
+        email_template,
+        {
+            "user_name": contact.name,
+            "user_email": contact.email,
+            "user_message": contact.content,
+            "domain": current_site.domain,
+            "current_year": datetime.datetime.now().year,
+        },
+    )
+
+    # Prepare the email for the admin
+    admin_email = settings.ADMIN_EMAIL  # Assuming admin's email is stored in settings
+    email = EmailMessage(
+        subject=email_subject,
+        body=email_message,
+        to=[admin_email],
+    )
+    email.content_subtype = "html"  # Send as HTML email
+    email.send()
+
+    print(f"Sent email to {admin_email} with subject: {email_subject}")

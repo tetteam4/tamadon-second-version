@@ -1,5 +1,4 @@
 from django.urls import include, path
-from flask import views
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -22,11 +21,13 @@ from .views import (
     UserProfileView,
     UserViewSet,
     activate_account,
+    ContactViewSet
+
 )
 
 router = DefaultRouter()
 router.register("users", UserViewSet, basename="user")
-
+router.register('contact', ContactViewSet)
 urlpatterns = [
     path(
         "profile/<str:user_email>/",
@@ -63,4 +64,5 @@ urlpatterns = [
         name="update-message-read-status",
     ),
     path("unread/", FalseMessageReadStatusView.as_view(), name="unread_messages"),
+
 ]

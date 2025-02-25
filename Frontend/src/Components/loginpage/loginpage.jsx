@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useEffect , useState } from "react";
 import { useImmerReducer } from "use-immer";
 import { Link, useNavigate } from "react-router-dom";
 import jwt_decode from "jwt-decode";
@@ -7,7 +7,8 @@ import CryptoJS from "crypto-js";
 import { FiMail } from "react-icons/fi";
 import { CgProfile } from "react-icons/cg";
 import { MdOutlineLock } from "react-icons/md";
-import { FaLock, FaUser } from "react-icons/fa";
+import {FaUser } from "react-icons/fa";
+import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa6";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 function LoginPage() {
@@ -48,6 +49,8 @@ function LoginPage() {
   }
 
   const [state, dispatch] = useImmerReducer(reducerFunction, initialState);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   useEffect(() => {
     const existingToken = localStorage.getItem("auth_token");
@@ -182,7 +185,7 @@ function LoginPage() {
                       })
                     }
                     placeholder="example@example.com"
-                    className="w-full px-4 py-3 text-lg pl-12 border border-gray-300 rounded-lg focus:outline-none "
+                    className="w-full px-4 py-2 text-lg pl-12 border border-gray-300 rounded-lg focus:outline-none "
                   />
                   <FiMail
                     className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -192,28 +195,32 @@ function LoginPage() {
               </div>
               {/* Password Field */}
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  رمز عبور:
-                </label>
-                <div className="relative">
-                  <input
-                    type="password"
-                    value={state.passwordValue}
-                    onChange={(e) =>
-                      dispatch({
-                        type: "catchUserPassword",
-                        passwordChosen: e.target.value,
-                      })
-                    }
-                    placeholder="********"
-                    className="w-full px-4 py-3 pl-12 text-lg border border-gray-300 rounded-lg focus:outline-none "
-                  />
-                  <FaLock
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    size={20}
-                  />
-                </div>
-              </div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        رمز عبور:
+      </label>
+      <div className="relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          value={state.passwordValue}
+          onChange={(e) =>
+            dispatch({
+              type: "catchUserPassword",
+              passwordChosen: e.target.value,
+            })
+          }
+          placeholder="********"
+          className="w-full px-4 py-2 pl-12 text-lg border border-gray-300 rounded-lg focus:outline-none"
+        />
+      
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 focus:outline-none"
+        >
+          {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+        </button>
+      </div>
+    </div>
               {/* Error Message */}
               {state.error && (
                 <div className="text-red-500 text-center text-sm mt-2">

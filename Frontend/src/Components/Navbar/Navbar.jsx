@@ -38,7 +38,7 @@ const Navbar = ({ navItems }) => {
           {isScrolled && (
             <div className="flex items-center h-full gap-x-4">
               <Link to="/" className="bg-white p-2 h-full">
-                <img src={logo} alt="Logo" className="h-12 w-auto" />
+                <img src='/Tamadon.png' alt="Logo" className="h-12 w-auto" />
               </Link>
               <div className="md:space-y-1 bg-[#00513a] text-white dark:bg-primary ">
                 <h1 className="text-lg font-bold  font-Ray dark:text-[#fff]">

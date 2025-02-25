@@ -3,6 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { IoTrashSharp } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
+import Pagination from "../../../Utilities/Pagination";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Gallery = () => {
@@ -22,15 +23,7 @@ const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState(
     categories.find((cat) => cat.id === formData.category) || null
   );
-  const [visibleCount, setVisibleCount] = useState(10); // Initial visible items
 
-  const showMore = () => {
-    setVisibleCount((prev) => prev + 10); // Show 10 more items
-  };
-
-  const showLess = () => {
-    setVisibleCount(10); // Reset to 10 items
-  };
 
   const handleSelect = (category) => {
     if (category.id === "add") {
@@ -258,7 +251,14 @@ const Gallery = () => {
       }
     });
   };
+ //  pagination section
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
 
+  // Calculate pagination
+  const totalPages = Math.ceil(blogs.length / postsPerPage);
+  const paginatedOrders = [...blogs] // Create a copy to avoid mutation
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
   return (
     <div className="py-10 bg-gray-200 w-full">
       <div className="max-w-3xl mx-auto p-2 shadow-lg bg-white rounded-md">
@@ -414,7 +414,7 @@ const Gallery = () => {
             </thead>
             <tbody>
               {blogs.length > 0 ? (
-                blogs.slice(0, visibleCount).map((blog) => (
+               paginatedOrders.map((blog) => (
                   <tr
                     key={blog.id}
                     className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -464,20 +464,15 @@ const Gallery = () => {
               )}
             </tbody>
           </table>
-          {/* Buttons for Show More / Show Less */}
-          <div className="flex justify-center gap-x-4 mt-4">
-            {visibleCount < blogs.length && (
-              <button onClick={showMore} className="secondry-btn">
-                نمایش بیشتر
-              </button>
-            )}
-            {visibleCount > 10 && (
-              <button onClick={showLess} className="secondry-btn">
-                نمایش کمتر
-              </button>
-            )}
-          </div>
         </div>
+        {/* Pagination Component */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </center>
     </div>
   );
