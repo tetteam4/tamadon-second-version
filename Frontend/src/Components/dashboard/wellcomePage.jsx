@@ -1,193 +1,29 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area,
-} from "recharts";
-
-const BASE_URL = "http://localhost:8000";
+import AdminCards from "./dashboardChart/AdminCards";
+import MonthlyOrdersChart from "./dashboardChart/monthlyOrdersChart";
+import OrdersComparisonChart from "./dashboardChart/ordersCamparisonChart";
+import OrdersStatusPieChart from "./dashboardChart/orderStatusPieChart";
+import OrdersTrendChart from "./dashboardChart/ordersTrendChart";
+import CryptoJS from "crypto-js";
 
 const AdminDashboard = () => {
-  const [completedOrders, setCompletedOrders] = useState([]);
-  const [processingOrders, setProcessingOrders] = useState([]);
-  const [takenOrders, setTakenOrders] = useState([]);
-  const [pendingOrders, setPendingOrders] = useState([]);
-  const [deliveredOrders, setDeliveredOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const completedResponse = await fetch(`${BASE_URL}/group/order/done/`);
-        const completedData = await completedResponse.json();
-        setCompletedOrders(completedData);
-
-        const processingResponse = await fetch(
-          `${BASE_URL}/group/order/processing/`
-        );
-        const processingData = await processingResponse.json();
-        setProcessingOrders(processingData);
-
-        const takenResponse = await fetch(`${BASE_URL}/group/order/taken/`);
-        const takenData = await takenResponse.json();
-        setTakenOrders(takenData);
-
-        const pendingResponse = await fetch(`${BASE_URL}/group/order/pending/`);
-        const pendingData = await pendingResponse.json();
-        setPendingOrders(pendingData);
-
-        const deliveredResponse = await fetch(
-          `${BASE_URL}/group/order/delivered/`
-        );
-        const deliveredData = await deliveredResponse.json();
-        setDeliveredOrders(deliveredData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <div className="p-6">در حال بارگذاری...</div>;
-  }
-
-  const totalCompletedOrders = completedOrders.length;
-  const totalProcessingOrders = processingOrders.length;
-  const totalTakenOrders = takenOrders.length;
-  const totalPendingOrders = pendingOrders.length;
-  const totalDeliveredOrders = deliveredOrders.length;
-
-  const lineChartData = [
-    {
-      name: "حمل",
-      completed: totalCompletedOrders,
-      processing: totalProcessingOrders,
-      taken: totalTakenOrders,
-      pending: totalPendingOrders,
-      delivered: totalDeliveredOrders,
-    },
-    {
-      name: "ثور",
-      completed: 300,
-      processing: 150,
-      taken: 100,
-      pending: 50,
-      delivered: 200,
-    },
-    {
-      name: "جوزا",
-      completed: 200,
-      processing: 100,
-      taken: 60,
-      pending: 30,
-      delivered: 150,
-    },
-    {
-      name: "سرطان",
-      completed: 278,
-      processing: 130,
-      taken: 90,
-      pending: 40,
-      delivered: 180,
-    },
-    {
-      name: "اسد",
-      completed: 189,
-      processing: 90,
-      taken: 50,
-      pending: 20,
-      delivered: 100,
-    },
-    {
-      name: "سنبله",
-      completed: 239,
-      processing: 110,
-      taken: 70,
-      pending: 35,
-      delivered: 120,
-    },
-  ];
-
-  const barChartData = [
-    {
-      name: "حمل",
-      completed: 2400,
-      processing: 1200,
-      taken: 800,
-      pending: 400,
-      delivered: 1600,
-    },
-    {
-      name: "ثور",
-      completed: 1398,
-      processing: 900,
-      taken: 500,
-      pending: 300,
-      delivered: 1000,
-    },
-    {
-      name: "جوزا",
-      completed: 9800,
-      processing: 4000,
-      taken: 2000,
-      pending: 1000,
-      delivered: 3000,
-    },
-    {
-      name: "سرطان",
-      completed: 3908,
-      processing: 2000,
-      taken: 1000,
-      pending: 500,
-      delivered: 1500,
-    },
-    {
-      name: "اسد",
-      completed: 4800,
-      processing: 3000,
-      taken: 1500,
-      pending: 750,
-      delivered: 2000,
-    },
-    {
-      name: "سنبله",
-      completed: 3800,
-      processing: 2500,
-      taken: 1200,
-      pending: 600,
-      delivered: 1800,
-    },
-  ];
-
-  const pieChartData = [
-    { name: "تکمیل شده", value: totalCompletedOrders },
-    { name: "در حال پردازش", value: totalProcessingOrders },
-    { name: "تحویل گرفته شده", value: totalTakenOrders },
-    { name: "در انتظار", value: totalPendingOrders },
-    { name: "تحویل داده شده", value: totalDeliveredOrders },
-  ];
-
-  const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AF19FF"];
-
+  const secretKey = "TET4-1"; // Use a strong secret key
+  const decryptData = (hashedData) => {
+    if (!hashedData) {
+      console.error("No data to decrypt");
+      return null;
+    }
+    try {
+      const bytes = CryptoJS.AES.decrypt(hashedData, secretKey);
+      const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+      return JSON.parse(decrypted);
+    } catch (error) {
+      console.error("Decryption failed:", error);
+      return null;
+    }
+  };
+  const role = decryptData(localStorage.getItem("role"));
   return (
+<<<<<<< HEAD
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <motion.div
@@ -440,6 +276,15 @@ const AdminDashboard = () => {
         </Card>
       </motion.div>
      </div>
+=======
+    <div className="p-6 bg-gray-100 h-screen">
+      {role == "0" && <AdminCards />}
+      {role == "1" && <MonthlyOrdersChart chartData={chartData} />}
+      {role == "2" && <OrdersComparisonChart chartData={chartData} />}
+      {role == "3" && <OrdersStatusPieChart chartData={chartData} />}
+      {role == "4" && <OrdersTrendChart chartData={chartData} />}
+    </div>
+>>>>>>> 04580d9cc762d0787f0821e359bddc59cbf99a9d
   );
 };
 

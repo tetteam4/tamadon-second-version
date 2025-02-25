@@ -60,6 +60,7 @@ import WellcomePage from "./wellcomePage.jsx";
 import Deliver from "./Reception/deliverOrder.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 import ModeToggle from "./ModeToggling.jsx";
+import Token from "./TokenOrdeing/Token.jsx";
 const Dashboard = () => {
   // Modal visibility state
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -216,6 +217,7 @@ const Dashboard = () => {
       "category management",
       "Add Order",
       "designerChart",
+      "token",
       "Logout",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
@@ -303,6 +305,12 @@ const Dashboard = () => {
       component: "AddOrder",
       icon: <FaPlusCircle />,
       label: "سفارشات",
+    },
+
+    token: {
+      component: "token",
+      icon: <FaPlusCircle />,
+      label: "توکن",
     },
     deliver: {
       component: "deliver",
@@ -429,6 +437,8 @@ const Dashboard = () => {
         return <DesignerChart />;
       case "Reports":
         return <Reports />;
+      case "token":
+        return <Token />;
       default:
         return <WellcomePage />;
     }
