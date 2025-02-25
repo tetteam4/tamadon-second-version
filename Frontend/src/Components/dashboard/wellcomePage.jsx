@@ -439,7 +439,7 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+     </div>
   );
 };
 
