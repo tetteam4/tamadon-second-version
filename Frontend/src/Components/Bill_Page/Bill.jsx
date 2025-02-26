@@ -110,8 +110,8 @@ const Bill = ({ order }) => {
     fetchCategories();
   }, []);
   return (
-    <div className="bg-white border rounded-lg">
-      <div className="flex h-[690px]">
+    <div className="bg-white border border-green ">
+      <div className="flex justify-between items-center">
         <div className="w-full relative pr-5">
           {/* Backdrop image */}
           <img
@@ -123,7 +123,7 @@ const Bill = ({ order }) => {
           {/* Header */}
 
           <div>
-            <div className=" flex  mt-6 items-center justify-center">
+            <div className=" flex  items-center justify-center">
               <div className="flex justify-center gap-x-2 items-center">
                 <h2 className="text-5xl font-semibold text-left ">
                   <p>Tamadon</p>
@@ -249,49 +249,52 @@ const Bill = ({ order }) => {
             </div>
           </div>
           {/*  */}
-          <div className="">
-            <footer className="py-2 font-bold flex px-8 justify-between  items-center text-md text-gray-600">
-              <div className="flex items-center justify-center gap-x-2">
+          <div>
+            {/* Contact Section */}
+            <footer className="py-2 font-bold flex px-8 justify-between items-center text-md text-gray-600 print:flex print:justify-between print:px-4">
+              <div className="flex items-center justify-center gap-x-2 print:gap-x-1">
                 <span>93-772-029-545+</span>
-                <span className="bg-black p-1.5 rounded-full">
-                  <PiPhoneCallFill className="text-white" size={20} />
+                <span className="bg-black p-1.5 rounded-full flex items-center justify-center w-8 h-8">
+                  <PiPhoneCallFill className="text-white w-5 h-5" />
                 </span>
               </div>
-              <div className="flex items-center justify-center gap-x-2">
+              <div className="flex items-center justify-center gap-x-2 print:gap-x-1">
                 <span>tamadon.af@gmail.com</span>
-                <span className="bg-black p-1.5 rounded-full">
-                  <FaEnvelope className="text-white" size={20} />
+                <span className="bg-black p-1.5 rounded-full flex items-center justify-center w-8 h-8">
+                  <FaEnvelope className="text-white w-5 h-5" />
                 </span>
               </div>
-              <div className="flex items-center justify-center gap-x-2">
+              <div className="flex items-center justify-center gap-x-2 print:gap-x-1">
                 <span>@tamadon_press</span>
-                <span className="bg-black p-1.5 rounded-full">
-                  <FaTelegramPlane className="text-white" size={20} />
+                <span className="bg-black p-1.5 rounded-full flex items-center justify-center w-8 h-8">
+                  <FaTelegramPlane className="text-white w-5 h-5" />
                 </span>
               </div>
             </footer>
-          </div>
-          <div className="flex justify-evenly mt-3 items-center flex-wrap gap-4">
-            {/* Address Section */}
-            <div className="flex items-center gap-2">
-              <FaMapMarkerAlt className="text-[#d9534f] text-xl" />
-              <p className="text-gray-700 text-sm font-medium dark:text-gray-300">
-                نشانی ما:
-              </p>
-              <p className="text-gray-700 text-sm font-medium dark:text-gray-300 text-right">
-                کوتة سنگی، سرک دهبوری، مارکیت اتفاق
-              </p>
-            </div>
 
-            {/* Website Section */}
-            <div className="flex items-center gap-2">
-              <CiGlobe className="text-[#d9534f] text-xl" />
-              <p className="text-gray-800 text-sm font-medium dark:text-gray-300">
-                نشانی ویب سایت ما:
-              </p>
-              <p className="text-gray-800 text-md font-medium dark:text-gray-300 text-right">
-                tamadonprintingpress.com
-              </p>
+            {/* Address & Website Section */}
+            <div className="flex justify-evenly mt-3 items-center flex-wrap gap-4 print:gap-2">
+              {/* Address Section */}
+              <div className="flex items-center gap-2 align-middle print:inline-flex">
+                <FaMapMarkerAlt className="text-[#d9534f] text-xl w-5 h-5" />
+                <p className="text-gray-700 text-sm font-medium dark:text-gray-300 leading-none">
+                  نشانی ما:
+                </p>
+                <p className="text-gray-700 text-sm font-medium dark:text-gray-300 text-right leading-none">
+                  کوتة سنگی، سرک دهبوری، مارکیت اتفاق
+                </p>
+              </div>
+
+              {/* Website Section */}
+              <div className="flex items-center gap-2 align-middle print:inline-flex">
+                <CiGlobe className="text-[#d9534f] text-xl w-5 h-5" />
+                <p className="text-gray-800 text-sm font-medium dark:text-gray-300 leading-none">
+                  نشانی ویب سایت ما:
+                </p>
+                <p className="text-gray-800 text-md font-medium dark:text-gray-300 text-right leading-none">
+                  tamadonprintingpress.com
+                </p>
+              </div>
             </div>
           </div>
           <div className="text-center text-md mt-2 text-red-600 ">
@@ -299,7 +302,7 @@ const Bill = ({ order }) => {
           </div>
         </div>
         <div className="">
-          <img src="/bill.jpeg" alt="" className="h-full w-[300px]" />
+          <img src="/bill.jpeg" alt="" className="h-[190mm] w-[300px]" />
         </div>
       </div>
     </div>
