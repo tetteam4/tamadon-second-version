@@ -47,14 +47,11 @@ class OrderSystem:
 
     def create_order(self):
         """Create an order and assign it to an available user."""
-        
-        # Delete all previous 'waiting' orders when a new order is created
-        self.delete_previous_waiting_orders()
 
         # Create the new order
         order_id = self.generate_order_id()
         order = Order.objects.create(order_id=order_id, status='waiting')
-        
+
         # Check if there is an available user to assign the order
         available_user = self.find_available_user()
 
@@ -62,14 +59,11 @@ class OrderSystem:
             order.assign_user(available_user)  # Assign user to the order
         else:
             self.order_queue.append(order)  # Add to queue if no user is available
-        
-        return order
 
-    def delete_previous_waiting_orders(self):
-        """Delete all existing orders with 'waiting' status."""
-        # Delete all 'waiting' orders from the database
-        waiting_orders = Order.objects.filter(status='waiting')
-        waiting_orders.delete()
+        # Now check for waiting orders and assign users if available
+        self.user_available()
+
+        return order
 
     def find_available_user(self):
         """Find an available user with is_free=True."""
@@ -84,8 +78,9 @@ class OrderSystem:
 
     def user_available(self):
         """Simulate a user becoming available."""
-        # Fetch waiting orders in the order they were created
-        waiting_orders = Order.objects.filter(status='waiting').order_by('created_at')  # Sort by created_at to prioritize earliest orders
+        
+        # First, assign the user to the earliest waiting order, if any
+        waiting_orders = Order.objects.filter(status='waiting').order_by('created_at')  # Sort by created_at
         
         if waiting_orders.exists():
             # Get the first waiting order (earliest created)
@@ -93,12 +88,13 @@ class OrderSystem:
 
             # Find an available user to assign this order
             user = self.find_available_user()
-            
+
             if user:
                 # Assign the waiting order to the available user
                 order.assign_user(user)
                 return order
-
+        
+        # If no waiting orders, assign a new order
         return None
 
     def complete_order(self, order_id):
@@ -106,6 +102,10 @@ class OrderSystem:
         try:
             order = Order.objects.get(order_id=order_id)
             order.complete_order()  # Mark as completed
+
+            # After completing the order, check for waiting orders
+            self.user_available()
+
             return order
         except Order.DoesNotExist:
             return None

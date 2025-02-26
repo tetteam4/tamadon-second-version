@@ -20,11 +20,17 @@ class OrderCheckoutView(APIView):
     def post(self, request, *args, **kwargs):
         order_id = request.data.get("order_id")
         order = order_system.complete_order(order_id)
+        
         if order:
+            # After completing the order, check if any waiting orders need assignment
+            order_system.user_available()
+
             serializer = OrderSerializer(order)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"detail": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        return Response({"detail": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
+ 
+ 
 class OrderListView(APIView):
     permission_classes = [permissions.AllowAny]
 
