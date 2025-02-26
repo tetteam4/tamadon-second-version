@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import SignUp from "../Registeration/SignUp";
 import { IoTrashSharp } from "react-icons/io5";
 import CryptoJS from "crypto-js";
+import Pagination from "../../../Utilities/Pagination";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const UserManagement = () => {
@@ -248,7 +249,14 @@ const UserManagement = () => {
     const role = roles.find((role) => role.id === parseInt(roleId));
     return role ? role.name : "Unknown";
   };
+  //  pagination section
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
 
+  // Calculate pagination
+  const totalPages = Math.ceil(users.length / postsPerPage);
+  const paginatedOrders = [...users] // Create a copy to avoid mutation
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
   return (
     <div className="mt py-10 bg-gray-200 w-full p-5  min-h-screen ">
       <div className="flex justify-center items-center ">
@@ -305,7 +313,7 @@ const UserManagement = () => {
                 </tr>
               </thead>
               <tbody className="text-sm">
-                {users.map((user) => (
+                {paginatedOrders.map((user) => (
                   <tr
                     key={user.id}
                     className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -333,6 +341,14 @@ const UserManagement = () => {
           </div>
         )}
       </div>
+      {/* Pagination Component */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 };

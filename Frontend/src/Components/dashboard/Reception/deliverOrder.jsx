@@ -5,6 +5,7 @@ import CryptoJS from "crypto-js";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
 import Pagination from "../../../Utilities/Pagination";
+import SearchBar from "../../../Utilities/Searching"; 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Deliver = () => {
@@ -22,7 +23,7 @@ const Deliver = () => {
       console.error("Decryption failed:", error);
       return null;
     }
-  };
+  };12
 
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -32,7 +33,7 @@ const Deliver = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [refreshingToken, setRefreshingToken] = useState(false); // Add this line
+  const [refreshingToken, setRefreshingToken] = useState(false); 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
@@ -174,13 +175,17 @@ const Deliver = () => {
       }
     }
   };
-  //  pagination section
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 15;
 
-  // Calculate pagination
-  const totalPages = Math.ceil(orders.length / postsPerPage);
-  const paginatedOrders = [...orders] // Create a copy to avoid mutation
+  const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
+  const paginatedOrders = [...dataToPaginate] // Create a copy to avoid mutation
     .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
   const handleSearchChange = (e) => {
@@ -192,6 +197,14 @@ const Deliver = () => {
       <h2 className="md:text-2xl text-base font-Ray_black text-center font-bold mb-4">
         لیست تحویلی سفارشات
       </h2>
+
+      {/* Search Bar */}
+      <SearchBar
+        placeholder="جستجو..."
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
+
       <div className=" overflow-x-scroll lg:overflow-hidden bg-white w-full md:w-full">
         <table className="min-w-full bg-white  rounded-lg border border-gray-200">
           <thead className="">
@@ -211,7 +224,7 @@ const Deliver = () => {
             </tr>
           </thead>
           <tbody className="">
-            {orders.length > 0 &&
+            {dataToPaginate.length > 0 ? (
               paginatedOrders.map((order) => (
                 <tr
                   key={order.id}
@@ -243,7 +256,15 @@ const Deliver = () => {
                     )}
                   </td>
                 </tr>
-              ))}
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="border p-2 text-center">
+                  هیچ سفارشی برای وضعیت "{searchTerm ? "جستجو" : "تکمیل شده"}"
+                  پیدا نشد.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
