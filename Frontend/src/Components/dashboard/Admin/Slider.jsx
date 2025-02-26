@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import CryptoJS from "crypto-js";
 import { IoTrashSharp } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
+import Pagination from "../../../Utilities/Pagination";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -15,15 +16,6 @@ const Slider = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImageId, setSelectedImageId] = useState(null);
   const secretKey = "TET4-1";
- const [visibleCount, setVisibleCount] = useState(5); // Initial visible items
-
-  const showMore = () => {
-    setVisibleCount((prev) => prev + 5); // Show 10 more items
-  };
-
-  const showLess = () => {
-    setVisibleCount(5); // Reset to 10 items
-  };
   const decryptData = (hashedData) => {
     if (!hashedData) return null;
     try {
@@ -182,6 +174,14 @@ const Slider = () => {
       return () => clearTimeout(timer); // Cleanup timeout
     }
   }, [error]);
+  //  pagination section
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(sliders.length / postsPerPage);
+  const paginatedOrders = [...sliders] // Create a copy to avoid mutation
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
   return (
     <div className="bg-gray-200 w-full py-10 ">
@@ -249,8 +249,7 @@ const Slider = () => {
           </thead>
           <tbody>
             {sliders.length > 0 ? (
-               
-                sliders.slice(0, visibleCount).map((slider) => (
+              paginatedOrders.map((slider) => (
                 <tr
                   key={slider.id}
                   className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -296,20 +295,15 @@ const Slider = () => {
             )}
           </tbody>
         </table>
-         {/* Buttons for Show More / Show Less */}
-         <div className="flex justify-center gap-x-4 mt-4">
-          {visibleCount < sliders.length && (
-            <button onClick={showMore} className="secondry-btn">
-              نمایش بیشتر
-            </button>
-          )}
-          {visibleCount > 5 && (
-            <button onClick={showLess} className="secondry-btn">
-              نمایش کمتر
-            </button>
-          )}
-        </div>
       </div>
+      {/* Pagination Component */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 };

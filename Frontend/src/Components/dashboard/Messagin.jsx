@@ -8,7 +8,7 @@ import { TbArrowBackUp } from "react-icons/tb";
 import { IoArrowBackCircle } from "react-icons/io5";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";
-
+import moment from "moment-jalaali";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const MessagingComponent = ({ setIsMessagingOpen }) => {
@@ -433,7 +433,6 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
       const data = await response.json();
 
       setSelectedUserInfo(data);
-      console.log(data);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -487,11 +486,7 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
                     >
                       {/* Date */}
                       <span className="absolute top-2 left-2 text-xs text-gray-500">
-                        {new Date(msg.date).toLocaleDateString("fa-IR", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
+                        {moment(msg.date).format("jYYYY/jMM/jDD")}
                       </span>
 
                       {/* Sender Info */}
@@ -548,33 +543,6 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
                       {/* Message Content */}
 
                       <p className="text-gray-800">{msg.message}</p>
-
-                      {/* Reply Button */}
-                      <button
-                        onClick={() => setReplyTo(msg.id)}
-                        className="mt-2 text-blue-500 text-sm hover:underline"
-                      >
-                        پاسخ دادن
-                      </button>
-
-                      {/* Reply Mode */}
-                      {replyTo === msg.id && (
-                        <div className="mt-2">
-                          <textarea
-                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            rows="2"
-                            placeholder="پاسخ خود را اینجا بنویسید..."
-                            value={replyMessage}
-                            onChange={(e) => setReplyMessage(e.target.value)}
-                          ></textarea>
-                          <button
-                            onClick={() => handleReply(msg)}
-                            className="mt-2 w-full bg-blue-500 text-white py-1 rounded-lg hover:bg-blue-600 transition"
-                          >
-                            ارسال پاسخ
-                          </button>
-                        </div>
-                      )}
                     </div>
                   ))
                 ) : (
