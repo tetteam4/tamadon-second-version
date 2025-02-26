@@ -23,6 +23,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "email",
+            
             "phone_number",
             "role",
             "password",
@@ -72,6 +73,7 @@ class UserSerializer(serializers.ModelSerializer):
             "role_display",
             "phone_number",
             "is_admin",
+            "is_free",
             "is_staff",
             "is_active",
             "is_superadmin",
