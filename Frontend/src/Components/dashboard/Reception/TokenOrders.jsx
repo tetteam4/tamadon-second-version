@@ -53,10 +53,14 @@ const TokenOrders = () => {
     }
 
     try {
+      // Fixed bill size (190mm x 320mm)
+      const billWidth = 210;
+      const billHeight = 148;
+
       const pdf = new jsPDF({
-        orientation: "landscape",
+        orientation: "Landscape",
         unit: "mm",
-        format: [350, 500],
+        format: [billHeight, billWidth],
       });
 
       pdf.addFileToVFS("Vazirmatn.ttf", vazirmatnFont);
@@ -67,13 +71,13 @@ const TokenOrders = () => {
         scale: 2,
         useCORS: true,
       });
+
       const imgData = canvas.toDataURL("image/jpeg", 0.5);
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, "JPEG", 0, 0, billWidth, billHeight);
 
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("bill.pdf", { compress: true });
+      pdf.autoPrint();
+      window.open(pdf.output("bloburl"), "_blank");
     } catch (error) {
       console.error("Error generating PDF:", error);
     }
@@ -367,7 +371,7 @@ const TokenOrders = () => {
 
           <div
             id="bill-content"
-            className="scale-75 fixed inset-0 bg-opacity-75 flex items-center justify-center z-50"
+            className="scale-75 fixed inset-0 bg-opacity-75 flex top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 items-center justify-center z-50"
           >
             <button
               onClick={() => setIsModelOpen(!isModelOpen)}
