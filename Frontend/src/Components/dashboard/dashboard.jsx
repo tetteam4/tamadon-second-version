@@ -217,7 +217,7 @@ const Dashboard = () => {
       "category management",
       "Add Order",
       "designerChart",
-      // "token",
+      "token",
       "Logout",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
