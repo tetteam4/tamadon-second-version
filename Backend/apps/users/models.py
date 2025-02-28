@@ -91,7 +91,9 @@ class User(AbstractBaseUser):
         elif self.role == self.Reception:
             return "Reception"
         elif self.role == self.SuperDesigner:
-            return "SuperDesigner"
+            return "SuperDesigner" 
+        elif self.role == self.Delivered:
+            return "Delivered"
         else:
             return "Admin"
 
