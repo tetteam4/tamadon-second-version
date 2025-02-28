@@ -104,3 +104,31 @@ body::-webkit-scrollbar-track {
   display: flex;
   animation: marquee-reverse 10s linear infinite;
 }
+
+
+#bill-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 290mm;  
+  height: 190mm; 
+  padding: 0px;
+  font-family: "Vazirmatn", Arial, sans-serif;
+  background: white;
+  color: black;
+  border: 1px solid #ddd; 
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #bill-content, #bill-content * {
+    visibility: visible;
+  }
+  #bill-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
