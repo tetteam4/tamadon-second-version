@@ -29,7 +29,8 @@ from .serializers import (
     ProfileSerializer,
     UpdateUserSerializer,
     UserSerializer,
-    ContactSerializer
+    ContactSerializer,
+    UserFreeStatus
 )
 from .tasks import send_email_notification_task
 from .utils import send_admin_notification, send_email_notification
@@ -578,3 +579,10 @@ class ContactViewSet(viewsets.ModelViewSet):
         send_admin_notification(request, contact, email_subject, email_template)
 
         return response
+
+
+class UserFreeStatusViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserFreeStatus
+    permission_classes = [AllowAny]
+
