@@ -134,7 +134,7 @@ const SideHeader = ({ navItems }) => {
             >
               <img
                 src="/Tamadon.png"
-                alt="Tamadon logo"
+                alt="logo"
                 className=" hidden   lg:flex h-[90px] md:h-[120px] p-2 w-auto"
               />
             </Link>

@@ -1,4 +1,6 @@
 import React from "react";
+
+import { FaInstagram, FaLinkedin, FaTwitter, FaFacebook } from "react-icons/fa";
 import { IoMdArrowDropleft } from "react-icons/io";
 import { Link } from "react-router-dom";
 import HeadFooter from "./HeadFooter";
@@ -58,7 +60,7 @@ function Footer() {
           <div className="flex bg-white rounded-lg md:bg-transparent items-center col-span-1  justify-center gap-5 md:gap-5 lg:gap-3">
             <div className="bg-white p-5 rounded-md ">
               <img
-                src='/Tamadon.png'
+                src='Tamadon.png'
                 alt="logo"
                 className="lg:h-[150px] h-[70px] md:h-[100px] w-auto"
               />

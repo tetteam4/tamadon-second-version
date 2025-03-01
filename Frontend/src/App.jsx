@@ -14,18 +14,16 @@ import ForgotPassword from "./Components/loginpage/ForgotPassword";
 import CreateNewPassword from "./Components/loginpage/CreateNewPassword";
 import CategoryPage from "./Components/Blog/CategoryPage";
 import ServiceDetails from "./Components/Services/ServiceDetails";
-import CustomerWaitingScreen from "./Pages/Screeen";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+  
         <Route path="/" element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogCardDetails />} />
-          <Route path="/s" element={<CustomerWaitingScreen />} />
-
           <Route path="/category/:categoryName" element={<CategoryPage />} />
           {/* New route */}
           <Route path="/service" element={<Services />} />
@@ -33,7 +31,7 @@ function App() {
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/about" element={<About />} />
         </Route>
-
+       
         <Route path="*" element={<NotFound />} />
         <Route path="/bill" element={<Bill />} />
         <Route path="/dashboard" element={<Dashboard role="Designer" />} />

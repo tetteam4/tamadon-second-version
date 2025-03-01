@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { FaTelegramPlane, FaEnvelope } from "react-icons/fa";
 import { PiPhoneCallFill } from "react-icons/pi";
 import { CiGlobe } from "react-icons/ci";
+import { IoQrCode } from "react-icons/io5";
+import bill from "../../../public/bill.jpeg";
+import logo from "../../../public/Tamadon.png";
 import axios from "axios";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import CryptoJS from "crypto-js";
@@ -115,7 +118,7 @@ const Bill = ({ order }) => {
         <div className="w-full relative pr-5">
           {/* Backdrop image */}
           <img
-            src="/Tamadon.png"
+            src={logo}
             alt="logo"
             className="absolute   opacity-5 top-20 -bottom-10 right-5 mt-5 w-[600px] object-cover overflow-hidden "
           />
@@ -165,7 +168,7 @@ const Bill = ({ order }) => {
 
               {/* Logo */}
               <img
-                src="/Tamadon.png"
+                src={logo}
                 alt="Tamadon Logo"
                 className="w-24 h-24 object-contain"
               />
@@ -175,23 +178,25 @@ const Bill = ({ order }) => {
           {/* contain */}
 
           <div className="flex justify-center mt-2 items-center ">
-            <div className="border border-gray-400 h-[280px]  w-[800px]  rounded-lg bg-white grid overflow-hidden grid-cols-4  px-4 shadow-md">
-              <div className="mt-3 col-span-1 ">
+            <div className="border border-gray-400 h-[300px]  w-[800px]  rounded-lg bg-white grid overflow-hidden grid-cols-4  px-4 shadow-md">
+              <div className="mt-5 col-span-1 ">
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>مشتری:</p>
-                  <span className=" ">{order.customer_name}</span>
+                  <span className=" underline">{order.customer_name}</span>
                 </div>
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>دیزاینر:</p>{" "}
-                  <span className=" ">{getDesignerName(order.designer)}</span>
+                  <span className=" underline">
+                    {getDesignerName(order.designer)}
+                  </span>
                 </div>
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>نام سفارش:</p>{" "}
-                  <span className=" ">{order.order_name}</span>
+                  <span className=" underline">{order.order_name}</span>
                 </div>
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>جنس:</p>{" "}
-                  <span className=" ">
+                  <span className=" underline">
                     {categories.find(
                       (category) => category.id === order.category
                     )?.name || "نامشخص"}
@@ -199,17 +204,19 @@ const Bill = ({ order }) => {
                 </div>
                 <div className="p-1 gap-x-2 flex items-start">
                   <p>جمله :</p>
-                  <span className="">{prices[0]?.price || "unknown"}</span>
+                  <span className="underline">
+                    {prices[0]?.price || "unknown"}
+                  </span>
                 </div>
                 <div className="p-1 gap-x-2 flex items-start">
                   <p>پیش پرداخت:</p>
-                  <span className="">
+                  <span className="underline">
                     {prices[0]?.receive_price || "unknown"}
                   </span>
                 </div>
                 <div className="p-1 gap-x-2 flex items-start">
                   <p>باقی :</p>
-                  <span className="">
+                  <span className="underline">
                     {prices[0]?.reminder_price || "unknown"}
                   </span>
                 </div>
@@ -297,12 +304,13 @@ const Bill = ({ order }) => {
               </div>
             </div>
           </div>
-          <div className="text-center text-md mt-2 text-red-600 ">
-            نوت: لطفاً هنگام دریافت سفارش، بل سفارش را همراه داشته باشید.
-          </div>
         </div>
         <div className="">
+<<<<<<< Updated upstream
           <img src="/bill.jpeg" alt="" className="h-[190mm] w-[300px]" />
+=======
+          <img src={bill} alt="" className="h-full w-[300px]" />
+>>>>>>> Stashed changes
         </div>
       </div>
     </div>
