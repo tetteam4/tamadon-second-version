@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import { MdCheck, MdClose } from "react-icons/md";
 import CryptoJS from "crypto-js";
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-
 const RoleToggle = () => {
   const secretKey = "TET4-1"; // Use a strong secret key
-
   const decryptData = (hashedData) => {
     if (!hashedData) {
       console.error("No data to decrypt");
@@ -23,26 +20,9 @@ const RoleToggle = () => {
 
   const [role, setRole] = useState(decryptData(localStorage.getItem("role")));
   const [status, setStatus] = useState("Free");
-  const [id, setId] = useState(decryptData(localStorage.getItem("id")));
 
-  const toggleStatus = async () => {
-    if (!id) return;
-
-    const newStatus = status === "Free" ? "Busy" : "Free";
-    const isFree = newStatus === "Free";
-
-    try {
-      const response = await fetch(`${BASE_URL}/users/api/free-status/${id}/`, {
-        method: "PATCH", // Use PATCH for updating a single field
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ is_free: true }),
-      });
-      console.log(response);
-    } catch (error) {
-      console.error("Error updating status:", error);
-    }
+  const toggleStatus = () => {
+    setStatus((prevStatus) => (prevStatus === "Free" ? "Busy" : "Free"));
   };
 
   if (role != "1") {

@@ -193,6 +193,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     let previousCount = 0;
+
     const interval = setInterval(async () => {
       const messages = await fetchUnreadMsg();
       const currentCount = Array.isArray(messages) ? messages.length : 0;
@@ -216,7 +217,7 @@ const Dashboard = () => {
       "category management",
       "Add Order",
       "designerChart",
-      "token",
+      // "token",
       "Logout",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
