@@ -307,7 +307,11 @@ const Bill = ({ order }) => {
         </div>
         <div className="">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
           <img src="/bill.jpeg" alt="" className="h-[190mm] w-[300px]" />
+=======
+          <img src={bill} alt="" className="h-full w-[300px]" />
+>>>>>>> Stashed changes
 =======
           <img src={bill} alt="" className="h-full w-[300px]" />
 >>>>>>> Stashed changes
