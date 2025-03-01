@@ -2,12 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import { MapPin, Mail, Phone, Clock } from "lucide-react"; // Import Lucide icons
-import {
-  FaMapMarkerAlt,
-  FaEnvelope,
-  FaPhoneAlt,
-  FaClock,
-} from "react-icons/fa";
+
 
 const ContactDetails = () => {
   return (
@@ -79,7 +74,7 @@ const ContactDetails = () => {
               93-772-029-545+
             </p>
           </div>
-       
+
           {/* Response Hours */}
           <div className="flex justify-between items-center gap-2 border-t border-b h-12">
             <div className="flex items-center gap-4">
@@ -94,19 +89,18 @@ const ContactDetails = () => {
           </div>
         </div>
 
-        <div className="w-full md:w-[60%] p-2">
-          <a
-            href="https://www.google.com/maps/place/%D9%85%D8%B7%D8%A8%D8%B9%D9%87+%D8%AA%D9%85%D8%AF%D9%86+,Tamadon+printing+press%E2%80%AD/@34.5119474,69.1116721,16z/data=!4m10!1m2!2m1!1sTamadon+Printing+Press+!3m6!1s0x38d16fb010b591ab:0x7ab5fcf1055fd49a!8m2!3d34.5119312!4d69.1196991!15sChZUYW1hZG9uIFByaW50aW5nIFByZXNzkgEYZGlnaXRhbF9wcmludGluZ19zZXJ2aWNl4AEA!16s%2Fg%2F11hyyh1lgq?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D"
-            target="_blank"
-            rel="noreferrer"
-            className="w-full h-full"
-          >
-            <img
-              src='map.png'
-              alt="map"
-              className="w-full h-64 md:h-full rounded-2xl object-cover"
-            />
-          </a>
+        <div className="w-full md:w-[60%] md:h-[390px] h-[250px] p-2">
+         
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6575.284930510084!2d69.1116721!3d34.5119474!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38d16fb010b591ab%3A0x7ab5fcf1055fd49a!2z2YXYt9io2LnZhyDYqtmF2K_ZhiAsVGFtYWRvbiBwcmludGluZyBwcmVzcw!5e0!3m2!1sen!2s!4v1739878718527!5m2!1sen!2s"
+            width="100%"
+            height="100%"
+            // style="border:0;"
+            allowfullscreen=""
+            className="rounded-lg"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
         </div>
       </div>{" "}
     </div>

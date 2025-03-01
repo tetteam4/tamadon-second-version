@@ -1,6 +1,8 @@
 import React from "react";
 import { BsDot, BsPhone } from "react-icons/bs";
+
 import { FaPhoneAlt } from "react-icons/fa";
+import image from "../../assets/Hero_Image/image1.jpg";
 
 const WithTamadon = () => {
   return (
@@ -14,8 +16,7 @@ const WithTamadon = () => {
             {" "}
             تلاقی کیفیت و نو آوری!
           </h1>
-          <p className="mt-2 text-lg font-bold dark:text-gray-100">
-            خدمات ما شامل:
+          <p className="mt-2 text-lg font-bold dark:text-gray-100">خدمات ما شامل:
           </p>
           <ul className="mt-1  ">
             <li className="flex items-center">
@@ -62,6 +63,7 @@ const WithTamadon = () => {
                 لوحه‌های برجسته، تاپه و بیرق
               </p>
             </li>
+           
           </ul>
           <div className="text-base mt-2 ">
             <p className="text-justify dark:text-gray-100">
@@ -71,7 +73,7 @@ const WithTamadon = () => {
               برای اطلاعات بیشتر یا دریافت قیمت، با ما تماس بگیرید.
             </p>
           </div>
-          <button className="bg-green dark:bg-tertiary py-2 px-10 gap-2 hover:bg-green/90 font-bold rounded-xl  mt-4 text-white flex justify-center items-center">
+          <button  className="bg-green dark:bg-tertiary py-2 px-10 gap-2 hover:bg-green/90 font-bold rounded-xl  mt-4 text-white flex justify-center items-center">
             <span className="p-2 bg-white rounded-full">
               <FaPhoneAlt className="text-black" />
             </span>

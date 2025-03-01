@@ -70,7 +70,7 @@ const OurCustomer = () => {
                   <img
                     src={customer.image}
                     alt={`Customer ${customer.id}`}
-                    className="w-full h-28 rounded-lg object-contain"
+                    className="w-full h-28 rounded-lg mix-blend-multiply object-contain"
                   />
                   <p className="text-sm md:text-lg h-8 mt-2 font-bold text-gray-800 dark:text-gray-100">
                     {customer.name}

@@ -193,7 +193,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     let previousCount = 0;
-
     const interval = setInterval(async () => {
       const messages = await fetchUnreadMsg();
       const currentCount = Array.isArray(messages) ? messages.length : 0;
