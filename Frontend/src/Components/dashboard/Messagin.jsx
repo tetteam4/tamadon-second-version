@@ -492,6 +492,14 @@ const MessagingComponent = ({ setIsMessagingOpen }) => {
                       {/* Sender Info */}
                       <div
                         className="flex items-center mb-1 cursor-pointer" // Added cursor-pointer
+                        onClick={() => {
+                          // Determine which user's info to show
+                          const userToShow =
+                            msg.sender === userId
+                              ? msg.receiver_profile
+                              : msg.sender_profile;
+                          openUserInfoPopup(userToShow);
+                        }}
                       >
                         <img
                           src={
