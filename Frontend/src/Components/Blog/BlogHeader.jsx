@@ -55,7 +55,6 @@ const BlogHeader = () => {
           <Swiper
             modules={[Navigation, Pagination, Autoplay]}
             autoplay={{ delay: 3000 }}
-            loop={true}
             spaceBetween={30}
             slidesPerView={1}
             navigation={{
@@ -96,10 +95,16 @@ const BlogHeader = () => {
           </Swiper>
 
           {/* Navigation Buttons */}
-          <div className="button-prev-slide cursor-pointer hidden md:flex w-[30px] h-[30px] items-center justify-center rounded-full absolute top-1/2 -translate-y-1/2 -left-4 z-20 bg-green/50 shadow-md">
+          <div
+            onMouseDown={(e) => e.preventDefault()}
+            className="button-prev-slide cursor-pointer hidden md:flex w-[30px] h-[30px] items-center justify-center rounded-full absolute top-1/2 -translate-y-1/2 -left-4 z-20 bg-green/50 shadow-md"
+          >
             <MdArrowBackIos />
           </div>
-          <div className="button-next-slide hidden cursor-pointer md:flex w-[30px] h-[30px] items-center justify-center rounded-full absolute top-1/2 -translate-y-1/2 -right-4 z-20 bg-green/50 shadow-md">
+          <div
+            onMouseDown={(e) => e.preventDefault()}
+            className="button-next-slide hidden cursor-pointer md:flex w-[30px] h-[30px] items-center justify-center rounded-full absolute top-1/2 -translate-y-1/2 -right-4 z-20 bg-green/50 shadow-md"
+          >
             <MdArrowForwardIos />
           </div>
         </div>
