@@ -303,6 +303,7 @@ const Bill = ({ order }) => {
         </div>
         <div className="">
           <img src="/bill.jpeg" alt="" className="h-[190mm] w-[300px]" />
+          <img src={bill} alt="" className="h-full w-[300px]" />
         </div>
       </div>
     </div>
