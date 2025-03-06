@@ -61,6 +61,7 @@ import Deliver from "./Reception/deliverOrder.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 import ModeToggle from "./ModeToggling.jsx";
 import Token from "./TokenOrdeing/Token.jsx";
+import OrderListSuperDesigner from "./designer/orderlistSuperDesigner.jsx";
 const Dashboard = () => {
   // Modal visibility state
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -219,6 +220,7 @@ const Dashboard = () => {
       "designerChart",
       // "token",
       "Logout",
+      "OrderListSuperDesigner",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
     2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
@@ -294,6 +296,11 @@ const Dashboard = () => {
       component: "OrderList",
       icon: <FaClipboardList />,
       label: "  لیست سفارشات جدید",
+    },
+    OrderListSuperDesigner: {
+      component: "OrderListSuperDesigner",
+      icon: <FaClipboardList />,
+      label: "  لیست سفارشات ",
     },
     TokenOrders: {
       component: "TokenOrders",
@@ -417,6 +424,8 @@ const Dashboard = () => {
         return <Deliver />;
       case "OrderList":
         return <OrderList />;
+      case "OrderListSuperDesigner":
+        return <OrderListSuperDesigner />;
       case "ProcessingList":
         return <ProcessingList />;
       case "TokenOrders":
