@@ -201,9 +201,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
 
         user = self.request.user
-        print(f"User role: {user.role}")  
 
-        if user.role in [0, 2]: 
+        if user.role in [0, 2,3,1]: 
             return Order.objects.all()
 
         if user.role == 3:  # SuperDesigner
@@ -233,10 +232,15 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         # Save the order and trigger Celery task asynchronously
         order = serializer.save(designer=user)
-        process_order_saving.delay(order.id)
+        # process_order_saving.delay(order.id)
 
     def perform_update(self, serializer):
         user = self.request.user
+        if user.role != 1 and user.role != 2 and user.role != 3:
+            raise PermissionDenied(
+                "You must be a Designer or Admin to create an order."
+            )
+        
         order = serializer.save()
 
         # Trigger Celery task asynchronously to process the updated order

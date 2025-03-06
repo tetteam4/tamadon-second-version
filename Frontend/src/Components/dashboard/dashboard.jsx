@@ -461,7 +461,7 @@ const Dashboard = () => {
             <MdMenu size={28} />
           </button>
           <div className="lg:flex items-center hidden  gap-x-5">
-            <Link to="" className="">
+            <Link to="/" className="">
               <img
                 src={Tamadon}
                 alt="Logo"
