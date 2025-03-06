@@ -4,7 +4,6 @@ import { FaXmark } from "react-icons/fa6";
 import logo from "../../../public/Tamadon.png";
 import { MdWbSunny, MdNightlight } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
-import { LuLogIn } from "react-icons/lu";
 import ResNavbar from "./ResNavbar";
 import { Link } from "react-router-dom";
 import CryptoJS from "crypto-js";
