@@ -10,7 +10,6 @@ import Swal from "sweetalert2";
 import Pagination from "../../../Utilities/Pagination.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-
 const OrderList = () => {
   const [showBill, setShowBill] = useState(false); // State to control Bill rendering
   const [orders, setOrders] = useState([]);
@@ -22,6 +21,9 @@ const OrderList = () => {
   const [categories, setCategories] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [users, setUsers] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingData, setEditingData] = useState({});
+
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
     if (!hashedData) {
@@ -37,7 +39,6 @@ const OrderList = () => {
       console.error("Decryption failed:", error);
       return null;
     }
-
   };
   const [modalData, setModalData] = useState({
     receive_price: "",
@@ -90,7 +91,6 @@ const OrderList = () => {
     }
   };
 
-
   const fetchOrders = async () => {
     if (!token) {
       setError("No authentication token found.");
@@ -124,6 +124,33 @@ const OrderList = () => {
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
+    }
+  };
+  const handleEdit = (order) => {
+    setIsEditing(true);
+    setEditingData(order);
+  };
+
+  const handleSave = async () => {
+    const { id, attributes } = editingData;
+    try {
+      const response = await axios.put(
+        `${BASE_URL}/group/orders/${id}/`,
+        editingData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Data updated successfully");
+      // Optionally, update the local state or refresh data
+      setIsEditing(false);
+      handleClosePopup();
+      console.log(editingData);
+    } catch (error) {
+      console.error("Error updating data:", error);
     }
   };
 
@@ -362,7 +389,6 @@ const OrderList = () => {
 
   const handleShowAttribute = (order) => {
     setPassedOrder(order);
-    console.log(order);
     // Convert JSON object to an array
     const attributeArray = Object.entries(order.attributes); // Converts to array of [key, value] pairs
     setIsViewModelOpen(!isViewModelOpen);
@@ -380,6 +406,7 @@ const OrderList = () => {
   // Calculate pagination
   const totalPages = Math.ceil(orders.length / postsPerPage);
   const paginatedOrders = [...orders] // Create a copy to avoid mutation
+    .reverse()
     .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
   return (
@@ -552,26 +579,64 @@ const OrderList = () => {
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
             <h3 className="text-xl font-bold mb-4 text-gray-800">
-              اطلاعات سفارش
+              {isEditing ? "ویرایش سفارش" : "اطلاعات سفارش"}
             </h3>
             <div className="bg-gray-100 p-4 rounded overflow-auto text-sm space-y-2">
-              {passedOrder &&
-                Object.entries(passedOrder.attributes).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="flex justify-between items-center border-b border-gray-300 pb-2"
-                  >
-                    <span className="font-medium text-gray-700">{key}</span>
+              {Object.entries(passedOrder.attributes).map(([key, value]) => (
+                <div
+                  key={key}
+                  className="flex justify-between items-center border-b border-gray-300 pb-2"
+                >
+                  <span className="font-medium text-gray-700">{key}</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editingData.attributes[key] || ""}
+                      onChange={(e) =>
+                        setEditingData((prev) => ({
+                          ...prev,
+                          attributes: {
+                            ...prev.attributes,
+                            [key]: e.target.value,
+                          },
+                        }))
+                      }
+                      className="border rounded p-1 text-gray-900 w-1/2"
+                    />
+                  ) : (
                     <span className="text-gray-900">{String(value)}</span>
-                  </div>
-                ))}
+                  )}
+                </div>
+              ))}
             </div>
-            <button
-              onClick={handleClosePopup}
-              className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-              بستن
-            </button>
+
+            <div className="flex space-x-2 mt-4">
+              <button
+                onClick={() => {
+                  handleClosePopup();
+                  setIsEditing(false);
+                }}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                بستن
+              </button>
+
+              {isEditing ? (
+                <button
+                  onClick={handleSave}
+                  className="bg-green text-white px-4 py-2 rounded hover:bg-green-700"
+                >
+                  ذخیره
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleEdit(passedOrder)}
+                  className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+                >
+                  ویرایش
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
