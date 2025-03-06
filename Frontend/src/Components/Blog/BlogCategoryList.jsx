@@ -60,10 +60,16 @@ const BlogCategoryList = () => {
         ))}
       </Swiper>
       {/* Navigation Buttons */}
-      <div className="custom-prev cursor-pointer hidden md:flex w-[30px] h-[30px] items-center justify-center rounded-full absolute top-1/2 -translate-y-1/2 -left-4 z-20 bg-green/50 shadow-md">
+      <div
+        onMouseDown={(e) => e.preventDefault()}
+        className="custom-prev cursor-pointer hidden md:flex w-[30px] h-[30px] items-center justify-center rounded-full absolute top-1/2 -translate-y-1/2 -left-4 z-20 bg-green/50 shadow-md"
+      >
         <MdArrowBackIos />
       </div>
-      <div className="custom-next hidden cursor-pointer md:flex w-[30px] h-[30px] items-center justify-center rounded-full absolute top-1/2 -translate-y-1/2 -right-4 z-20 bg-green/50 shadow-md">
+      <div
+        onMouseDown={(e) => e.preventDefault()}
+        className="custom-next hidden cursor-pointer md:flex w-[30px] h-[30px] items-center justify-center rounded-full absolute top-1/2 -translate-y-1/2 -right-4 z-20 bg-green/50 shadow-md"
+      >
         <MdArrowForwardIos />
       </div>
     </div>
