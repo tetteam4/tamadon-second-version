@@ -297,11 +297,6 @@ const Dashboard = () => {
       icon: <FaClipboardList />,
       label: "  لیست سفارشات جدید",
     },
-    OrderListSuperDesigner: {
-      component: "OrderListSuperDesigner",
-      icon: <FaClipboardList />,
-      label: "  لیست سفارشات ",
-    },
     TokenOrders: {
       component: "TokenOrders",
       icon: <FaClipboardList />,
@@ -324,6 +319,12 @@ const Dashboard = () => {
       icon: <FaClipboardList />,
       label: "تحویل سفارشات",
     },
+
+    OrderListSuperDesigner: {
+      component: "OrderListSuperDesigner",
+      icon: <FaClipboardList />,
+      label: " سفارشات مجموعی",
+    },
     designerChart: {
       component: "designerChart",
       icon: <FaChartBar />,
@@ -344,7 +345,6 @@ const Dashboard = () => {
       icon: <FaClipboardList />,
       label: " سفارشات  کامل شده",
     },
-
     Dashboard: {
       component: "DashboardHome",
       icon: <MdDashboard />,

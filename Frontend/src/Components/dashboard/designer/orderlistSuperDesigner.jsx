@@ -1,23 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import html2canvas from "html2canvas";
-import ReactDOMServer from "react-dom/server";
-import { startTransition } from "react"; // Import startTransition
+import Swal from "sweetalert2";
 import jwt_decode from "jwt-decode";
 import CryptoJS from "crypto-js";
-import Bill from "../../Bill_Page/Bill.jsx";
-import Swal from "sweetalert2";
 import Pagination from "../../../Utilities/Pagination.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const OrderListSuperDesigner = () => {
-  const [showBill, setShowBill] = useState(false); // State to control Bill rendering
   const [orders, setOrders] = useState([]);
   const [passedOrder, setPassedOrder] = useState([]);
-  const [selectedOrderId, setSelectedOrderId] = useState(null); // Store the orderId of the order to be deleted
-  const [isModelOpen, setIsModelOpen] = useState(false);
   const [isViewModelOpen, setIsViewModelOpen] = useState(false);
-  const [selectedAttribute, setSelectedAttribute] = useState({}); // State for popup data
   const [categories, setCategories] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [users, setUsers] = useState([]);
@@ -144,13 +136,29 @@ const OrderListSuperDesigner = () => {
           },
         }
       );
-      console.log("Data updated successfully");
+
       // Optionally, update the local state or refresh data
       setIsEditing(false);
       handleClosePopup();
       console.log(editingData);
+
+      // Show success notification with Swal
+      Swal.fire({
+        icon: "success",
+        title: "بروز رسانی موفق",
+        text: "اطلاعات با موفقیت بروز شد.",
+        confirmButtonText: "باشه",
+      });
     } catch (error) {
       console.error("Error updating data:", error);
+
+      // Show error notification with Swal
+      Swal.fire({
+        icon: "error",
+        title: "خطا در بروز رسانی",
+        text: "مشکلی در بروز رسانی اطلاعات رخ داده است.",
+        confirmButtonText: "تلاش مجدد",
+      });
     }
   };
 
@@ -216,29 +224,6 @@ const OrderListSuperDesigner = () => {
     fetchUsers();
   }, [token]); // Dependency array now includes token to refetch when token changes
 
-  // Handle "check" button click (open modal)
-  const handleCheckClick = (order) => {
-    setSelectedOrder(order.id);
-    const category = categories.find((cat) => cat.id === order.category_id);
-    const initialPrice =
-      category && category.default_price !== undefined
-        ? category.default_price
-        : "";
-
-    setModalData({
-      receive_price: order.receive_price || "",
-      total_price: order.total_price || "",
-      reminder_price: order.reminder_price || "", // Show reminder_price here
-      deliveryDate: order.deliveryDate || "",
-      order_name: order.order_name,
-      customer_name: order.customer_name,
-      description: order.description || "",
-      category_name: category ? category.name : "",
-    });
-
-    setShowModal(true);
-  };
-
   // Handle delete button click
   const handleDelete = async (orderId) => {
     let token = decryptData(localStorage.getItem("auth_token"));
@@ -282,8 +267,6 @@ const OrderListSuperDesigner = () => {
 
       console.log("Order deleted:", response.data);
       setOrders(orders.filter((order) => order.id !== orderId)); // Remove deleted order
-      setIsModelOpen(false); // Close modal
-
       // Show success message
       Swal.fire({
         title: "حذف شد!",
@@ -472,6 +455,14 @@ const OrderListSuperDesigner = () => {
                         className="secondry-btn"
                       >
                         نمایش
+                      </button>{" "}
+                      <button
+                        onClick={() => {
+                          handleDelete(order.id);
+                        }}
+                        className="secondry-btn bg-red-600"
+                      >
+                        حذف
                       </button>
                     </td>
                   </tr>
