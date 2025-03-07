@@ -1,9 +1,11 @@
 import React from "react";
+
 import { IoMdArrowDropleft } from "react-icons/io";
 import { Link } from "react-router-dom";
 import HeadFooter from "./HeadFooter";
 
 function Footer() {
+
   const navItems = [
     { id: 1, title: "صفحه اصلی", path: "/" },
     { id: 2, title: "محصولات", path: "/service" },
@@ -11,6 +13,7 @@ function Footer() {
     { id: 4, title: "درباره ما", path: "/about" },
     { id: 5, title: "تماس با ما", path: "/contactus" },
   ];
+
 
   return (
     <footer
@@ -58,7 +61,7 @@ function Footer() {
           <div className="flex bg-white rounded-lg md:bg-transparent items-center col-span-1  justify-center gap-5 md:gap-5 lg:gap-3">
             <div className="bg-white p-5 rounded-md ">
               <img
-                src='/Tamadon.png'
+                src="/Tamadon.png"
                 alt="logo"
                 className="lg:h-[150px] h-[70px] md:h-[100px] w-auto"
               />
@@ -112,9 +115,9 @@ function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 text-center  ">
-          <hr className="max-w-[60%] mx-auto border-gray-600" />
-          <p className="pt-4 text-gray-400">
+        <div className="mt-8 text-center">
+          <hr className="w-3/5 mx-auto border-t border-gray-600" />
+          <p className="pt-4 text-sm text-gray-400 leading-relaxed">
             &copy; {new Date().getFullYear()} TET. تمامی حقوق محفوظ است.
           </p>
         </div>

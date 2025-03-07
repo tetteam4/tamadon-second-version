@@ -66,15 +66,12 @@ const OurCustomer = () => {
               }
             >
               <div className="h-40 w-[200px] flex-shrink-0 inline-block">
-                <div className="w-full h-full flex items-center flex-col">
+                <div className="w-full h-full flex items-center  flex-col">
                   <img
                     src={customer.image}
                     alt={`Customer ${customer.id}`}
                     className="w-full h-28 rounded-lg object-contain"
                   />
-                  <p className="text-sm md:text-lg h-8 mt-2 font-bold text-gray-800 dark:text-gray-100">
-                    {customer.name}
-                  </p>
                 </div>
               </div>
             </SwiperSlide>
