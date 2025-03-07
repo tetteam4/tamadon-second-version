@@ -293,6 +293,9 @@ const TokenOrders = () => {
                   تاریخ تحویل
                 </th>
                 <th className="border border-gray-300 px-6 py-2.5  font-semibold text-sm md:text-base">
+                  حالت
+                </th>
+                <th className="border border-gray-300 px-6 py-2.5  font-semibold text-sm md:text-base">
                   جزئیات
                 </th>
               </tr>
@@ -327,6 +330,15 @@ const TokenOrders = () => {
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
                       {DDate[order.id] || "در حال بارگذاری..."}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                      {order.status == "taken"
+                        ? " در مطبعه"
+                        : order.status == "processing"
+                        ? "تحت کار"
+                        : order.status == "done"
+                        ? "تکمیل"
+                        : "تحویل داده شده" || "در حال بارگذاری..."}
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
                       <button
