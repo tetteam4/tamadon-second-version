@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate , useLocation } from "react-router-dom";
 import axios from "axios";
 import BlogCard from "./BlogCard";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -28,7 +28,7 @@ const RecentlyBlogPost = () => {
       });
   }, []);
   return (
-    <section className="py-10 px-5 lg:px-0">
+    <section id="recently-blog" className="py-10 px-5 lg:px-0">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-Ray_black font-bold text-gray-800 dark:text-gray-100">
           آخرین اخبار ما
