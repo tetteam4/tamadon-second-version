@@ -12,11 +12,6 @@ import {
 const ReceptionMainPage = ({ chartData }) => {
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. A ipsa, maiores
-        quaerat error cumque quasi! Laudantium soluta repellendus sint accusamus
-        eligendi reprehenderit sed omnis a facere. Iusto neque rem perspiciatis?
-      </p>
       <BarChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" />

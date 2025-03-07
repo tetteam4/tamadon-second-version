@@ -19,7 +19,7 @@ const ResNavbar = ({ open, navItems, setOpen }) => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 100 }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
-          className="fixed top-0 right-0 lg:hidden h-screen w-[300px] md:w-[400px] z-40"
+          className="fixed top-0 right-0 lg:hidden h-[100vh] w-[320px]  z-40"
           role="dialog"
           aria-hidden={!open}
         >
