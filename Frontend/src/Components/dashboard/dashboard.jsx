@@ -61,6 +61,7 @@ import Deliver from "./Reception/deliverOrder.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 import ModeToggle from "./ModeToggling.jsx";
 import Token from "./TokenOrdeing/Token.jsx";
+import OrderListSuperDesigner from "./designer/orderlistSuperDesigner.jsx";
 const Dashboard = () => {
   // Modal visibility state
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -217,8 +218,9 @@ const Dashboard = () => {
       "category management",
       "Add Order",
       "designerChart",
-      "token",
+      // "token",
       "Logout",
+      "OrderListSuperDesigner",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
     2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
@@ -317,6 +319,12 @@ const Dashboard = () => {
       icon: <FaClipboardList />,
       label: "تحویل سفارشات",
     },
+
+    OrderListSuperDesigner: {
+      component: "OrderListSuperDesigner",
+      icon: <FaClipboardList />,
+      label: " سفارشات مجموعی",
+    },
     designerChart: {
       component: "designerChart",
       icon: <FaChartBar />,
@@ -337,7 +345,6 @@ const Dashboard = () => {
       icon: <FaClipboardList />,
       label: " سفارشات  کامل شده",
     },
-
     Dashboard: {
       component: "DashboardHome",
       icon: <MdDashboard />,
@@ -417,6 +424,8 @@ const Dashboard = () => {
         return <Deliver />;
       case "OrderList":
         return <OrderList />;
+      case "OrderListSuperDesigner":
+        return <OrderListSuperDesigner />;
       case "ProcessingList":
         return <ProcessingList />;
       case "TokenOrders":
@@ -461,7 +470,7 @@ const Dashboard = () => {
             <MdMenu size={28} />
           </button>
           <div className="lg:flex items-center hidden  gap-x-5">
-            <Link to="" className="">
+            <Link to="/" className="">
               <img
                 src={Tamadon}
                 alt="Logo"
@@ -503,7 +512,7 @@ const Dashboard = () => {
       <div className="flex flex-1 pt-[74px] overflow-hidden ">
         <aside
           className={`bg-white text-gray-900 py-3 ${
-            isSideOpen ? "w-[60%]  z-20" : "hidden"
+            isSideOpen ? "w-[60%] md:w-[35%]  z-20" : "hidden"
           } lg:flex flex-col fixed w-[250px]  px-5 md:relative 
     top-0 h-screen right-0 bottom-0 
     transition-all ease-in-out duration-200`}

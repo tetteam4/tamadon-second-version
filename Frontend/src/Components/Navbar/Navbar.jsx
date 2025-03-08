@@ -29,7 +29,7 @@ const Navbar = ({ navItems }) => {
           "grid grid-cols-4  bg-[#00513a] dark:bg-primary place-content-center"
         }`}
       >
-        {/* Logo */}
+   
         <div
           className={`flex items-center gap-4 ${
             isScrolled ? "blog col-span-1 " : "hidden"

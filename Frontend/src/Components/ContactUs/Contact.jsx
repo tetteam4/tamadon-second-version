@@ -1,12 +1,10 @@
-import React, { useState } from "react";
-import { FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+
 import axios from "axios";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 function Contact() {
-  const iconStyle = "text-5xl mr-4 bg-gray-700 p-2 text-[#2bb987] rounded-md";
-  const infoStyle = "text-md font-semibold text-gray-900";
-  const textStyle = "text-gray-600";
+
 
   const [formData, setFormData] = useState({
     name: "",
@@ -72,7 +70,10 @@ function Contact() {
   };
 
   return (
-    <section className=" mb-10 bg-gray-200 dark:bg-primary px-4 pb-5 md:px-10">
+    <section
+      id="contact-form"
+      className=" mb-10 bg-gray-200 dark:bg-primary px-4 pb-5 md:px-10"
+    >
       <div className="flex flex-col md:flex-row items-center  gap-3 px-4 py-5 relative z-10">
         <p className="text-lg md:text-2xl text-gray-500 dark:text-gray-100 font-bold">
           نظریات و پیشنهادات خود را با ما شریک نمایید

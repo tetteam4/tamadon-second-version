@@ -139,19 +139,7 @@ const Bill = ({ order }) => {
           <div className="px-5 ">
             <div className="flex justify-between items-center h-full">
               {/* Persian Content */}
-              <div className="text-right relative">
-                <div className="text-green-700 flex-col">
-                  <p className="absolute italic  -top-5 right-3 font-semibold">
-                    بیش از
-                  </p>
-                  <span className="text-4xl italic  font-extrabold text-green mx-2">
-                    20 سال
-                  </span>
-                  <p className="absolute right-3 italic font-semibold text-sm -bottom-6">
-                    سابقه درخشان!
-                  </p>
-                </div>
-              </div>
+              <div className="text-right relative"></div>
 
               {/* Center Content */}
               <div className="text-center">

@@ -74,56 +74,26 @@ body::-webkit-scrollbar-track {
   @apply w-6 h-1.5 bg-[#02DB81] scale-110;
 }
 
-/* services page */
-/* Masonry Grid Layout */
-
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-}
-
-@keyframes marquee-reverse {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-.animate-marquee {
-  display: flex;
-  animation: marquee 10s linear infinite;
-}
-
-.animate-marquee-reverse {
-  display: flex;
-  animation: marquee-reverse 10s linear infinite;
-}
-
 
 #bill-content {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 290mm;  
-  height: 190mm; 
+  width: 290mm;
+  height: 190mm;
   padding: 0px;
   font-family: "Vazirmatn", Arial, sans-serif;
   background: white;
   color: black;
-  border: 1px solid #ddd; 
+  border: 1px solid #ddd;
 }
 
 @media print {
   body * {
     visibility: hidden;
   }
-  #bill-content, #bill-content * {
+  #bill-content,
+  #bill-content * {
     visibility: visible;
   }
   #bill-content {
@@ -132,3 +102,15 @@ body::-webkit-scrollbar-track {
     top: 0;
   }
 }
+
+/* @keyframes marquee {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+} */
