@@ -503,7 +503,7 @@ const Dashboard = () => {
       <div className="flex flex-1 pt-[74px] overflow-hidden ">
         <aside
           className={`bg-white text-gray-900 py-3 ${
-            isSideOpen ? "w-[60%]  z-20" : "hidden"
+            isSideOpen ? "w-[60%] md:w-[35%]  z-20" : "hidden"
           } lg:flex flex-col fixed w-[250px]  px-5 md:relative 
     top-0 h-screen right-0 bottom-0 
     transition-all ease-in-out duration-200`}
