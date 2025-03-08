@@ -13,12 +13,10 @@ class JalaliDateField(serializers.DateField):
     def to_representation(self, value):
         if value is None:
             return None
-        # Convert the date to a Jalali (Persian) string representation
         return value.strftime('%Y-%m-%d')  # Or any other format you want
 
     def to_internal_value(self, data):
         try:
-            # Convert string input into a date (Jalali)
             return datetime.strptime(data, '%Y-%m-%d')  # Adjust as needed for your date format
         except ValueError:
             raise serializers.ValidationError("Invalid date format")
