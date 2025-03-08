@@ -229,3 +229,8 @@ class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = ['id', 'email', 'name', 'content']
+        
+class UserFreeStatus(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['is_free']

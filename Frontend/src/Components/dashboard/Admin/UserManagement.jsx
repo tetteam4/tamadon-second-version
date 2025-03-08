@@ -45,7 +45,7 @@ const UserManagement = () => {
     { id: 1, name: "Designer" },
     { id: 2, name: "Reception" },
     { id: 0, name: "Admin" },
-    { id: 3, name: "SuperDesigner" },
+    { id: 3, name: "Head of designers" },
     { id: 4, name: "Printer" },
   ];
 

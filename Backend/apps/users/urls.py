@@ -21,13 +21,15 @@ from .views import (
     UserProfileView,
     UserViewSet,
     activate_account,
-    ContactViewSet
+    ContactViewSet,
+    UserFreeStatusViewSet
 
 )
 
 router = DefaultRouter()
 router.register("users", UserViewSet, basename="user")
 router.register('contact', ContactViewSet)
+router.register('free-status', UserFreeStatusViewSet, basename='user-free-status')
 urlpatterns = [
     path(
         "profile/<str:user_email>/",
