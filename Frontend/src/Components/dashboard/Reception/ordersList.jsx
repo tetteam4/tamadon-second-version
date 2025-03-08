@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import html2canvas from "html2canvas";
-import ReactDOMServer from "react-dom/server";
-import { startTransition } from "react"; // Import startTransition
 import jwt_decode from "jwt-decode";
 import CryptoJS from "crypto-js";
-import Bill from "../../Bill_Page/Bill.jsx";
 import Swal from "sweetalert2";
 import Pagination from "../../../Utilities/Pagination.jsx";
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const OrderList = () => {
@@ -40,6 +39,13 @@ const OrderList = () => {
       return null;
     }
   };
+  // const [modalData, setModalData] = useState({
+  //   receive_price: "",
+  //   total_price: "",
+  //   reminder_price: "",
+  //   deliveryDate: "",
+  //   order: selectedOrder,
+  // });
   const [modalData, setModalData] = useState({
     receive_price: "",
     total_price: "",
@@ -309,16 +315,33 @@ const OrderList = () => {
     const { name, value } = e.target;
     setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
+  const handleDateChange = (date) => {
+    setModalData((prevData) => ({
+      ...prevData,
+      deliveryDate: date.format(), // Store Jalali date
+    }));
+  };
 
   // Handle form submission in modal (update order)
-
   const handleModalSubmit = async () => {
+    if (!modalData.total_price || !modalData.receive_price) {
+      Swal.fire({
+        icon: "error",
+        title: "خطا",
+        text: "لطفاً قیمت و قیمت دریافتی را وارد کنید.",
+        confirmButtonText: "متوجه شدم",
+      });
+      return;
+    }
+
     const updatedOrder = {
-      price: modalData.total_price || null,
+      total_price: modalData.total_price || null,
       receive_price: modalData.receive_price || null,
       delivery_date: modalData.deliveryDate || null,
       order: selectedOrder || null,
     };
+
+    console.log("Sending updated order:", updatedOrder);
 
     try {
       let token = getAuthToken();
@@ -343,9 +366,13 @@ const OrderList = () => {
       );
 
       // Update the order details
-      await axios.post(`${BASE_URL}/group/reception-orders/`, updatedOrder, {
-        headers,
-      });
+      const response = await axios.post(
+        `${BASE_URL}/group/reception-orders/`,
+        updatedOrder,
+        { headers }
+      );
+
+      console.log("Order updated successfully:", response.data);
 
       // Close the modal and update orders list
       setShowModal(false);
@@ -360,10 +387,8 @@ const OrderList = () => {
         text: "سفارش با موفقیت بروزرسانی شد.",
         confirmButtonText: "تایید",
       });
-
-      console.log("Order updated successfully.");
     } catch (error) {
-      console.error("Error updating the order:", error);
+      console.error("Error updating the order:", error.response?.data || error);
 
       let errorMessage = "خطا در به‌روزرسانی سفارش. لطفاً دوباره تلاش کنید.";
 
@@ -545,15 +570,14 @@ const OrderList = () => {
                 />
               </div>
 
-              <div className="mb-4">
+              <div className="mb-4 w-full flex items-center gap-x-5 justify-center">
                 <label className="block mb-1 font-medium">تاریخ تحویل:</label>
-                <input
-                  type="date"
-                  name="deliveryDate"
+                <DatePicker
                   value={modalData.deliveryDate}
-                  onChange={handleModalChange}
-                  className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
-                  required
+                  onChange={handleDateChange}
+                  calendar={persian} // Use Hijri Shamsi (Jalali) Calendar
+                  locale={persian_fa} // Persian language support
+                  inputClass="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
                 />
               </div>
             </div>
