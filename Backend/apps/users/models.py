@@ -1,8 +1,8 @@
 from profile import Profile
-from pyexpat import model
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+from pyexpat import model
 
 
 class UserManager(BaseUserManager):
@@ -46,13 +46,23 @@ class User(AbstractBaseUser):
     SuperDesigner = 3
     Printer = 4
     Delivered = 5 
+    Digital = 6
+    Bill = 7
+    Chaspac = 8
+    Shop_role = 9
+    Laser = 10
     ROLE_CHOICES = (
         (Designer, "Designer"),
         (Reception, "Reception"),
         (SuperDesigner, "SuperDesigner"),
         (Admin, "Admin"),
         (Printer, "Printer"),
-        (Delivered, "Delivered"), 
+        (Delivered, "Delivered"),
+        (Digital, "Digital"),
+        (Bill, "Bill"),
+        (Chaspac, "Chaspac"),
+        (Shop_role, "Shop role"),
+        (Laser, "Laser"),
     )
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -153,5 +163,3 @@ class Contact(models.Model):
     
     def __str__(self):
         return self.email
-    
-    
