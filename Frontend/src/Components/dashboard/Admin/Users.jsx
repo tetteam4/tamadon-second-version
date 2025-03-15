@@ -21,7 +21,6 @@ const UserManagement = () => {
   const [roleChoices, setRoleChoices] = useState([]); // Initialize roleChoices as an empty array
   const [isFormVisible, setIsFormVisible] = useState(false);
 
-  // Fetch users and roles when component mounts
   useEffect(() => {
     fetchUsers();
     fetchRoles(); // Fetch roles as well
