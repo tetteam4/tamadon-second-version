@@ -143,7 +143,7 @@ class ReceptionOrder(models.Model):
     reminder_price = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True
     )
-    delivery_date = jmodels.jDateField() 
+    delivery_date = jmodels.jDateField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
