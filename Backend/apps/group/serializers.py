@@ -13,14 +13,17 @@ class JalaliDateField(serializers.DateField):
     def to_representation(self, value):
         if value is None:
             return None
-        return value.strftime('%Y-%m-%d')  # Or any other format you want
+        return value.strftime("%Y-%m-%d")  # Or any other format you want
 
     def to_internal_value(self, data):
         try:
-            return datetime.strptime(data, '%Y-%m-%d')  # Adjust as needed for your date format
+            return datetime.strptime(
+                data, "%Y-%m-%d"
+            )  # Adjust as needed for your date format
         except ValueError:
             raise serializers.ValidationError("Invalid date format")
-        
+
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -86,8 +89,9 @@ class ReceptionOrderSerializer(serializers.ModelSerializer):
     reminder_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, read_only=True
     )
-    
-    delivery_date = JalaliDateField() 
+
+    delivery_date = JalaliDateField()
+
     class Meta:
         model = ReceptionOrder
         fields = [
@@ -97,7 +101,7 @@ class ReceptionOrderSerializer(serializers.ModelSerializer):
             "receive_price",
             "reminder_price",
             "delivery_date",
-            "created_at"
+            "created_at",
         ]
 
     def validate(self, data):
@@ -188,6 +192,7 @@ class OrderSerializerByPrice(serializers.ModelSerializer):
 class ReceptionOrderSerializerByPrice(serializers.ModelSerializer):
     # Correct way to define PrimaryKeyRelatedField
     order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
+    delivery_date = JalaliDateField()
 
     class Meta:
         model = ReceptionOrder
@@ -198,7 +203,7 @@ class ReceptionOrderSerializerByPrice(serializers.ModelSerializer):
             "receive_price",
             "reminder_price",
             "delivery_date",
-            "created_at"
+            "created_at",
         ]
 
     def create(self, validated_data):
