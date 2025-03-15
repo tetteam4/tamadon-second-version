@@ -260,7 +260,7 @@ const ReceivedList = () => {
                   </div>
                 ))}
             </div>
-            <div className="flex justify-center items-center w-full">
+            <div className="flex justify-center mt-5 items-center w-full">
               <button onClick={handleClosePopup} className="tertiary-btn">
                 بستن
               </button>

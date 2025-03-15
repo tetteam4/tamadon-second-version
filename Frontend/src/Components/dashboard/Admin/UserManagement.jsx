@@ -47,7 +47,7 @@ const UserManagement = () => {
     { id: 0, name: "Admin" },
     { id: 3, name: "Head of designers" },
     { id: 4, name: "Printer" },
-    { id: 5, name: "Delivery Agent" },
+    { id: 5, name: "Delivery agent" },
   ];
 
   // Fetch users when component mounts

@@ -460,7 +460,7 @@ const OrderListSuperDesigner = () => {
                         onClick={() => {
                           handleDelete(order.id);
                         }}
-                        className="secondry-btn bg-red-600"
+                        className=" bg-red-600 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300"
                       >
                         حذف
                       </button>
@@ -533,15 +533,12 @@ const OrderListSuperDesigner = () => {
               </div>
             </div>
             <div className="flex justify-center pb-6 items-center gap-2">
-              <button
-                onClick={handleModalSubmit}
-                className="bg-green text-white px-7 font-bold py-2 rounded hover:bg-green/90"
-              >
+              <button onClick={handleModalSubmit} className="secondry-btn">
                 تایید
               </button>
               <button
                 onClick={() => setShowModal(false)}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                className="bg-red-500 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300 hover:bg-red-600"
               >
                 انصراف
               </button>
@@ -585,13 +582,13 @@ const OrderListSuperDesigner = () => {
               ))}
             </div>
 
-            <div className="flex space-x-2 mt-4">
+            <div className="flex gap-x-5 justify-center mt-4">
               <button
                 onClick={() => {
                   handleClosePopup();
                   setIsEditing(false);
                 }}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                className="bg-red-600 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300 hover:bg-red-700"
               >
                 بستن
               </button>
@@ -599,14 +596,14 @@ const OrderListSuperDesigner = () => {
               {isEditing ? (
                 <button
                   onClick={handleSave}
-                  className="bg-green text-white px-4 py-2 rounded hover:bg-green-700"
+                  className="secondry-btn"
                 >
                   ذخیره
                 </button>
               ) : (
                 <button
                   onClick={() => handleEdit(passedOrder)}
-                  className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+                  className="bg-update text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300 hover:bg-yellow-700"
                 >
                   ویرایش
                 </button>
