@@ -228,12 +228,12 @@ const Bill = ({ order }) => {
             </div>
             <div className="flex items-center text-lg gap-x-1">
               <p>تاریخ اخذ :</p>
-              <p>{formatToShamsi(prices[0]?.created_at) || "unknown"}</p>
+              <p>{formatToShamsi(prices[0]?.created_at).replace(/\//g, "-") || "unknown"}</p>
             </div>
-            <div className="flex items-center gap-x-1">
+            <div className="flex items-center text-lg gap-x-1">
               <p>تاریخ تحویل :</p>
 
-              <p>{formatToShamsi(prices[0]?.delivery_date) || "unknown"}</p>
+              <p>{(prices[0]?.delivery_date) || "unknown"}</p>
             </div>
           </div>
           {/*  */}
