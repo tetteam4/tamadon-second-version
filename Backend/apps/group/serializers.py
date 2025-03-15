@@ -1,12 +1,26 @@
 from decimal import Decimal
 
-from apps.users.models import User
 from django import forms
+from jdatetime import datetime
 from rest_framework import serializers
+
+from apps.users.models import User
 
 from .models import AttributeType, AttributeValue, Category, Order, ReceptionOrder
 
 
+class JalaliDateField(serializers.DateField):
+    def to_representation(self, value):
+        if value is None:
+            return None
+        return value.strftime('%Y-%m-%d')  # Or any other format you want
+
+    def to_internal_value(self, data):
+        try:
+            return datetime.strptime(data, '%Y-%m-%d')  # Adjust as needed for your date format
+        except ValueError:
+            raise serializers.ValidationError("Invalid date format")
+        
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -72,7 +86,8 @@ class ReceptionOrderSerializer(serializers.ModelSerializer):
     reminder_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, read_only=True
     )
-
+    
+    delivery_date = JalaliDateField() 
     class Meta:
         model = ReceptionOrder
         fields = [

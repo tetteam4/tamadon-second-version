@@ -4,6 +4,7 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
+from django_jalali.db import models as jmodels
 
 
 class Category(models.Model):
@@ -142,7 +143,7 @@ class ReceptionOrder(models.Model):
     reminder_price = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True
     )
-    delivery_date = models.DateField(null=True, blank=True)
+    delivery_date = jmodels.jDateField() 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
