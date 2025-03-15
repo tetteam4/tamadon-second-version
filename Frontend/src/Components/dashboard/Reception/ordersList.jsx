@@ -324,20 +324,24 @@ const OrderList = () => {
 
   // Handle form submission in modal (update order)
   const handleModalSubmit = async () => {
+    const formattedDate = modalData.deliveryDate
+      ? modalData.deliveryDate.replace(/\//g, "-") // Replace all "/" with "-"
+      : null;
+
     if (!modalData.total_price || !modalData.receive_price) {
       Swal.fire({
         icon: "error",
         title: "خطا",
-        text: "لطفاً قیمت و قیمت دریافتی را وارد کنید.",
+        text: "لطفا قیمت و قیمت دریافتی را وارد کنید.",
         confirmButtonText: "متوجه شدم",
       });
       return;
     }
 
     const updatedOrder = {
-      total_price: modalData.total_price || null,
-      receive_price: modalData.receive_price || null,
-      delivery_date: modalData.deliveryDate || null,
+      price: convertToEnglishNumbers(modalData.total_price) || null,
+      receive_price: convertToEnglishNumbers(modalData.receive_price) || null,
+      delivery_date: formattedDate,
       order: selectedOrder || null,
     };
 
@@ -352,7 +356,7 @@ const OrderList = () => {
       if (isTokenExpired(token)) {
         token = await refreshAuthToken();
         if (!token) {
-          throw new Error("بروز رسانی توکن با شکست مواجه شد.");
+          throw new Error("بروزرسانی توکن با شکست مواجه شد.");
         }
       }
 
@@ -366,6 +370,8 @@ const OrderList = () => {
       );
 
       // Update the order details
+      console.log(updatedOrder);
+
       const response = await axios.post(
         `${BASE_URL}/group/reception-orders/`,
         updatedOrder,
@@ -410,6 +416,14 @@ const OrderList = () => {
         confirmButtonText: "متوجه شدم",
       });
     }
+  };
+
+  // Function to convert Persian/Arabic numbers to English
+  const convertToEnglishNumbers = (num) => {
+    if (!num) return num;
+    return num
+      .toString()
+      .replace(/[۰-۹]/g, (d) => "0123456789"[+"۰۱۲۳۴۵۶۷۸۹".indexOf(d)]);
   };
 
   const handleShowAttribute = (order) => {
@@ -570,27 +584,28 @@ const OrderList = () => {
                 />
               </div>
 
-              <div className="mb-4 w-full flex items-center gap-x-5 justify-center">
+              <div className="mb-4 w-full">
                 <label className="block mb-1 font-medium">تاریخ تحویل:</label>
                 <DatePicker
+                  style={{ width: "500px" }}
                   value={modalData.deliveryDate}
                   onChange={handleDateChange}
                   calendar={persian} // Use Hijri Shamsi (Jalali) Calendar
                   locale={persian_fa} // Persian language support
-                  inputClass="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
+                  inputClass=" border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
                 />
               </div>
             </div>
-            <div className="flex justify-center pb-6 items-center gap-2">
+            <div className="flex justify-center pb-6 items-center gap-5">
               <button
                 onClick={handleModalSubmit}
-                className="bg-green text-white px-7 font-bold py-2 rounded hover:bg-green/90"
+                className="secondry-btn"
               >
                 تایید
               </button>
               <button
                 onClick={() => setShowModal(false)}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                className="tertiary-btn"
               >
                 انصراف
               </button>
@@ -634,13 +649,13 @@ const OrderList = () => {
               ))}
             </div>
 
-            <div className="flex space-x-2 mt-4">
+            <div className="flex gap-x-5 justify-center mt-4">
               <button
                 onClick={() => {
                   handleClosePopup();
                   setIsEditing(false);
                 }}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                className="tertiary-btn"
               >
                 بستن
               </button>
@@ -648,14 +663,14 @@ const OrderList = () => {
               {isEditing ? (
                 <button
                   onClick={handleSave}
-                  className="bg-green text-white px-4 py-2 rounded hover:bg-green-700"
+                  className="secondry-btn"
                 >
                   ذخیره
                 </button>
               ) : (
                 <button
                   onClick={() => handleEdit(passedOrder)}
-                  className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+                  className="bg-update text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300 hover:bg-yellow-700"
                 >
                   ویرایش
                 </button>
