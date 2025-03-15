@@ -192,23 +192,23 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    let previousCount = 0;
+  // useEffect(() => {
+  //   let previousCount = 0;
 
-    const interval = setInterval(async () => {
-      const messages = await fetchUnreadMsg();
-      const currentCount = Array.isArray(messages) ? messages.length : 0;
+  //   const interval = setInterval(async () => {
+  //     const messages = await fetchUnreadMsg();
+  //     const currentCount = Array.isArray(messages) ? messages.length : 0;
 
-      if (currentCount > previousCount) {
-        const audio = new Audio("/notification.mp3");
-        audio.play();
-      }
+  //     if (currentCount > previousCount) {
+  //       const audio = new Audio("/notification.mp3");
+  //       audio.play();
+  //     }
 
-      previousCount = currentCount;
-    }, 3000);
+  //     previousCount = currentCount;
+  //   }, 3000);
 
-    return () => clearInterval(interval);
-  }, [userId]); // Ensuring it runs when userId changes
+  //   return () => clearInterval(interval);
+  // }, [userId]); // Ensuring it runs when userId changes
 
   // Define user role permissions
   const access = {
@@ -489,7 +489,7 @@ const Dashboard = () => {
           <p className=" font-serif text-2xl text-white font-bold">
             {decryptData(localStorage.getItem("username"))}
           </p>
-          <ModeToggle />
+          {/* <ModeToggle /> */}
           <div
             className="flex items-center cursor-pointer"
             onClick={() => setIsProfilePopupOpen(!isProfilePopupOpen)}
