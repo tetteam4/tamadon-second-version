@@ -8,6 +8,9 @@ import { jsPDF } from "jspdf";
 import vazirmatnFont from "/vazirmatnBase64.txt"; // Ensure this is a valid Base64 font
 import SearchBar from "../../../Utilities/Searching"; // Adjust path if needed
 import Pagination from "../../../Utilities/Pagination"; // Adjust path if needed
+import { CiEdit } from "react-icons/ci";
+import { FaEdit } from "react-icons/fa";
+import { Price } from "./Price";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -26,6 +29,8 @@ const TokenOrders = () => {
   const [selectedStatus, setSelectedStatus] = useState({});
   const [searchTerm, setSearchTerm] = useState(""); // Search term state
   const [searchResults, setSearchResults] = useState([]); // Search results state
+  const [showPrice, setShowPrice] = useState(false);
+  const [editingPriceId, setEditingPriceId] = useState(null);
   const secretKey = "TET4-1";
 
   const decryptData = (hashedData) => {
@@ -191,7 +196,7 @@ const TokenOrders = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [showPrice]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -338,7 +343,7 @@ const TokenOrders = () => {
                         ? "تکمیل"
                         : "تحویل داده شده" || "در حال بارگذاری..."}
                     </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                    <td className="flex items-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
                       <button
                         onClick={() => {
                           handleShowAttribute(order, order.status);
@@ -347,6 +352,15 @@ const TokenOrders = () => {
                         className="secondry-btn"
                       >
                         نمایش
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowPrice(true);
+                          setEditingPriceId(order.id);
+                        }}
+                        className=""
+                      >
+                        <FaEdit size={20} className="text-green" />
                       </button>
                     </td>
                   </tr>
@@ -370,7 +384,6 @@ const TokenOrders = () => {
           />
         )}
       </center>
-
       {/* Popup */}
       {isModelOpen && (
         <>
@@ -398,6 +411,11 @@ const TokenOrders = () => {
             </button>
           </div>
         </>
+      )}
+      {showPrice && (
+        <div>
+          <Price editingPriceId={editingPriceId} setShowPrice={setShowPrice} />
+        </div>
       )}
     </div>
   );

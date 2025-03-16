@@ -7,6 +7,7 @@ import Pagination from "../../../Utilities/Pagination.jsx";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import moment from "moment-hijri";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const OrderList = () => {
@@ -205,19 +206,9 @@ const OrderList = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchOrders();
-    const intervalId = setInterval(() => {
-      fetchOrders();
-    }, 5000); // Call fetchOrder every 5 seconds
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
-
   // Fetch orders and categories on mount
   useEffect(() => {
+    fetchOrders();
     fetchCategories();
     fetchUsers();
   }, [token]); // Dependency array now includes token to refetch when token changes
@@ -318,7 +309,7 @@ const OrderList = () => {
   const handleDateChange = (date) => {
     setModalData((prevData) => ({
       ...prevData,
-      deliveryDate: date.format(), // Store Jalali date
+      deliveryDate: moment(date).format("iYYYY-iMM-iDD"), // Hijri date in English
     }));
   };
 
@@ -346,9 +337,9 @@ const OrderList = () => {
     };
 
     console.log("Sending updated order:", updatedOrder);
-
+    let token = getAuthToken();
+    const headers = { Authorization: `Bearer ${token}` };
     try {
-      let token = getAuthToken();
       if (!token) {
         throw new Error("توکن احراز هویت وجود ندارد.");
       }
@@ -359,8 +350,6 @@ const OrderList = () => {
           throw new Error("بروزرسانی توکن با شکست مواجه شد.");
         }
       }
-
-      const headers = { Authorization: `Bearer ${token}` };
 
       // Update order status
       await axios.post(
@@ -394,7 +383,12 @@ const OrderList = () => {
         confirmButtonText: "تایید",
       });
     } catch (error) {
-      console.error("Error updating the order:", error.response?.data || error);
+      console.error("Error updating the order:", error.response || error);
+      const remove = await axios.post(
+        `${BASE_URL}/group/update-order-status/`,
+        { order_id: selectedOrder, status: "pending" },
+        { headers }
+      );
 
       let errorMessage = "خطا در به‌روزرسانی سفارش. لطفاً دوباره تلاش کنید.";
 
@@ -597,10 +591,7 @@ const OrderList = () => {
               </div>
             </div>
             <div className="flex justify-center pb-6 items-center gap-5">
-              <button
-                onClick={handleModalSubmit}
-                className="secondry-btn"
-              >
+              <button onClick={handleModalSubmit} className="secondry-btn">
                 تایید
               </button>
               <button
@@ -661,10 +652,7 @@ const OrderList = () => {
               </button>
 
               {isEditing ? (
-                <button
-                  onClick={handleSave}
-                  className="secondry-btn"
-                >
+                <button onClick={handleSave} className="secondry-btn">
                   ذخیره
                 </button>
               ) : (

@@ -1,5 +1,7 @@
+import datetime
 from decimal import Decimal
 
+import jdatetime
 from apps.users.models import User
 from django import forms
 from jdatetime import datetime
@@ -12,11 +14,15 @@ class JalaliDateField(serializers.DateField):
     def to_representation(self, value):
         if value is None:
             return None
-        return value.strftime("%Y-%m-%d")  # Or any other format you want
+        # Convert to Jalali date and format as string
+        jalali_date = jdatetime.date.fromgregorian(date=value)
+        return jalali_date.strftime("%Y-%m-%d")
 
     def to_internal_value(self, data):
         try:
-            return datetime.strptime(data, "%Y-%m-%d")
+            # Parse Jalali date string into a Python datetime object
+            jalali_date = jdatetime.datetime.strptime(data, "%Y-%m-%d")
+            return jalali_date.togregorian().date()
         except ValueError:
             raise serializers.ValidationError("Invalid date format")
 
@@ -104,9 +110,6 @@ class ReceptionOrderSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        """
-        Ensure reminder_price is calculated and is not negative.
-        """
         price = data.get("price")
         receive_price = data.get("receive_price")
 
