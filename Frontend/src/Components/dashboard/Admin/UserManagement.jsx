@@ -47,11 +47,12 @@ const UserManagement = () => {
     { id: 0, name: "Admin" },
     { id: 3, name: "Head of designers" },
     { id: 4, name: "Printer" },
-<<<<<<< HEAD
-    { id: 5, name: "Delivery agent" },
-=======
     { id: 5, name: "Delivery Agent" },
->>>>>>> 29c9cbec5b7a78adf7901a4fa8a9209878b3cc75
+    { id: 6, name: "Digital" },
+    { id: 7, name: "Bill" },
+    { id: 8, name: "Chaspak" },
+    { id: 9, name: "Shop role" },
+    { id: 10, name: "Laser" },
   ];
 
   // Fetch users when component mounts
