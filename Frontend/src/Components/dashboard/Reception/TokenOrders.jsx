@@ -370,7 +370,7 @@ const TokenOrders = () => {
               ) : (
                 <tr>
                   <td colSpan="9" className="border p-3 text-center">
-                    هیچ سفارشی با وضعیت 'تکمیل شده' وجود ندارد.
+                    هیچ سفارشی با وضعیت 'گرفته شده' وجود ندارد.
                   </td>
                 </tr>
               )}

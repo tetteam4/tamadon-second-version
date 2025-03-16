@@ -8,7 +8,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const CategoryManagement = () => {
   const [categoryName, setCategoryName] = useState("");
-  const [roleName, setRoleName] = useState("");
+  const [roleName, setRoleName] = useState(null);
   const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,7 +75,7 @@ const CategoryManagement = () => {
       } else {
         response = await axios.post(`${BASE_URL}/group/categories/`, {
           name: categoryName,
-          // role: roleName,
+          role: roleName,
         });
 
         if (response.status === 201) {
@@ -232,7 +232,7 @@ const CategoryManagement = () => {
                     key={role.id}
                     className="py-2 px-5 hover:bg-gray-200 cursor-pointer"
                     onClick={() => {
-                      setRoleName(role.name);
+                      setRoleName(role.id);
                       setIsDropdownOpen(false);
                     }}
                   >
