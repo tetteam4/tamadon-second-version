@@ -8,7 +8,9 @@ from django_jalali.db import models as jmodels
 
 
 class Category(models.Model):
+    User = get_user_model()
     name = models.CharField(max_length=255)
+    role = models.ForeignKey(User, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -143,7 +145,7 @@ class ReceptionOrder(models.Model):
     reminder_price = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True
     )
-    delivery_date = jmodels.jDateField() 
+    delivery_date = jmodels.jDateField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def clean(self):

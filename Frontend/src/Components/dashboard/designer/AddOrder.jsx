@@ -552,7 +552,7 @@ const AddOrder = () => {
                       setFormData({});
                       setSelectedCategoryId("");
                     }}
-                    className=" tertiary-btn "
+                    className=" bg-red-600 hover:bg-red-700 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300"
                   >
                     لغو
                   </button>

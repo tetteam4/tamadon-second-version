@@ -262,7 +262,7 @@ const SubcategoryForm = () => {
           </tbody>
         </table>
       </div>
-         {/* Pagination Component */}
+        
          {totalPages > 1 && (
         <Pagination
           currentPage={currentPage}

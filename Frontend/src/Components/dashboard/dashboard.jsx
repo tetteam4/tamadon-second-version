@@ -490,7 +490,7 @@ const Dashboard = () => {
           <p className=" font-serif text-2xl text-white font-bold">
             {decryptData(localStorage.getItem("username"))}
           </p>
-          <ModeToggle />
+          {/* <ModeToggle /> */}
           <div
             className="flex items-center cursor-pointer"
             onClick={() => setIsProfilePopupOpen(!isProfilePopupOpen)}
