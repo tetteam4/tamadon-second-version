@@ -1,10 +1,9 @@
 from decimal import Decimal
 
+from apps.users.models import User
 from django import forms
 from jdatetime import datetime
 from rest_framework import serializers
-
-from apps.users.models import User
 
 from .models import AttributeType, AttributeValue, Category, Order, ReceptionOrder
 
@@ -17,9 +16,7 @@ class JalaliDateField(serializers.DateField):
 
     def to_internal_value(self, data):
         try:
-            return datetime.strptime(
-                data, "%Y-%m-%d"
-            )  # Adjust as needed for your date format
+            return datetime.strptime(data, "%Y-%m-%d")
         except ValueError:
             raise serializers.ValidationError("Invalid date format")
 
@@ -27,7 +24,7 @@ class JalaliDateField(serializers.DateField):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["id", "name", "created_at", "updated_at"]
+        fields = ["id", "name", "role", "created_at", "updated_at"]
 
 
 class AttributeTypeSerializer(serializers.ModelSerializer):
@@ -70,6 +67,7 @@ class OrderSerializer(serializers.ModelSerializer):
     designer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     status = serializers.ChoiceField(choices=Order.STATUS_CHOICES)
+    delivery_date = JalaliDateField()
 
     class Meta:
         model = Order
@@ -82,6 +80,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "secret_key",
             "attributes",
             "status",
+            "created_at",
+            "updated_at",
         ]
 
 
