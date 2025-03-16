@@ -46,6 +46,7 @@ const SignUp = () => {
     { id: 4, name: "Printer" },
     { id: 5, name: "Delivery Agent" },
   ];
+
   const [selectedRole, setSelectedRole] = useState(user.role || "");
 
   const handleSelect = (role) => {
@@ -62,6 +63,7 @@ const SignUp = () => {
     }));
   };
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
