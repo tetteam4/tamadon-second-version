@@ -45,10 +45,10 @@ class User(AbstractBaseUser):
     Reception = 2
     SuperDesigner = 3
     Printer = 4
-    Delivered = 5 
+    Delivered = 5
     Digital = 6
     Bill = 7
-    Chaspac = 8
+    Chaspak = 8
     Shop_role = 9
     Laser = 10
     ROLE_CHOICES = (
@@ -60,7 +60,7 @@ class User(AbstractBaseUser):
         (Delivered, "Delivered"),
         (Digital, "Digital"),
         (Bill, "Bill"),
-        (Chaspac, "Chaspac"),
+        (Chaspak, "Chaspak"),
         (Shop_role, "Shop role"),
         (Laser, "Laser"),
     )
@@ -101,7 +101,7 @@ class User(AbstractBaseUser):
         elif self.role == self.Reception:
             return "Reception"
         elif self.role == self.SuperDesigner:
-            return "SuperDesigner" 
+            return "SuperDesigner"
         elif self.role == self.Delivered:
             return "Delivered"
         else:
@@ -159,7 +159,6 @@ class Contact(models.Model):
     email = models.EmailField(unique=True, max_length=300)
     name = models.CharField(max_length=255)
     content = models.TextField()
-    
-    
+
     def __str__(self):
         return self.email
