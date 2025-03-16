@@ -192,23 +192,23 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    let previousCount = 0;
+  // useEffect(() => {
+  //   let previousCount = 0;
 
-    const interval = setInterval(async () => {
-      const messages = await fetchUnreadMsg();
-      const currentCount = Array.isArray(messages) ? messages.length : 0;
+  //   const interval = setInterval(async () => {
+  //     const messages = await fetchUnreadMsg();
+  //     const currentCount = Array.isArray(messages) ? messages.length : 0;
 
-      if (currentCount > previousCount) {
-        const audio = new Audio("/notification.mp3");
-        audio.play();
-      }
+  //     if (currentCount > previousCount) {
+  //       const audio = new Audio("/notification.mp3");
+  //       audio.play();
+  //     }
 
-      previousCount = currentCount;
-    }, 3000);
+  //     previousCount = currentCount;
+  //   }, 3000);
 
-    return () => clearInterval(interval);
-  }, [userId]); // Ensuring it runs when userId changes
+  //   return () => clearInterval(interval);
+  // }, [userId]); // Ensuring it runs when userId changes
 
   // Define user role permissions
   const access = {
@@ -226,6 +226,7 @@ const Dashboard = () => {
     2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
     4: ["defaultPage", "ReceivedList", "ProcessingList", "DoneList", "Logout"],
     5: ["defaultPage", "deliver", "Logout"],
+    
   };
   const websiteManagementItems = [
     {

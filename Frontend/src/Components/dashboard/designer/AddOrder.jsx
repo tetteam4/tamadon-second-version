@@ -18,7 +18,6 @@ const AddOrder = () => {
   const [orders, setOrders] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [formFields, setFormFields] = useState([]);
-  const [attributeChoices, setAttributeChoices] = useState([]);
   const [formData, setFormData] = useState({});
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 
@@ -46,7 +45,7 @@ const AddOrder = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editingOrderId, setEditingOrderId] = useState(null);
-
+  const [id, setId] = useState(decryptData(localStorage.getItem("id")));
   const handleForm1InputChange = (e) => {
     const { name, value } = e.target;
     setForm1((prevState) => ({
@@ -71,7 +70,7 @@ const AddOrder = () => {
       const response = await axios.get(`${BASE_URL}/group/orders/`, {
         headers, // Pass headers here
       });
-      setOrders(response.data);
+      setOrders(response.data.filter((order) => order.designer != id));
     } catch (error) {
       console.error("Error fetching orders:", error.response || error);
     }
@@ -156,7 +155,7 @@ const AddOrder = () => {
         icon: "error",
       });
       setSubmitting(false);
-      
+
       return;
     }
 
