@@ -42,9 +42,15 @@ const SignUp = () => {
   const roles = [
     { id: 1, name: "Designer" },
     { id: 2, name: "Reception" },
+    // { id: 0, name: "Admin" },
     { id: 3, name: "Head of designers" },
     { id: 4, name: "Printer" },
     { id: 5, name: "Delivery Agent" },
+    { id: 6, name: "Digital" },
+    { id: 7, name: "Bill" },
+    { id: 8, name: "Chaspak" },
+    { id: 9, name: "Shop role" },
+    { id: 10, name: "Laser" },
   ];
 
   const [selectedRole, setSelectedRole] = useState(user.role || "");
