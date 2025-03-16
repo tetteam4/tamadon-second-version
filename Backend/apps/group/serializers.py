@@ -28,6 +28,8 @@ class JalaliDateField(serializers.DateField):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+
+    role = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     class Meta:
         model = Category
         fields = ["id", "name", "role", "created_at", "updated_at"]
@@ -73,7 +75,7 @@ class OrderSerializer(serializers.ModelSerializer):
     designer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     status = serializers.ChoiceField(choices=Order.STATUS_CHOICES)
-    delivery_date = JalaliDateField()
+    # delivery_date = JalaliDateField()
 
     class Meta:
         model = Order
