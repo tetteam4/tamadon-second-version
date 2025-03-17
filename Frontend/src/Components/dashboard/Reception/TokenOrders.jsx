@@ -307,8 +307,7 @@ const TokenOrders = () => {
             </thead>
             <tbody className="">
 
-{console.log(orders)
-}              {orders.length > 0 ? (
+         {orders.length > 0 ? (
                 paginatedOrders.map((order) => (
                   <tr
                     key={order.id}

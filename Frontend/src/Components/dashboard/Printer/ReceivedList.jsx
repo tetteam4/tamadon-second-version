@@ -140,7 +140,7 @@ const ReceivedList = () => {
   // Filter orders based on user role and category role
   const filteredOrders = useMemo(() => {
     if (!userRole || categories.length === 0) {
-      return orders; // Return all orders if userRole is missing or categories are not loaded.
+      return orders; 
     }
 
     return orders.filter((order) => {

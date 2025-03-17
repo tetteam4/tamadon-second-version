@@ -1,3 +1,4 @@
+from urllib import request
 from apps.group.filters import OrderFilter
 from apps.users.tasks import (
     process_order_deletion,
@@ -282,6 +283,7 @@ class OrderListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Order.objects.all()
+
 
         # Get the status parameter from URL kwargs (if available)
         status_param = self.kwargs.get("status")

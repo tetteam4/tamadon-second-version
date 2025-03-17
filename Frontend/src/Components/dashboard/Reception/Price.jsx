@@ -3,7 +3,6 @@ import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import axios from "axios";
-import moment from "moment-jalaali";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 export const Price = ({ editingPriceId, setShowPrice }) => {
   const [modalData, setModalData] = useState({
