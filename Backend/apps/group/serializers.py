@@ -14,17 +14,18 @@ class JalaliDateField(serializers.DateField):
     def to_representation(self, value):
         if value is None:
             return None
-        # Convert to Jalali date and format as string
         jalali_date = jdatetime.date.fromgregorian(date=value)
         return jalali_date.strftime("%Y-%m-%d")
 
     def to_internal_value(self, data):
+        # Convert from Jalali date string to Gregorian date when saving to the database
         try:
-            # Parse Jalali date string into a Python datetime object
             jalali_date = jdatetime.datetime.strptime(data, "%Y-%m-%d")
             return jalali_date.togregorian().date()
         except ValueError:
-            raise serializers.ValidationError("Invalid date format")
+            raise serializers.ValidationError(
+                "Invalid date format. Please use YYYY-MM-DD."
+            )
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -39,7 +40,7 @@ class AttributeTypeSerializer(serializers.ModelSerializer):
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     attribute_type = serializers.ChoiceField(
         choices=AttributeType.ATTRIBUTE_CHOICE_TYPE,
-        default="select attribute type",  # You can specify a default if required
+        default="select attribute type",  
     )
 
     class Meta:
@@ -55,7 +56,6 @@ class AttributeTypeSerializer(serializers.ModelSerializer):
 
 
 class AttributeValueSerializer(serializers.ModelSerializer):
-    # Use PrimaryKeyRelatedField to simplify relationships
     attribute = serializers.PrimaryKeyRelatedField(queryset=AttributeType.objects.all())
 
     class Meta:
