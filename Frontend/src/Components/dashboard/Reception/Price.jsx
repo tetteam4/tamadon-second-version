@@ -3,8 +3,11 @@ import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import axios from "axios";
-import moment from "moment-jalaali";
+import moment from "moment";
+import "moment-jalaali"; // Make sure this is imported after moment
+
 const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export const Price = ({ editingPriceId, setShowPrice }) => {
   const [modalData, setModalData] = useState({
     id: null,
@@ -15,10 +18,12 @@ export const Price = ({ editingPriceId, setShowPrice }) => {
     order: editingPriceId,
   });
   const [editingPriceID, setEditingPriceID] = useState(editingPriceId);
+
   const handleModalChange = (e) => {
     const { name, value } = e.target;
     setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
+
   const handleEdite = async (editingPriceID) => {
     try {
       const response = await axios.get(
@@ -30,6 +35,7 @@ export const Price = ({ editingPriceId, setShowPrice }) => {
       console.log(err);
     }
   };
+
   const handleSubmit = async () => {
     try {
       const payload = {
@@ -51,8 +57,9 @@ export const Price = ({ editingPriceId, setShowPrice }) => {
       console.log(err);
     }
   };
+
   const handleDateChange = (date) => {
-    const formattedDate = date.format("YYYY-MM-DD").toString(); // Ensure it's a string
+    const formattedDate = date.format("YYYY/MM/DD").toString(); // Ensure it's a string
     setModalData((prevData) => ({
       ...prevData,
       delivery_date: toEnglishDigits(formattedDate), // Store Jalali date in English numbers
@@ -69,11 +76,12 @@ export const Price = ({ editingPriceId, setShowPrice }) => {
   useEffect(() => {
     handleEdite(editingPriceID);
   }, []);
+
   return (
     <div>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col gap-5 items-center justify-center">
         <div className="bg-white">
-          <div className="bg-white p-6 rounded  w-[350px]  md:w-[600px]">
+          <div className="bg-white p-6 rounded w-[350px] md:w-[600px]">
             <h3 className="text-lg text-center font-bold mb-4">
               اضافه کردن قیمت و تاریخ تحویل
             </h3>
