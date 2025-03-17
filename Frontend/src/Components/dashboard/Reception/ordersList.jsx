@@ -4,10 +4,14 @@ import jwt_decode from "jwt-decode";
 import CryptoJS from "crypto-js";
 import Swal from "sweetalert2";
 import Pagination from "../../../Utilities/Pagination.jsx";
-import DatePicker from "react-multi-date-picker";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
-import moment from "moment-hijri";
+// import DatePicker from "react-multi-date-picker";
+// import persian from "react-date-object/calendars/persian";
+// import persian_fa from "react-date-object/locales/persian_fa";
+// import dayjs from "dayjs";
+// import jalaali from "dayjs/plugin/jalaali";
+
+// dayjs.extend(jalaali); // Extend dayjs with the Jalaali plugin
+
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const OrderList = () => {
@@ -307,9 +311,16 @@ const OrderList = () => {
     setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
   const handleDateChange = (date) => {
+    const jalaliDate = moment(date).format("jYYYY/jMM/jDD"); // Get Jalali (Shamsi) date
+
+    // Convert Persian digits to English and replace slashes with dashes
+    const englishDate = jalaliDate
+      .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)) // Convert Persian numbers to English
+      .replace(/\//g, "-"); // Replace slashes with dashes
+
     setModalData((prevData) => ({
       ...prevData,
-      deliveryDate: moment(date).format("iYYYY-iMM-iDD"), // Hijri date in English
+      deliveryDate: englishDate,
     }));
   };
 
@@ -580,14 +591,17 @@ const OrderList = () => {
 
               <div className="mb-4 w-full">
                 <label className="block mb-1 font-medium">تاریخ تحویل:</label>
-                <DatePicker
-                  style={{ width: "500px" }}
-                  value={modalData.deliveryDate}
-                  onChange={handleDateChange}
-                  calendar={persian} // Use Hijri Shamsi (Jalali) Calendar
-                  locale={persian_fa} // Persian language support
-                  inputClass=" border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
-                />
+                <div className="mb-4 w-full">
+                  <label className="block mb-1 font-medium">تاریخ تحویل:</label>
+                  <input
+                    type="date"
+                    // selected={selectedDate}
+                    // onChange={handleDateChange}
+                    // dateFormat="yyyy/MM/dd" // This will use the Gregorian format by default
+                    // customInput={<input className="custom-input" />}
+                    // calendar="persian" // Optional if your date picker supports this
+                  />
+                </div>
               </div>
             </div>
             <div className="flex justify-center pb-6 items-center gap-5">
