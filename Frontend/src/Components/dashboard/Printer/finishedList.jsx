@@ -82,10 +82,7 @@ const DoneList = () => {
   useEffect(() => {
     getDoneList();
     fetchCategories();
-    const intervalId = setInterval(() => {
       getDoneList();
-    }, 2000);
-    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {

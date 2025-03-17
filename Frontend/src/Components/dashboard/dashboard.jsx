@@ -226,7 +226,11 @@ const Dashboard = () => {
     2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
     4: ["defaultPage", "ReceivedList", "ProcessingList", "DoneList", "Logout"],
     5: ["defaultPage", "deliver", "Logout"],
-    
+    6: ["defaultPage", "ReceivedList", "ProcessingList", "DoneList", "Logout"],
+    7: ["defaultPage", "ReceivedList", "ProcessingList", "DoneList", "Logout"],
+    8: ["defaultPage", "ReceivedList", "ProcessingList", "DoneList", "Logout"],
+    9: ["defaultPage", "ReceivedList", "ProcessingList", "DoneList", "Logout"],
+    10: ["defaultPage", "ReceivedList", "ProcessingList", "DoneList", "Logout"],
   };
   const websiteManagementItems = [
     {
