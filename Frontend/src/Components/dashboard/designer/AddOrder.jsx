@@ -571,7 +571,7 @@ const AddOrder = () => {
                                   });
                                   setDropdownState((prev) => ({
                                     ...prev,
-                                    [field.name]: false, // Close dropdown
+                                    [field.name]: false, 
                                   }));
                                 }}
                               >
@@ -590,7 +590,7 @@ const AddOrder = () => {
                                     });
                                     setDropdownState((prev) => ({
                                       ...prev,
-                                      [field.name]: false, // Close dropdown
+                                      [field.name]: false, 
                                     }));
                                   }}
                                 >

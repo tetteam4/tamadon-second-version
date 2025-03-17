@@ -75,7 +75,7 @@ class OrderSerializer(serializers.ModelSerializer):
     designer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     status = serializers.ChoiceField(choices=Order.STATUS_CHOICES)
-    # delivery_date = JalaliDateField()
+    created_at = JalaliDateField()
 
     class Meta:
         model = Order

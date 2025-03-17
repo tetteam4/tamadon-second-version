@@ -40,18 +40,11 @@ const OrderList = () => {
       return null;
     }
   };
-  // const [modalData, setModalData] = useState({
-  //   receive_price: "",
-  //   total_price: "",
-  //   reminder_price: "",
-  //   deliveryDate: "",
-  //   order: selectedOrder,
-  // });
   const [modalData, setModalData] = useState({
     receive_price: "",
     total_price: "",
     reminder_price: "",
-    deliveryDate: "",
+    deliveryDate: moment(), // Initialize with the current date or a valid date
     order: selectedOrder,
   });
   const [showModal, setShowModal] = useState(false);
@@ -226,7 +219,7 @@ const OrderList = () => {
       receive_price: order.receive_price || "",
       total_price: order.total_price || "",
       reminder_price: order.reminder_price || "", // Show reminder_price here
-      deliveryDate: order.deliveryDate || "",
+      deliveryDate: "",
       order_name: order.order_name,
       customer_name: order.customer_name,
       description: order.description || "",
@@ -307,18 +300,41 @@ const OrderList = () => {
     setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
   const handleDateChange = (date) => {
-    setModalData((prevData) => ({
-      ...prevData,
-      deliveryDate: moment(date).format("iYYYY-iMM-iDD"), // Hijri date in English
-    }));
+    console.log("Selected Date:", date); // Log the selected date passed from DatePicker
+
+    // Function to convert Persian characters to English characters
+    const convertPersianToEnglish = (str) => {
+      // Replace Persian digits (۰-۹) with English digits (0-9)
+      return str.replace(
+        /[۰-۹]/g,
+        (d) => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)]
+      );
+    };
+
+    // Example if 'date' has a 'format' method like the Jalali date object
+    if (date && date.format) {
+      const formattedDate = date.format("YYYY-MM-DD"); // Format the date as YYYY-MM-DD
+      console.log("Formatted Jalali Date:", formattedDate);
+
+      // Convert Persian digits to English digits in the formatted date
+      const convertedDate = convertPersianToEnglish(formattedDate);
+
+      // Store the converted date
+      setModalData((prevData) => ({
+        ...prevData,
+        deliveryDate: convertedDate, // Store the formatted and converted date
+      }));
+    } else {
+      console.log("Invalid or Empty Date:", date);
+      setModalData((prevData) => ({
+        ...prevData,
+        deliveryDate: null, // Handle invalid date
+      }));
+    }
   };
 
   // Handle form submission in modal (update order)
   const handleModalSubmit = async () => {
-    const formattedDate = modalData.deliveryDate
-      ? modalData.deliveryDate.replace(/\//g, "-") // Replace all "/" with "-"
-      : null;
-
     if (!modalData.total_price || !modalData.receive_price) {
       Swal.fire({
         icon: "error",
@@ -328,11 +344,30 @@ const OrderList = () => {
       });
       return;
     }
+    // Check if modalData.deliveryDate is a moment object
+    console.log(modalData.deliveryDate);
+    const formattedDate = modalData.deliveryDate
+      ? typeof modalData.deliveryDate === "string" &&
+        moment(modalData.deliveryDate, "jYYYY/jMM/jDD", true).isValid() // Check if it's a valid Persian date string
+        ? moment(modalData.deliveryDate, "jYYYY/jMM/jDD") // Parse using the correct format
+            .format("iYYYY-iMM-iDD")
+            .replace(/[/]/g, "-")
+            .replace(/[۰-۹]/g, (d) => "0123456789"["۰-۹".indexOf(d)] || d) // Replace Persian numerals
+        : modalData.deliveryDate instanceof Date &&
+          !isNaN(modalData.deliveryDate) // If it's a valid Date object
+        ? moment(modalData.deliveryDate) // Parse using Date object
+            .format("iYYYY-iMM-iDD")
+            .replace(/[/]/g, "-")
+            .replace(/[۰-۹]/g, (d) => "0123456789"["۰-۹".indexOf(d)] || d)
+        : null // Return null if invalid date
+      : null; // If no date exists, return null
+
+    console.log(formattedDate); // Log the final formatted date
 
     const updatedOrder = {
       price: convertToEnglishNumbers(modalData.total_price) || null,
       receive_price: convertToEnglishNumbers(modalData.receive_price) || null,
-      delivery_date: formattedDate,
+      delivery_date: modalData.deliveryDate, // This should now be in Hijri format
       order: selectedOrder || null,
     };
 

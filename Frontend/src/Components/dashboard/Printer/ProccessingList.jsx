@@ -124,10 +124,7 @@ const ProcessingList = () => {
   useEffect(() => {
     getProcessingList();
     fetchCategories();
-    const intervalId = setInterval(() => {
       getProcessingList();
-    }, 2000);
-    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
