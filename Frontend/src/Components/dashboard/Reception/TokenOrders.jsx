@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import Bill from "../../Bill_Page/Bill";
-import { IoSearch } from "react-icons/io5";
-import { FaArrowRightLong } from "react-icons/fa6";
 import CryptoJS from "crypto-js";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -167,6 +165,8 @@ const TokenOrders = () => {
               newReceived[order.id] = data1[0].receive_price;
               newRemainded[order.id] = data1[0].reminder_price;
               newDeliveryDate[order.id] = data1[0].delivery_date;
+              console.log(data1[0].delivery_date);
+              
             } else {
               console.warn(`No price data found for order ID: ${order.id}`);
             }
@@ -306,7 +306,9 @@ const TokenOrders = () => {
               </tr>
             </thead>
             <tbody className="">
-              {orders.length > 0 ? (
+
+{console.log(orders)
+}              {orders.length > 0 ? (
                 paginatedOrders.map((order) => (
                   <tr
                     key={order.id}
