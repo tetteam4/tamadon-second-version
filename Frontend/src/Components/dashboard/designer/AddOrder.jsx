@@ -36,8 +36,6 @@ const AddOrder = () => {
   const [searchTerm, setSearchTerm] = useState(""); // Search term state
   const [searchResults, setSearchResults] = useState([]); // Search results state
 
-  console.log(orders);
-
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
     if (!hashedData) {
@@ -205,7 +203,7 @@ const AddOrder = () => {
         icon: "error",
       });
       setSubmitting(false);
-      
+
       return;
     }
 
@@ -571,7 +569,7 @@ const AddOrder = () => {
                                   });
                                   setDropdownState((prev) => ({
                                     ...prev,
-                                    [field.name]: false, 
+                                    [field.name]: false,
                                   }));
                                 }}
                               >
@@ -590,7 +588,7 @@ const AddOrder = () => {
                                     });
                                     setDropdownState((prev) => ({
                                       ...prev,
-                                      [field.name]: false, 
+                                      [field.name]: false,
                                     }));
                                   }}
                                 >
