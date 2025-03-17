@@ -165,8 +165,6 @@ const TokenOrders = () => {
               newReceived[order.id] = data1[0].receive_price;
               newRemainded[order.id] = data1[0].reminder_price;
               newDeliveryDate[order.id] = data1[0].delivery_date;
-              console.log(data1[0].delivery_date);
-              
             } else {
               console.warn(`No price data found for order ID: ${order.id}`);
             }
@@ -306,9 +304,7 @@ const TokenOrders = () => {
               </tr>
             </thead>
             <tbody className="">
-
-{console.log(orders)
-}              {orders.length > 0 ? (
+              {orders.length > 0 ? (
                 paginatedOrders.map((order) => (
                   <tr
                     key={order.id}
