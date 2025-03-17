@@ -20,6 +20,7 @@ from .views import (
 router = DefaultRouter()
 router.register("orders", OrderViewSet, basename="order")
 router.register("reception-orders", ReceptionOrderViewSet)
+
 router.register(
     "order-by-price",
     ReceptionOrderByPriceViewSet,

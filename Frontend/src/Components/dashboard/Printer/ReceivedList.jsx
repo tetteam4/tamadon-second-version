@@ -4,6 +4,7 @@ import CryptoJS from "crypto-js";
 import Swal from "sweetalert2";
 import SearchBar from "../../../Utilities/Searching"; // Correct the path
 import Pagination from "../../../Utilities/Pagination";
+
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const ReceivedList = () => {
@@ -29,6 +30,9 @@ const ReceivedList = () => {
   const [orderDetails, setOrderDetails] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [userRole, setUserRole] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/categories/`);
@@ -109,17 +113,48 @@ const ReceivedList = () => {
   };
 
   useEffect(() => {
-    getTakenList();
-    fetchCategories();
-    const intervalId = setInterval(() => {
-      getTakenList();
-    }, 2000);
-    return () => clearInterval(intervalId);
+    const auth_token = localStorage.getItem("auth_token");
+    if (auth_token) {
+      const decryptedToken = decryptData(auth_token);
+      if (decryptedToken && decryptedToken.role) {
+        setUserRole(decryptedToken.role);
+      } else {
+        console.warn("User role not found in localStorage or token.");
+      }
+    } else {
+      console.warn("auth_token not found in localStorage.");
+    }
+
+    const fetchData = async () => {
+      try {
+        await getTakenList();
+        await fetchCategories();
+      } finally {
+        setLoading(false); // Ensure loading is set to false after fetching
+      }
+    };
+
+    fetchData();
   }, []);
+
+  // Filter orders based on user role and category role
+  const filteredOrders = useMemo(() => {
+    if (!userRole || categories.length === 0) {
+      return orders; // Return all orders if userRole is missing or categories are not loaded.
+    }
+
+    return orders.filter((order) => {
+      const category = categories.find((cat) => cat.id === order.category);
+
+      // Ensure category exists and category.role matches userRole
+      return category && category.role === userRole;
+    });
+  }, [orders, categories, userRole]);
 
   useEffect(() => {
     if (searchTerm) {
-      const results = orders.filter((order) => {
+      const results = filteredOrders.filter((order) => {
+        // Search on filteredOrders
         const customerName = order.customer_name || "";
         const orderName = order.order_name || "";
         const categoryName =
@@ -135,7 +170,7 @@ const ReceivedList = () => {
     } else {
       setSearchResults([]);
     }
-  }, [searchTerm, orders, categories]);
+  }, [searchTerm, filteredOrders, categories]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -145,18 +180,21 @@ const ReceivedList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 15;
 
-  // تعیین داده‌ای که باید صفحه‌بندی شود (نتایج جستجو یا سفارش‌های دریافتی)
-  const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
+  const dataToPaginate =
+    searchResults.length > 0 ? searchResults : filteredOrders;
 
-  // ریست کردن صفحه فعلی هنگام تغییر جستجو
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, filteredOrders]);
 
   const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
   const paginatedOrders = [...dataToPaginate]
     .reverse()
     .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+
+  if (loading) {
+    return <div>Loading...</div>; // Or any other loading indicator
+  }
 
   return (
     <div className="w-[400px] md:w-[700px] mt-10 lg:w-[70%] mx-auto lg:overflow-hidden">

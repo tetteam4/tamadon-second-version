@@ -30,6 +30,10 @@ from .serializers import (
 )
 
 
+class CategoryListCreateView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    
 class CategoryListCreateView(APIView):
     permission_classes = [AllowAny]
 
