@@ -304,7 +304,7 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
                 htmlFor="password"
                 className="block text-gray-800 font-medium"
               >
-                رمز عبور:
+                 رمز عبور:
               </label>
               <input
                 type="password"

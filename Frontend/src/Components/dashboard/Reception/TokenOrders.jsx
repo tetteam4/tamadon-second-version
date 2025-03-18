@@ -12,6 +12,7 @@ import { CiEdit } from "react-icons/ci";
 import { FaCheck, FaEdit } from "react-icons/fa";
 import { Price } from "./Price";
 
+import Swal from "sweetalert2";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const TokenOrders = () => {
@@ -195,17 +196,11 @@ const TokenOrders = () => {
   };
   const handleComplete = async (id) => {
     try {
-      const response = await axios.get(
-        `http://localhost:8000/group/order-by-price/?order=${id}`
-      );
-      const orderData = response.data;
-
-      if (!orderData.length) {
-        console.error("No order data found");
+      const authToken = decryptData(localStorage.getItem("auth_token"));
+      if (!authToken) {
+        console.error("No auth token found");
         return;
       }
-
-      const takenId = orderData[0].id;
 
       const confirm = await Swal.fire({
         title: "آیا مطمئن هستید که می‌خواهید باقی‌مانده را تکمیل کنید؟",
@@ -217,7 +212,13 @@ const TokenOrders = () => {
 
       if (confirm.isConfirmed) {
         const completeResponse = await axios.post(
-          `http://localhost:8000/group/order-by-price/complete/${takenId}`
+          `http://localhost:8000/group/order-by-price/complete/${id}/`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
         );
         await Swal.fire({
           title: "موفق!",
@@ -225,6 +226,7 @@ const TokenOrders = () => {
           icon: "success",
         });
       }
+      fetchData();
     } catch (error) {
       console.error("Error completing order:", error);
       await Swal.fire({
