@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUserPlus } from "react-icons/fa";
+import { FaEye } from "react-icons/fa";
+import { FaEyeSlash } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import axios from "axios";
 import CryptoJS from "crypto-js";
@@ -22,6 +23,12 @@ const SignUp = () => {
       console.error("Decryption failed:", error);
       return null;
     }
+  };
+  const handleShowPassword = (field) => {
+    setShowPassword({
+      ...showPassword,
+      [field]: !showPassword[field],
+    });
   };
   const navigate = useNavigate();
   const [isSelectOpen, setIsSelectOpen] = useState(false);
@@ -52,9 +59,11 @@ const SignUp = () => {
     { id: 9, name: "Shop role" },
     { id: 10, name: "Laser" },
   ];
-
   const [selectedRole, setSelectedRole] = useState(user.role || "");
-
+  const [showPassword, setShowPassword] = useState({
+    password: false,
+    passwordConfirm: false,
+  });
   const handleSelect = (role) => {
     setSelectedRole(role);
     setIsSelectOpen(false);
@@ -69,7 +78,6 @@ const SignUp = () => {
     }));
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -371,41 +379,61 @@ const SignUp = () => {
               </div>
             </div>
 
-            {/* Password */}
-            <div>
+            <div className="relive">
               <label htmlFor="password" className="block font-medium mb-1 mr-1">
-                رمز
-              </label>
-              <input
-                placeholder="رمز"
-                type="password"
-                name="password"
-                id="password"
-                value={user.password}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 bg-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green"
-                required
-              />
+                رمز عبور
+              </label>{" "}
+              <div className="relative">
+                {" "}
+                <input
+                  placeholder="رمز"
+                  type={showPassword.password ? "text" : "password"}
+                  name="password"
+                  id="password"
+                  value={user.password}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 bg-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => handleShowPassword("password")}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-600"
+                >
+                  {showPassword.password ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
-
             {/* Confirm Password */}
             <div>
-              <label
-                htmlFor="passwordConfirm"
-                className="block font-medium mb-1 mr-1"
-              >
-                تأیید رمز
-              </label>
-              <input
-                placeholder="تأیید رمز"
-                type="password"
-                name="passwordConfirm"
-                id="passwordConfirm"
-                value={user.passwordConfirm}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 bg-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green"
-                required
-              />
+              <div className="">
+                <label
+                  htmlFor="passwordConfirm"
+                  className="block font-medium mb-1 mr-1"
+                >
+                  تأیید رمز عبور
+                </label>{" "}
+                <div className="relative">
+                  {" "}
+                  <input
+                    placeholder="تأیید رمز"
+                    type={showPassword.passwordConfirm ? "text" : "password"}
+                    name="passwordConfirm"
+                    id="passwordConfirm"
+                    value={user.passwordConfirm}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-300 bg-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleShowPassword("passwordConfirm")}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-600"
+                  >
+                    {showPassword.passwordConfirm ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
