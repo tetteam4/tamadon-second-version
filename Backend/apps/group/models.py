@@ -8,7 +8,6 @@ from django_jalali.db import models as jmodels
 
 
 class Category(models.Model):
-
     Admin = 0
     Designer = 1
     Reception = 2
@@ -171,6 +170,7 @@ class ReceptionOrder(models.Model):
     )
     delivery_date = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_checked = models.BooleanField(default=False)
 
     def clean(self):
         if self.price is not None and self.receive_price is not None:
