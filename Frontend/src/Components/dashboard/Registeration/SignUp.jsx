@@ -353,7 +353,7 @@ const SignUp = () => {
               <label htmlFor="role" className="block font-medium mb-1 mr-1">
                 وظیفه
               </label>
-              <div className="relative bg-white text-gray-800">
+              <div className="relative bg-white  text-gray-800">
                 {/* Selected Role */}
                 <div
                   className="w-full p-2 border border-gray-300 bg-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green"
@@ -364,7 +364,7 @@ const SignUp = () => {
 
                 {/* Dropdown List */}
                 {isSelectOpen && (
-                  <ul className="absolute w-full bg-white border border-gray-300  shadow-lg mt-1 z-10">
+                  <ul className="absolute w-full h-[300px] overflow-y-auto bg-white border border-gray-300  shadow-lg mt-1 z-10">
                     {roles.map((role) => (
                       <li
                         key={role.id}
