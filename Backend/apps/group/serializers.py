@@ -29,20 +29,25 @@ class JalaliDateField(serializers.DateField):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    role = serializers.ChoiceField(choices=Category.ROLE_CHOICES)
 
-    role = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     class Meta:
         model = Category
         fields = ["id", "name", "role", "created_at", "updated_at"]
+        ref_name = "GroupCategorySerializer"
+
+    def create(self, validated_data):
+        role = validated_data.get("role")
+        category = Category.objects.create(name=validated_data["name"], role=role)
+        return category
 
 
 class AttributeTypeSerializer(serializers.ModelSerializer):
 
-    # Use the nested serializer for better representation
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     attribute_type = serializers.ChoiceField(
         choices=AttributeType.ATTRIBUTE_CHOICE_TYPE,
-        default="select attribute type",  
+        default="select attribute type",
     )
 
     class Meta:
