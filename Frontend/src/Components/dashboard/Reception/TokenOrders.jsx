@@ -9,9 +9,10 @@ import vazirmatnFont from "/vazirmatnBase64.txt"; // Ensure this is a valid Base
 import SearchBar from "../../../Utilities/Searching"; // Adjust path if needed
 import Pagination from "../../../Utilities/Pagination"; // Adjust path if needed
 import { CiEdit } from "react-icons/ci";
-import { FaEdit } from "react-icons/fa";
+import { FaCheck, FaEdit } from "react-icons/fa";
 import { Price } from "./Price";
 
+import Swal from "sweetalert2";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const TokenOrders = () => {
@@ -193,7 +194,48 @@ const TokenOrders = () => {
       setLoading(false);
     }
   };
+  const handleComplete = async (id) => {
+    try {
+      const authToken = decryptData(localStorage.getItem("auth_token"));
+      if (!authToken) {
+        console.error("No auth token found");
+        return;
+      }
 
+      const confirm = await Swal.fire({
+        title: "آیا مطمئن هستید که می‌خواهید باقی‌مانده را تکمیل کنید؟",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "بله",
+        cancelButtonText: "خیر",
+      });
+
+      if (confirm.isConfirmed) {
+        const completeResponse = await axios.post(
+          `http://localhost:8000/group/order-by-price/complete/${id}/`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        await Swal.fire({
+          title: "موفق!",
+          text: "باقی‌مانده با موفقیت تکمیل شد.",
+          icon: "success",
+        });
+      }
+      fetchData();
+    } catch (error) {
+      console.error("Error completing order:", error);
+      await Swal.fire({
+        title: "خطا!",
+        text: "مشکلی پیش آمد، دوباره تلاش کنید.",
+        icon: "error",
+      });
+    }
+  };
   useEffect(() => {
     fetchData();
   }, [showPrice]);
@@ -361,6 +403,14 @@ const TokenOrders = () => {
                         className=""
                       >
                         <FaEdit size={20} className="text-green" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleComplete(order.id);
+                        }}
+                        className="text-green"
+                      >
+                        <FaCheck />
                       </button>
                     </td>
                   </tr>
