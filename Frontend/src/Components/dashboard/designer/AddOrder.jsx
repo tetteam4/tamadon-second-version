@@ -2,13 +2,19 @@ import React, { useState, useEffect } from "react";
 import Pagination from "../../../Utilities/Pagination";
 import axios from "axios";
 import CryptoJS from "crypto-js";
-import { FaSearch } from "react-icons/fa";
+import {
+  FaSearch,
+  FaSortAlphaDown,
+  FaSortAlphaUp,
+  FaFilter,
+} from "react-icons/fa";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { FaChevronDown } from "react-icons/fa";
 import { IoTrashSharp } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
 import Swal from "sweetalert2";
+import moment from "moment-jalaali";
 
 const AddOrder = () => {
   const [categories, setCategories] = useState([]);
@@ -18,10 +24,14 @@ const AddOrder = () => {
   const [orders, setOrders] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [formFields, setFormFields] = useState([]);
-  const [attributeChoices, setAttributeChoices] = useState([]);
   const [formData, setFormData] = useState({});
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-
+  const [filterDate, setFilterDate] = useState("");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [customerSearchTerm, setCustomerSearchTerm] = useState("");
+  const [refreshOrders, setRefreshOrders] = useState(false); // Add a state to force refresh
+  const [searchTerm, setSearchTerm] = useState(""); // Search term state
+  const [searchResults, setSearchResults] = useState([]); // Search results state
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
     if (!hashedData) {
@@ -46,7 +56,7 @@ const AddOrder = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editingOrderId, setEditingOrderId] = useState(null);
-
+  const [id, setId] = useState(decryptData(localStorage.getItem("id")));
   const handleForm1InputChange = (e) => {
     const { name, value } = e.target;
     setForm1((prevState) => ({
@@ -64,17 +74,47 @@ const AddOrder = () => {
       }
 
       const headers = {
-        Authorization: `Bearer ${token}`, // Add the Authorization header
-        "Content-Type": "application/json", // Optional but recommended
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       };
 
-      const response = await axios.get(`${BASE_URL}/group/orders/`, {
-        headers, // Pass headers here
+      let url = `${BASE_URL}/group/orders/`;
+      const params = new URLSearchParams();
+
+      if (filterDate) {
+        // Format the date to YYYY-MM-DD
+        const formattedDate = moment(filterDate).format("YYYY-MM-DD");
+        params.append("created_at", formattedDate); //  Use the correct parameter name if different
+
+        // Alternative:  If backend expects a range:
+        // params.append("created_at_gte", formattedDate);
+        // params.append("created_at_lte", formattedDate); // You might need to add one day to the end date
+      }
+      // Remove backend search
+      // if (customerSearchTerm) {
+      //   params.append("customer_name__icontains", customerSearchTerm);
+      // }
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await axios.get(url, {
+        headers,
       });
-      setOrders(response.data);
+      setOrders(response.data.filter((order) => order.designer == id));
     } catch (error) {
       console.error("Error fetching orders:", error.response || error);
+      // Handle error appropriately (e.g., display an error message)
     }
+  };
+  // Function to handle date filter change
+  const handleFilterDateChange = (e) => {
+    setFilterDate(e.target.value);
+  };
+  // Function to handle customer search change
+  const handleCustomerSearchChange = (e) => {
+    setCustomerSearchTerm(e.target.value);
   };
   // Fetch categories from the endpoint
   useEffect(() => {
@@ -88,8 +128,12 @@ const AddOrder = () => {
     };
 
     fetchCategories();
+  }, []); // Fetch categories only once on mount
+
+  useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [filterDate, refreshOrders]); // Re-fetch when the filterDate, or refreshOrders changes
+
   // Fetch form fields for the selected category
   useEffect(() => {
     if (selectedCategoryId) {
@@ -128,7 +172,6 @@ const AddOrder = () => {
     setIsEditing(true);
     setEditingOrderId(order.id);
 
-    // Set the main form fields (customer name, order name, category)
     setForm1({
       customer_name: order.customer_name,
       order_name: order.order_name,
@@ -156,7 +199,7 @@ const AddOrder = () => {
         icon: "error",
       });
       setSubmitting(false);
-      
+
       return;
     }
 
@@ -199,7 +242,7 @@ const AddOrder = () => {
         icon: "success",
       });
 
-      fetchOrders(); // Refresh orders
+      setRefreshOrders((prev) => !prev); // Trigger re-fetch
       setSelectedCategoryId("");
       setIsEditing(false);
       setEditingOrderId(null);
@@ -258,7 +301,7 @@ const AddOrder = () => {
           icon: "success",
         });
 
-        fetchOrders(); // Refresh orders
+        setRefreshOrders((prev) => !prev); // Trigger re-fetch
       } catch (error) {
         console.error("Error deleting order:", error);
         Swal.fire({
@@ -269,8 +312,6 @@ const AddOrder = () => {
       }
     }
   };
-
-  const [searchTerm, setSearchTerm] = useState("");
 
   // Function to handle category selection
   const handleCategorySelect = (categoryId) => {
@@ -294,15 +335,71 @@ const AddOrder = () => {
         .startsWith(searchTerm.toLowerCase());
       return startsWithB - startsWithA;
     });
-  //  pagination section
+
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 15;
 
-  // Calculate pagination
-  const totalPages = Math.ceil(orders.length / postsPerPage);
-  const paginatedOrders = [...orders] // Create a copy to avoid mutation
-    .reverse()
-    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+  // Format date in Jalaali calendar
+  const formatDate = (date) => {
+    if (!date) return "N/A"; // Handle cases where the date is null/undefined
+    return moment(date).format("jYYYY/jMM/jDD");
+  };
+
+  // Sort function that uses localeCompare for string comparison and handles number conversion
+  const sortOrders = (a, b) => {
+    const dateA = new Date(a.created_at || 0); // Treat null dates as the epoch
+    const dateB = new Date(b.created_at || 0);
+
+    if (sortOrder === "asc") {
+      return dateA - dateB;
+    } else {
+      return dateB - dateA;
+    }
+  };
+
+  // Sort orders based on sortOrder state
+  const sortedOrders = [...orders].sort(sortOrders);
+
+  // Pagination logic
+  const dataToPaginate =
+    searchResults.length > 0 ? searchResults : sortedOrders;
+  const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
+
+  const paginatedOrders = [...dataToPaginate].slice(
+    (currentPage - 1) * postsPerPage,
+    currentPage * postsPerPage
+  );
+
+  const toggleSortOrder = () => {
+    setSortOrder((prevSortOrder) => (prevSortOrder === "asc" ? "desc" : "asc"));
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  useEffect(() => {
+    if (searchTerm) {
+      const results = sortedOrders.filter((order) => {
+        const customerName = order.customer_name || "";
+        const orderName = order.order_name || "";
+        const categoryName =
+          categories.find((category) => category.id === order.category)?.name ||
+          "";
+
+        return (
+          customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+      setSearchResults(results);
+      setCurrentPage(1); // Reset to first page on new search
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTerm, orders, categories]);
+
   return (
     <div className="py-10 bg-gray-200 w-full min-h-[91vh] px-5">
       <div className="flex items-center justify-center py-3">
@@ -314,6 +411,7 @@ const AddOrder = () => {
           <IoMdAddCircleOutline size={24} />
         </button>
       </div>
+
       {isFormOpen && (
         <div className="max-w-3xl mx-auto py-4 px-5 shadow-lg bg-white rounded-md">
           {(isFormOpen || isEditing) && (
@@ -322,9 +420,8 @@ const AddOrder = () => {
                 {isEditing ? "ویرایش سفارش" : "فورم سفارش"}
               </h2>
               <form onSubmit={handleSubmit}>
-                {/* Input Fields in a Row on Larger Screens */}
+                {/* Form content remains the same */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Customer Name */}
                   <div>
                     <label htmlFor="customer_name" className="block mb-2">
                       نام مشتری
@@ -468,7 +565,7 @@ const AddOrder = () => {
                                   });
                                   setDropdownState((prev) => ({
                                     ...prev,
-                                    [field.name]: false, // Close dropdown
+                                    [field.name]: false,
                                   }));
                                 }}
                               >
@@ -487,7 +584,7 @@ const AddOrder = () => {
                                     });
                                     setDropdownState((prev) => ({
                                       ...prev,
-                                      [field.name]: false, // Close dropdown
+                                      [field.name]: false,
                                     }));
                                   }}
                                 >
@@ -524,7 +621,6 @@ const AddOrder = () => {
                     </li>
                   ))}
                 </ul>
-
                 {/* Buttons */}
                 <div className="flex items-center justify-center gap-x-5 ">
                   <button
@@ -563,7 +659,68 @@ const AddOrder = () => {
           )}
         </div>
       )}
-      <div className="w-[350px] sm:w-[450px] md:w-[700px] mt-10 lg:w-[80%] mx-auto  overflow-x-scroll lg:overflow-hidden">
+
+      <div className="w-[350px] sm:w-[450px] md:w-[700px] mt-10 lg:w-[80%] mx-auto overflow-x-scroll lg:overflow-hidden">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-x-3">
+            <label htmlFor="filterDate" className="block text-sm font-medium">
+              Filter by Date:
+            </label>
+            <input
+              type="date"
+              id="filterDate"
+              value={filterDate}
+              onChange={handleFilterDateChange}
+              className="shadow appearance-none border rounded w-50 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+
+            <button
+              onClick={() => setFilterDate("")}
+              className="focus:outline-none"
+            >
+              Clear
+            </button>
+          </div>
+
+          {/* Customer Search */}
+          <div className="flex items-center gap-x-3">
+            <label
+              htmlFor="customerSearch"
+              className="block text-sm font-medium"
+            >
+              Customer Search:
+            </label>
+            <input
+              type="text"
+              id="customerSearch"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="shadow appearance-none border rounded w-50 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="جستجوی نام مشتری..."
+            />
+
+            <button
+              onClick={() => setSearchTerm("")}
+              className="focus:outline-none"
+            >
+              Clear
+            </button>
+          </div>
+
+          {/* Sort Button */}
+          <button
+            onClick={toggleSortOrder}
+            className="flex items-center gap-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none"
+          >
+            Sort by Date
+            {sortOrder === "asc" ? (
+              <FaSortAlphaUp className="w-4 h-4" />
+            ) : (
+              <FaSortAlphaDown className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+
         <table className="w-full rounded-lg border overflow-auto border-gray-300 shadow-md">
           <thead>
             <tr className="bg-green text-gray-100  text-center">
@@ -575,6 +732,9 @@ const AddOrder = () => {
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 کتگوری
+              </th>
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                تاریخ ایجاد
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 عملیات
@@ -596,6 +756,9 @@ const AddOrder = () => {
                 <td className="border-gray-300 px-6 py-2 text-gray-700">
                   {categories.find((category) => category.id === order.category)
                     ?.name || "دسته‌بندی نامشخص"}
+                </td>
+                <td className="border-gray-300 px-6 py-2 text-gray-700">
+                  {formatDate(order.created_at)}
                 </td>
                 <td className="flex items-center justify-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
                   <button

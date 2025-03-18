@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { FaChevronDown, FaRegEdit } from "react-icons/fa";
 import { IoTrashSharp } from "react-icons/io5";
-import { FaRegEdit } from "react-icons/fa";
-import Pagination from "../../../Utilities/Pagination";
+
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-const Category = () => {
+const CategoryManagement = () => {
   const [categoryName, setCategoryName] = useState("");
+  const [roleName, setRoleName] = useState(null);
   const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,6 +16,19 @@ const Category = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [responseMessage, setResponseMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Define role options
+  const roles = [
+    { id: 3, name: "Head of designers" },
+    { id: 4, name: "Printer" },
+    { id: 6, name: "Digital" },
+    { id: 7, name: "Bill" },
+    { id: 8, name: "Chaspak" },
+    { id: 9, name: "Shop role" },
+    { id: 10, name: "Laser" },
+  ];
+
   // Fetch categories
   const fetchCategories = async () => {
     try {
@@ -31,18 +44,20 @@ const Category = () => {
     fetchCategories();
   }, []);
 
-  // Handle form submission
+  // Handle form submission (Add / Edit)
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Determine action type (edit or add)
     const actionType = editingCategory ? "ویرایش" : "اضافه کردن";
+
     try {
       let response;
       if (editingCategory) {
         response = await axios.put(
           `${BASE_URL}/group/categories/${editingCategory.id}/`,
-          { name: categoryName }
+          {
+            name: categoryName,
+            role: roleName,
+          }
         );
 
         if (response.status === 200) {
@@ -60,6 +75,7 @@ const Category = () => {
       } else {
         response = await axios.post(`${BASE_URL}/group/categories/`, {
           name: categoryName,
+          role: roleName,
         });
 
         if (response.status === 201) {
@@ -76,6 +92,7 @@ const Category = () => {
       }
 
       setCategoryName("");
+      setRoleName("");
       fetchCategories();
     } catch (error) {
       Swal.fire({
@@ -135,6 +152,7 @@ const Category = () => {
   // Handle edit
   const handleEdit = (category) => {
     setCategoryName(category.name);
+    setRoleName(category.role);
     setEditingCategory(category);
   };
 
@@ -142,16 +160,13 @@ const Category = () => {
   const handleSearch = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-
-    if (term) {
-      setFilteredCategories(
-        categories.filter((category) =>
-          category.name.toLowerCase().includes(term.toLowerCase())
-        )
-      );
-    } else {
-      setFilteredCategories(categories);
-    }
+    setFilteredCategories(
+      term
+        ? categories.filter((category) =>
+            category.name.toLowerCase().includes(term.toLowerCase())
+          )
+        : categories
+    );
   };
 
   // Handle sort
@@ -164,74 +179,78 @@ const Category = () => {
     setFilteredCategories(sortedCategories);
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
-  useEffect(() => {
-    if (responseMessage || errorMessage) {
-      const timer = setTimeout(() => {
-        setResponseMessage("");
-        setErrorMessage("");
-      }, 5000); // Hide messages after 5 seconds
 
-      return () => clearTimeout(timer); // Cleanup timer when component unmounts or when messages change
-    }
-  }, [responseMessage, errorMessage]);
-
-  //  pagination section
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
-  // Calculate pagination
   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
-  const paginatedCategories = filteredCategories.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
+  const paginatedCategories = Array.isArray(filteredCategories)
+    ? filteredCategories.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      )
+    : [];
   return (
-    <div className="py-10 bg-gray-200 w-full px-5">
-      <div className="max-w-3xl mx-auto p-2  bg-white rounded-md">
-        <p className=" md:text-xl text-base text-center font-bold mb-4 ">
-          مدیریت کتگوری‌ها
-        </p>
-
-        {responseMessage && (
-          <p className="mt-4 text-green">{responseMessage}</p>
-        )}
-        {errorMessage && <p className="mt-4 text-red-600">{errorMessage}</p>}
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-2  mt-2 space-y-4">
+    <div className="py-10 bg-gray-200 w-full min-h-[91vh] px-5">
+      <div className="max-w-3xl mx-auto py-4 px-5 shadow-lg bg-white rounded-md">
+        <h2 className="text-xl text-center font-bold mb-4">
+          {editingCategory ? "ویرایش کتگوری" : "افزودن کتگوری"}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label
-              htmlFor="categoryName"
-              className="block text-md font-medium text-gray-700"
-            >
-              {editingCategory ? "ویرایش کتگوری" : "نام کتگوری"}
+            <label className="block text-lg font-medium text-gray-700 mb-1">
+              نام کتگوری
             </label>
             <input
               type="text"
-              id="categoryName"
               value={categoryName}
               onChange={(e) => setCategoryName(e.target.value)}
-              className="mt-1 block w-full p-2 focus:ring-2 ring-green bg-gray-200 focus:outline-none border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border rounded bg-gray-200 text-black focus:outline-none"
               placeholder="نام کتگوری را وارد کنید"
               required
             />
           </div>
-          <div className="flex justify-center items-center gap-x-5">
-            <button
-              type="submit"
-              className={` secondry-btn ${editingCategory ? "bg-green" : ""}`}
+          <div className="relative">
+            <label className="block text-lg font-medium text-gray-700 mb-1">
+              نقش
+            </label>
+            <div
+              className="w-full px-3 py-2 border flex justify-between items-center bg-gray-200 rounded text-black cursor-pointer"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
+              {roleName || "نقش را انتخاب کنید"}
+              <FaChevronDown
+                className={`transition-all duration-300 ${
+                  isDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+            </div>
+            {isDropdownOpen && (
+              <ul className="absolute w-full bg-white text-black border border-gray-300 rounded-md shadow-lg mt-1 z-10">
+                {roles.map((role) => (
+                  <li
+                    key={role.id}
+                    className="py-2 px-5 hover:bg-gray-200 cursor-pointer"
+                    onClick={() => {
+                      setRoleName(role.id);
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    {role.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className="flex justify-center gap-4 mt-4">
+            <button type="submit" className="btn-primary">
               {editingCategory ? "ویرایش" : "اضافه کردن"}
             </button>
             {editingCategory && (
               <button
                 type="button"
-                onClick={() => {
-                  setEditingCategory(null);
-                  setCategoryName("");
-                }}
-                className="tertiary-btn"
+                onClick={() => setEditingCategory(null)}
+                className="btn-secondary"
               >
                 انصراف
               </button>
@@ -241,38 +260,35 @@ const Category = () => {
       </div>
 
       {/* Category List */}
-      <div className="w-[400px] md:w-[700px]  mt-10 lg:w-[90%] mx-auto  lg:overflow-hidden">
-        <div className=" md:space-y-0 py-1 md:flex items-center px-5 justify-between mb-6">
-          <h3 className="text-xl font-Ray_black font-bold text-gray-800">
-            لیست کتگوری‌ها
-          </h3>
-          {/* Search and Sort */}
-          <div className="flex items-center space-x-4">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={handleSearch}
-              className="m-2 p-2 border border-gray-300 w-[300px] md:w-[400px] focus:outline-none rounded-lg shadow-sm "
-              placeholder="جستجوی کتگوری"
-            />
-            <button
-              onClick={handleSort}
-              className="secondry-btn flex items-center gap-x-2"
-            >
-              مرتب‌سازی {sortOrder === "asc" ? <FaArrowUp /> : <FaArrowDown />}
-            </button>
-          </div>
-        </div>
-        <div className="bg-white p-5 rounded-md">
-          <ul className="mt-4 space-y-2 ">
-            {paginatedCategories.length > 0 ? (
+      <div className="w-full max-w-4xl mx-auto mt-10 bg-white shadow-lg rounded-md overflow-hidden">
+        <table className="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-green text-gray-100 text-center">
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                نام کتگوری
+              </th>
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                نقش
+              </th>
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                عملیات
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.isArray(paginatedCategories) &&
               paginatedCategories.map((category) => (
-                <li
+                <tr
                   key={category.id}
-                  className="px-4 py-2 border  border-gray-300 rounded-md  hover:bg-gray-200 flex justify-between gap-x-5 items-center"
+                  className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
                 >
-                  <span className="font-bold text-base">{category.name}</span>
-                  <div className="flex items-center gap-x-5">
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {category.name}
+                  </td>
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {category.role}
+                  </td>
+                  <td className="flex items-center justify-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
                     <button
                       onClick={() => handleEdit(category)}
                       className="text-green hover:scale-105 transition-all duration-300"
@@ -285,25 +301,14 @@ const Category = () => {
                     >
                       <IoTrashSharp size={24} />
                     </button>
-                  </div>
-                </li>
-              ))
-            ) : (
-              <p className="text-gray-600">هیچ کتگوری موجود نیست.</p>
-            )}
-          </ul>
-        </div>
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        )}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
 
-export default Category;
+export default CategoryManagement;

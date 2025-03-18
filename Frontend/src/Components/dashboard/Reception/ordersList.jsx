@@ -7,6 +7,7 @@ import Pagination from "../../../Utilities/Pagination.jsx";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import moment from "moment-hijri";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const OrderList = () => {
@@ -39,18 +40,11 @@ const OrderList = () => {
       return null;
     }
   };
-  // const [modalData, setModalData] = useState({
-  //   receive_price: "",
-  //   total_price: "",
-  //   reminder_price: "",
-  //   deliveryDate: "",
-  //   order: selectedOrder,
-  // });
   const [modalData, setModalData] = useState({
     receive_price: "",
     total_price: "",
     reminder_price: "",
-    deliveryDate: "",
+    deliveryDate: moment(), // Initialize with the current date or a valid date
     order: selectedOrder,
   });
   const [showModal, setShowModal] = useState(false);
@@ -205,19 +199,9 @@ const OrderList = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchOrders();
-    const intervalId = setInterval(() => {
-      fetchOrders();
-    }, 5000); // Call fetchOrder every 5 seconds
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
-
   // Fetch orders and categories on mount
   useEffect(() => {
+    fetchOrders();
     fetchCategories();
     fetchUsers();
   }, [token]); // Dependency array now includes token to refetch when token changes
@@ -235,7 +219,7 @@ const OrderList = () => {
       receive_price: order.receive_price || "",
       total_price: order.total_price || "",
       reminder_price: order.reminder_price || "", // Show reminder_price here
-      deliveryDate: order.deliveryDate || "",
+      deliveryDate: "",
       order_name: order.order_name,
       customer_name: order.customer_name,
       description: order.description || "",
@@ -316,18 +300,38 @@ const OrderList = () => {
     setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
   const handleDateChange = (date) => {
-    setModalData((prevData) => ({
-      ...prevData,
-      deliveryDate: date.format(), // Store Jalali date
-    }));
+    // Function to convert Persian characters to English characters
+    const convertPersianToEnglish = (str) => {
+      // Replace Persian digits (۰-۹) with English digits (0-9)
+      return str.replace(
+        /[۰-۹]/g,
+        (d) => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)]
+      );
+    };
+
+    // Example if 'date' has a 'format' method like the Jalali date object
+    if (date && date.format) {
+      const formattedDate = date.format("YYYY-MM-DD"); // Format the date as YYYY-MM-DD
+
+      // Convert Persian digits to English digits in the formatted date
+      const convertedDate = convertPersianToEnglish(formattedDate);
+
+      // Store the converted date
+      setModalData((prevData) => ({
+        ...prevData,
+        deliveryDate: convertedDate, // Store the formatted and converted date
+      }));
+    } else {
+      console.log("Invalid or Empty Date:", date);
+      setModalData((prevData) => ({
+        ...prevData,
+        deliveryDate: null, // Handle invalid date
+      }));
+    }
   };
 
   // Handle form submission in modal (update order)
   const handleModalSubmit = async () => {
-    const formattedDate = modalData.deliveryDate
-      ? modalData.deliveryDate.replace(/\//g, "-") // Replace all "/" with "-"
-      : null;
-
     if (!modalData.total_price || !modalData.receive_price) {
       Swal.fire({
         icon: "error",
@@ -337,18 +341,32 @@ const OrderList = () => {
       });
       return;
     }
+    // Check if modalData.deliveryDate is a moment object
+    const formattedDate = modalData.deliveryDate
+      ? typeof modalData.deliveryDate === "string" &&
+        moment(modalData.deliveryDate, "jYYYY/jMM/jDD", true).isValid() // Check if it's a valid Persian date string
+        ? moment(modalData.deliveryDate, "jYYYY/jMM/jDD") // Parse using the correct format
+            .format("iYYYY-iMM-iDD")
+            .replace(/[/]/g, "-")
+            .replace(/[۰-۹]/g, (d) => "0123456789"["۰-۹".indexOf(d)] || d) // Replace Persian numerals
+        : modalData.deliveryDate instanceof Date &&
+          !isNaN(modalData.deliveryDate) // If it's a valid Date object
+        ? moment(modalData.deliveryDate) // Parse using Date object
+            .format("iYYYY-iMM-iDD")
+            .replace(/[/]/g, "-")
+            .replace(/[۰-۹]/g, (d) => "0123456789"["۰-۹".indexOf(d)] || d)
+        : null // Return null if invalid date
+      : null; // If no date exists, return null
 
     const updatedOrder = {
       price: convertToEnglishNumbers(modalData.total_price) || null,
       receive_price: convertToEnglishNumbers(modalData.receive_price) || null,
-      delivery_date: formattedDate,
+      delivery_date: modalData.deliveryDate, // This should now be in Hijri format
       order: selectedOrder || null,
     };
-
-    console.log("Sending updated order:", updatedOrder);
-
+    let token = getAuthToken();
+    const headers = { Authorization: `Bearer ${token}` };
     try {
-      let token = getAuthToken();
       if (!token) {
         throw new Error("توکن احراز هویت وجود ندارد.");
       }
@@ -360,8 +378,6 @@ const OrderList = () => {
         }
       }
 
-      const headers = { Authorization: `Bearer ${token}` };
-
       // Update order status
       await axios.post(
         `${BASE_URL}/group/update-order-status/`,
@@ -369,17 +385,11 @@ const OrderList = () => {
         { headers }
       );
 
-      // Update the order details
-      console.log(updatedOrder);
-
       const response = await axios.post(
         `${BASE_URL}/group/reception-orders/`,
         updatedOrder,
         { headers }
       );
-
-      console.log("Order updated successfully:", response.data);
-
       // Close the modal and update orders list
       setShowModal(false);
       setOrders((prevOrders) =>
@@ -394,7 +404,12 @@ const OrderList = () => {
         confirmButtonText: "تایید",
       });
     } catch (error) {
-      console.error("Error updating the order:", error.response?.data || error);
+      console.error("Error updating the order:", error.response || error);
+      const remove = await axios.post(
+        `${BASE_URL}/group/update-order-status/`,
+        { order_id: selectedOrder, status: "pending" },
+        { headers }
+      );
 
       let errorMessage = "خطا در به‌روزرسانی سفارش. لطفاً دوباره تلاش کنید.";
 
@@ -597,10 +612,7 @@ const OrderList = () => {
               </div>
             </div>
             <div className="flex justify-center pb-6 items-center gap-5">
-              <button
-                onClick={handleModalSubmit}
-                className="secondry-btn"
-              >
+              <button onClick={handleModalSubmit} className="secondry-btn">
                 تایید
               </button>
               <button
@@ -661,10 +673,7 @@ const OrderList = () => {
               </button>
 
               {isEditing ? (
-                <button
-                  onClick={handleSave}
-                  className="secondry-btn"
-                >
+                <button onClick={handleSave} className="secondry-btn">
                   ذخیره
                 </button>
               ) : (

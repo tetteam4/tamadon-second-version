@@ -2,15 +2,17 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import Bill from "../../Bill_Page/Bill";
-import { IoSearch } from "react-icons/io5";
-import { FaArrowRightLong } from "react-icons/fa6";
 import CryptoJS from "crypto-js";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import vazirmatnFont from "/vazirmatnBase64.txt"; // Ensure this is a valid Base64 font
 import SearchBar from "../../../Utilities/Searching"; // Adjust path if needed
 import Pagination from "../../../Utilities/Pagination"; // Adjust path if needed
+import { CiEdit } from "react-icons/ci";
+import { FaCheck, FaEdit } from "react-icons/fa";
+import { Price } from "./Price";
 
+import Swal from "sweetalert2";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const TokenOrders = () => {
@@ -28,6 +30,8 @@ const TokenOrders = () => {
   const [selectedStatus, setSelectedStatus] = useState({});
   const [searchTerm, setSearchTerm] = useState(""); // Search term state
   const [searchResults, setSearchResults] = useState([]); // Search results state
+  const [showPrice, setShowPrice] = useState(false);
+  const [editingPriceId, setEditingPriceId] = useState(null);
   const secretKey = "TET4-1";
 
   const decryptData = (hashedData) => {
@@ -190,10 +194,51 @@ const TokenOrders = () => {
       setLoading(false);
     }
   };
+  const handleComplete = async (id) => {
+    try {
+      const authToken = decryptData(localStorage.getItem("auth_token"));
+      if (!authToken) {
+        console.error("No auth token found");
+        return;
+      }
 
+      const confirm = await Swal.fire({
+        title: "آیا مطمئن هستید که می‌خواهید باقی‌مانده را تکمیل کنید؟",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "بله",
+        cancelButtonText: "خیر",
+      });
+
+      if (confirm.isConfirmed) {
+        const completeResponse = await axios.post(
+          `http://localhost:8000/group/order-by-price/complete/${id}/`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        await Swal.fire({
+          title: "موفق!",
+          text: "باقی‌مانده با موفقیت تکمیل شد.",
+          icon: "success",
+        });
+      }
+      fetchData();
+    } catch (error) {
+      console.error("Error completing order:", error);
+      await Swal.fire({
+        title: "خطا!",
+        text: "مشکلی پیش آمد، دوباره تلاش کنید.",
+        icon: "error",
+      });
+    }
+  };
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [showPrice]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -340,7 +385,7 @@ const TokenOrders = () => {
                         ? "تکمیل"
                         : "تحویل داده شده" || "در حال بارگذاری..."}
                     </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                    <td className="flex items-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
                       <button
                         onClick={() => {
                           handleShowAttribute(order, order.status);
@@ -350,13 +395,30 @@ const TokenOrders = () => {
                       >
                         نمایش
                       </button>
+                      <button
+                        onClick={() => {
+                          setShowPrice(true);
+                          setEditingPriceId(order.id);
+                        }}
+                        className=""
+                      >
+                        <FaEdit size={20} className="text-green" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleComplete(order.id);
+                        }}
+                        className="text-green"
+                      >
+                        <FaCheck />
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td colSpan="9" className="border p-3 text-center">
-                    هیچ سفارشی با وضعیت 'تکمیل شده' وجود ندارد.
+                    هیچ سفارشی با وضعیت 'گرفته شده' وجود ندارد.
                   </td>
                 </tr>
               )}
@@ -372,7 +434,6 @@ const TokenOrders = () => {
           />
         )}
       </center>
-
       {/* Popup */}
       {isModelOpen && (
         <>
@@ -400,6 +461,11 @@ const TokenOrders = () => {
             </button>
           </div>
         </>
+      )}
+      {showPrice && (
+        <div>
+          <Price editingPriceId={editingPriceId} setShowPrice={setShowPrice} />
+        </div>
       )}
     </div>
   );

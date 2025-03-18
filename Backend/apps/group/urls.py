@@ -15,11 +15,13 @@ from .views import (
     OrderViewSet,
     ReceptionOrderByPriceViewSet,
     ReceptionOrderViewSet,
+    UpdateReminderPriceView,
 )
 
 router = DefaultRouter()
 router.register("orders", OrderViewSet, basename="order")
 router.register("reception-orders", ReceptionOrderViewSet)
+
 router.register(
     "order-by-price",
     ReceptionOrderByPriceViewSet,
@@ -65,5 +67,10 @@ urlpatterns = [
         "orders/category/<int:category_id>/",
         OrderListByCategoryView.as_view(),
         name="order-list-by-category",
+    ),
+    path(
+        "order-by-price/complete/<int:order_id>/",
+        UpdateReminderPriceView.as_view(),
+        name="update-reminder-price",
     ),
 ]

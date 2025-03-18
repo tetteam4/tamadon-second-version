@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.forms import ValidationError
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import generics, permissions, status, viewsets
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -30,21 +30,10 @@ from .serializers import (
 )
 
 
-class CategoryListCreateView(APIView):
+class CategoryListCreateView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
-
-    def get(self, request):
-        categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-
-        serializer = CategorySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
 class CategoryDetailView(APIView):
@@ -193,16 +182,11 @@ class OrderViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ["secret_key"]  # Allows searching by secret_key
 
-    # def get_queryset(self):
-    #     """
-    #     Return all orders for any user role.
-    #     """
-    #     return Order.objects.all()
     def get_queryset(self):
 
         user = self.request.user
 
-        if user.role in [0, 2,3,1]: 
+        if user.role in [0, 2, 3, 1]:
             return Order.objects.all()
 
         if user.role == 3:  # SuperDesigner
@@ -219,6 +203,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Order.objects.filter(Q(printer=user) | Q(printer__isnull=True))
 
         return Order.objects.none()
+
     def perform_create(self, serializer):
         user = self.request.user
         print(f"User role: {user.role}")  # Debugging output for user role
@@ -240,7 +225,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             raise PermissionDenied(
                 "You must be a Designer or Admin to create an order."
             )
-        
+
         order = serializer.save()
 
         # Trigger Celery task asynchronously to process the updated order
@@ -437,3 +422,41 @@ class OrderListByCategoryView(generics.ListAPIView):
         category_id = self.kwargs["category_id"]
         # Filter orders by category_id
         return Order.objects.filter(category_id=category_id)
+
+
+class UpdateReminderPriceView(APIView):
+    def post(self, request, order_id):
+        try:
+            reception_order = ReceptionOrder.objects.get(order_id=order_id)
+        except ReceptionOrder.DoesNotExist:
+            raise NotFound(detail="ReceptionOrder not found for this order_id.")
+
+        if (
+            reception_order.price is not None
+            and reception_order.receive_price is not None
+        ):
+
+            reception_order.receive_price += reception_order.reminder_price
+            reception_order.reminder_price = 0
+
+            reception_order.save()
+
+            if reception_order.receive_price == reception_order.price:
+                message = "Price is completed receive"
+            else:
+                message = "Price is not fully received yet"
+
+            return Response(
+                {
+                    "order_id": reception_order.order_id,
+                    "reminder_price": reception_order.reminder_price,
+                    "receive_price": reception_order.receive_price,
+                    "message": message,
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"detail": "Price and receive price must not be null."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

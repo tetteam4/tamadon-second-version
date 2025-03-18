@@ -5,6 +5,8 @@ import jwt_decode from "jwt-decode";
 import CryptoJS from "crypto-js";
 import Pagination from "../../../Utilities/Pagination.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
+import moment from "moment-jalaali";
+import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 
 const OrderListSuperDesigner = () => {
   const [orders, setOrders] = useState([]);
@@ -16,6 +18,11 @@ const OrderListSuperDesigner = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingData, setEditingData] = useState({});
 
+  // New state variables
+  const [filterDate, setFilterDate] = useState("");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
     if (!hashedData) {
@@ -98,7 +105,18 @@ const OrderListSuperDesigner = () => {
     }
 
     try {
-      const response = await axios.get(`${BASE_URL}/group/order/pending`, {
+      let url = `${BASE_URL}/group/order/pending`;
+      const params = new URLSearchParams();
+      if (filterDate) {
+        // Format the date to YYYY-MM-DD
+        const formattedDate = moment(filterDate).format("YYYY-MM-DD");
+        params.append("created_at", formattedDate); //  Use the correct parameter name if different
+      }
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -116,6 +134,8 @@ const OrderListSuperDesigner = () => {
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
+    } finally {
+      setLoading(false);
     }
   };
   const handleEdit = (order) => {
@@ -207,6 +227,18 @@ const OrderListSuperDesigner = () => {
       setLoading(false);
     }
   };
+  // Function to handle date filter change
+  const handleFilterDateChange = (e) => {
+    setFilterDate(e.target.value);
+  };
+  // Function to handle customer search change
+  // const handleCustomerSearchChange = (e) => {
+  //   setCustomerSearchTerm(e.target.value);
+  // };
+
+  const toggleSortOrder = () => {
+    setSortOrder((prevSortOrder) => (prevSortOrder === "asc" ? "desc" : "asc"));
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -216,7 +248,7 @@ const OrderListSuperDesigner = () => {
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, []);
+  }, [filterDate]);
 
   // Fetch orders and categories on mount
   useEffect(() => {
@@ -386,11 +418,57 @@ const OrderListSuperDesigner = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 15;
 
+  // Format date in Jalaali calendar
+  const formatDate = (date) => {
+    if (!date) return "N/A"; // Handle cases where the date is null/undefined
+    return moment(date).format("jYYYY/jMM/jDD");
+  };
+
+  // Sort function that uses localeCompare for string comparison and handles number conversion
+  const sortOrders = (a, b) => {
+    const dateA = new Date(a.created_at || 0); // Treat null dates as the epoch
+    const dateB = new Date(b.created_at || 0);
+
+    if (sortOrder === "asc") {
+      return dateA - dateB;
+    } else {
+      return dateB - dateA;
+    }
+  };
+
+  useEffect(() => {
+    if (searchTerm) {
+      const results = orders.filter((order) => {
+        const customerName = order.customer_name || "";
+        const orderName = order.order_name || "";
+        const categoryName =
+          categories.find((category) => category.id === order.category)?.name ||
+          "";
+
+        return (
+          customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+      setSearchResults(results);
+      setCurrentPage(1); // Reset to first page on new search
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTerm, orders, categories]);
+
   // Calculate pagination
-  const totalPages = Math.ceil(orders.length / postsPerPage);
-  const paginatedOrders = [...orders] // Create a copy to avoid mutation
+  const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
+  const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
+
+  const paginatedOrders = [...dataToPaginate] // Create a copy to avoid mutation
     .reverse()
     .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+  // Function to handle search change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   return (
     <div className="w-[400px] md:w-[700px]  mt-10 lg:w-[90%] mx-auto  lg:overflow-hidden">
@@ -399,6 +477,47 @@ const OrderListSuperDesigner = () => {
       </h2>
 
       {loading && <p>در حال بارگذاری...</p>}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-x-3">
+          <label htmlFor="filterDate" className="block text-sm font-medium">
+            Filter by Date:
+          </label>
+          <input
+            type="date"
+            id="filterDate"
+            value={filterDate}
+            onChange={handleFilterDateChange}
+            className="shadow appearance-none border rounded w-50 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+
+          <button
+            onClick={() => setFilterDate("")}
+            className="focus:outline-none"
+          >
+            Clear
+          </button>
+        </div>
+        {/* Search Input */}
+        <input
+          type="text"
+          placeholder="جستجو..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="shadow appearance-none border rounded w-50 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        />
+        {/* Sort Button */}
+        <button
+          onClick={toggleSortOrder}
+          className="flex items-center gap-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none"
+        >
+          Sort by Date
+          {sortOrder === "asc" ? (
+            <FaSortAlphaUp className="w-4 h-4" />
+          ) : (
+            <FaSortAlphaDown className="w-4 h-4" />
+          )}
+        </button>
+      </div>
 
       <center>
         <div className=" overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg md:w-full">
@@ -418,6 +537,9 @@ const OrderListSuperDesigner = () => {
                   طراح
                 </th>
 
+                <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                  تاریخ ایجاد
+                </th>
                 <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                   جزئیات
                 </th>
@@ -446,6 +568,9 @@ const OrderListSuperDesigner = () => {
                         users.find((user) => user.id === order.designer)
                           ?.first_name
                       }
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {formatDate(order.created_at)}
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700">
                       <button
@@ -594,10 +719,7 @@ const OrderListSuperDesigner = () => {
               </button>
 
               {isEditing ? (
-                <button
-                  onClick={handleSave}
-                  className="secondry-btn"
-                >
+                <button onClick={handleSave} className="secondry-btn">
                   ذخیره
                 </button>
               ) : (

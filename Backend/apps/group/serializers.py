@@ -1,10 +1,11 @@
+import datetime
 from decimal import Decimal
 
+import jdatetime
+from apps.users.models import User
 from django import forms
 from jdatetime import datetime
 from rest_framework import serializers
-
-from apps.users.models import User
 
 from .models import AttributeType, AttributeValue, Category, Order, ReceptionOrder
 
@@ -13,27 +14,40 @@ class JalaliDateField(serializers.DateField):
     def to_representation(self, value):
         if value is None:
             return None
-        return value.strftime('%Y-%m-%d')  # Or any other format you want
+        jalali_date = jdatetime.date.fromgregorian(date=value)
+        return jalali_date.strftime("%Y-%m-%d")
 
     def to_internal_value(self, data):
+        # Convert from Jalali date string to Gregorian date when saving to the database
         try:
-            return datetime.strptime(data, '%Y-%m-%d')  # Adjust as needed for your date format
+            jalali_date = jdatetime.datetime.strptime(data, "%Y-%m-%d")
+            return jalali_date.togregorian().date()
         except ValueError:
-            raise serializers.ValidationError("Invalid date format")
-        
+            raise serializers.ValidationError(
+                "Invalid date format. Please use YYYY-MM-DD."
+            )
+
+
 class CategorySerializer(serializers.ModelSerializer):
+    role = serializers.ChoiceField(choices=Category.ROLE_CHOICES)
+
     class Meta:
         model = Category
-        fields = ["id", "name", "created_at", "updated_at"]
+        fields = ["id", "name", "role", "created_at", "updated_at"]
+        ref_name = "GroupCategorySerializer"
+
+    def create(self, validated_data):
+        role = validated_data.get("role")
+        category = Category.objects.create(name=validated_data["name"], role=role)
+        return category
 
 
 class AttributeTypeSerializer(serializers.ModelSerializer):
 
-    # Use the nested serializer for better representation
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     attribute_type = serializers.ChoiceField(
         choices=AttributeType.ATTRIBUTE_CHOICE_TYPE,
-        default="select attribute type",  # You can specify a default if required
+        default="select attribute type",
     )
 
     class Meta:
@@ -49,7 +63,6 @@ class AttributeTypeSerializer(serializers.ModelSerializer):
 
 
 class AttributeValueSerializer(serializers.ModelSerializer):
-    # Use PrimaryKeyRelatedField to simplify relationships
     attribute = serializers.PrimaryKeyRelatedField(queryset=AttributeType.objects.all())
 
     class Meta:
@@ -67,6 +80,7 @@ class OrderSerializer(serializers.ModelSerializer):
     designer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     status = serializers.ChoiceField(choices=Order.STATUS_CHOICES)
+    # created_at = JalaliDateField()
 
     class Meta:
         model = Order
@@ -79,6 +93,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "secret_key",
             "attributes",
             "status",
+            "created_at",
+            "updated_at",
         ]
 
 
@@ -86,8 +102,9 @@ class ReceptionOrderSerializer(serializers.ModelSerializer):
     reminder_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, read_only=True
     )
-    
-    delivery_date = JalaliDateField() 
+
+    delivery_date = JalaliDateField()
+
     class Meta:
         model = ReceptionOrder
         fields = [
@@ -97,13 +114,10 @@ class ReceptionOrderSerializer(serializers.ModelSerializer):
             "receive_price",
             "reminder_price",
             "delivery_date",
-            "created_at"
+            "created_at",
         ]
 
     def validate(self, data):
-        """
-        Ensure reminder_price is calculated and is not negative.
-        """
         price = data.get("price")
         receive_price = data.get("receive_price")
 
@@ -188,6 +202,7 @@ class OrderSerializerByPrice(serializers.ModelSerializer):
 class ReceptionOrderSerializerByPrice(serializers.ModelSerializer):
     # Correct way to define PrimaryKeyRelatedField
     order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
+    delivery_date = JalaliDateField()
 
     class Meta:
         model = ReceptionOrder
@@ -198,7 +213,7 @@ class ReceptionOrderSerializerByPrice(serializers.ModelSerializer):
             "receive_price",
             "reminder_price",
             "delivery_date",
-            "created_at"
+            "created_at",
         ]
 
     def create(self, validated_data):
