@@ -182,16 +182,14 @@ const CategoryManagement = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
-  // Pagination
+  //  pagination section
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
-  const paginatedCategories = Array.isArray(filteredCategories)
-    ? filteredCategories.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-      )
-    : [];
+  const postsPerPage = 10;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(categories.length / postsPerPage);
+  const paginatetCategory = [...categories] // Create a copy to avoid mutation
+    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
   return (
     <div className="py-10 bg-gray-200 w-full min-h-[91vh] px-5">
       <div className="max-w-3xl mx-auto py-4 px-5 shadow-lg bg-white rounded-md">
@@ -245,14 +243,14 @@ const CategoryManagement = () => {
             )}
           </div>
           <div className="flex justify-center gap-4 mt-4">
-            <button type="submit" className="btn-primary">
+            <button type="submit" className="secondry-btn">
               {editingCategory ? "ویرایش" : "اضافه کردن"}
             </button>
             {editingCategory && (
               <button
                 type="button"
                 onClick={() => setEditingCategory(null)}
-                className="btn-secondary"
+                className="tertiary-btn "
               >
                 انصراف
               </button>
@@ -278,8 +276,8 @@ const CategoryManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {Array.isArray(paginatedCategories) &&
-              paginatedCategories.map((category) => (
+            {Array.isArray(paginatetCategory) &&
+              paginatetCategory.map((category) => (
                 <tr
                   key={category.id}
                   className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -309,6 +307,14 @@ const CategoryManagement = () => {
           </tbody>
         </table>
       </div>
+      {/* Pagination Component */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 };

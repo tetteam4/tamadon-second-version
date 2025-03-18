@@ -663,8 +663,8 @@ const AddOrder = () => {
       <div className="w-[350px] sm:w-[450px] md:w-[700px] mt-10 lg:w-[80%] mx-auto overflow-x-scroll lg:overflow-hidden">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-x-3">
-            <label htmlFor="filterDate" className="block text-sm font-medium">
-              Filter by Date:
+            <label htmlFor="filterDate" className="block text-sm font-semibold">
+              فیلتر بر اساس تاریخ:
             </label>
             <input
               type="date"
@@ -686,9 +686,9 @@ const AddOrder = () => {
           <div className="flex items-center gap-x-3">
             <label
               htmlFor="customerSearch"
-              className="block text-sm font-medium"
+              className="block text-sm font-semibold"
             >
-              Customer Search:
+              جستجوی مشتری:
             </label>
             <input
               type="text"
@@ -710,9 +710,9 @@ const AddOrder = () => {
           {/* Sort Button */}
           <button
             onClick={toggleSortOrder}
-            className="flex items-center gap-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none"
+            className="flex items-center gap-x-2 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none"
           >
-            Sort by Date
+            مرتب‌سازی بر اساس تاریخ
             {sortOrder === "asc" ? (
               <FaSortAlphaUp className="w-4 h-4" />
             ) : (
