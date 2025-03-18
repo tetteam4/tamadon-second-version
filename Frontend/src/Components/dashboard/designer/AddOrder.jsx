@@ -36,6 +36,7 @@ const AddOrder = () => {
   const [searchTerm, setSearchTerm] = useState(""); // Search term state
   const [searchResults, setSearchResults] = useState([]); // Search results state
 
+  console.log(orders);
 
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
