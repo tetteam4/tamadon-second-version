@@ -178,10 +178,8 @@ const AddOrder = () => {
       category: order.category,
       status: order.status,
     });
-
     // Set the selected category to load its dynamic form fields
     setSelectedCategoryId(order.category);
-
     // Populate the dynamic form fields (attributes)
     setFormData(order.attributes || {});
   };
