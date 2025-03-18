@@ -56,7 +56,7 @@ const CategoryManagement = () => {
           `${BASE_URL}/group/categories/${editingCategory.id}/`,
           {
             name: categoryName,
-            role: roleName,
+            role: roles.find(((role) => role.name == roleName)?.id),
           }
         );
 
@@ -75,7 +75,7 @@ const CategoryManagement = () => {
       } else {
         response = await axios.post(`${BASE_URL}/group/categories/`, {
           name: categoryName,
-          role: roleName,
+          role: roles.find((role) => role.name == roleName)?.id,
         });
 
         if (response.status === 201) {
@@ -232,7 +232,7 @@ const CategoryManagement = () => {
                     key={role.id}
                     className="py-2 px-5 hover:bg-gray-200 cursor-pointer"
                     onClick={() => {
-                      setRoleName(role.id);
+                      setRoleName(role.name);
                       setIsDropdownOpen(false);
                     }}
                   >
@@ -286,7 +286,7 @@ const CategoryManagement = () => {
                     {category.name}
                   </td>
                   <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {category.role}
+                    {roles.find((role) => role.id == category.role)?.name}
                   </td>
                   <td className="flex items-center justify-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
                     <button
