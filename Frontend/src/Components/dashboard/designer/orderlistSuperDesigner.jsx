@@ -20,9 +20,15 @@ const OrderListSuperDesigner = () => {
 
   // New state variables
   const [filterDate, setFilterDate] = useState("");
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
   const [searchTerm, setSearchTerm] = useState("");
+<<<<<<< HEAD
+  const [filteredOrders, setFilteredOrders] = useState([]); // Orders after filtering/searching/sorting
+  const [selectedAttribute, setSelectedAttribute] = useState(null);
+
+=======
   const [searchResults, setSearchResults] = useState([]);
+>>>>>>> d6f40b1c2475354cdef8b7ef45c5639b07f5a55f
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
     if (!hashedData) {
@@ -160,7 +166,6 @@ const OrderListSuperDesigner = () => {
       // Optionally, update the local state or refresh data
       setIsEditing(false);
       handleClosePopup();
-      console.log(editingData);
 
       // Show success notification with Swal
       Swal.fire({
@@ -231,14 +236,67 @@ const OrderListSuperDesigner = () => {
   const handleFilterDateChange = (e) => {
     setFilterDate(e.target.value);
   };
-  // Function to handle customer search change
-  // const handleCustomerSearchChange = (e) => {
-  //   setCustomerSearchTerm(e.target.value);
-  // };
+
 
   const toggleSortOrder = () => {
     setSortOrder((prevSortOrder) => (prevSortOrder === "asc" ? "desc" : "asc"));
   };
+
+  const sortOrders = (ordersToSort, sortDirection) => {
+    // Create a copy to avoid mutating the original array
+    const sortedOrders = [...ordersToSort];
+
+    sortedOrders.sort((a, b) => {
+      const dateA = new Date(a.created_at || 0);
+      const dateB = new Date(b.created_at || 0);
+
+      if (sortDirection === "asc") {
+        return dateA - dateB;
+      } else {
+        return dateB - dateA;
+      }
+    });
+
+    return sortedOrders;
+  };
+
+  // Apply sorting, filtering, and searching
+  useEffect(() => {
+    let results = [...orders]; // Start with all orders (copy to avoid mutation)
+
+    // 1. Date Filter
+    if (filterDate) {
+      // Convert to Jalali and compare
+      const formattedDate = moment(filterDate).format("jYYYY-jMM-jDD");
+      results = results.filter((order) => {
+        const orderDateJalaali = moment(order.created_at).format("jYYYY-jMM-jDD");
+        return orderDateJalaali === formattedDate;
+      });
+    }
+
+    // 2. Search Filter
+    if (searchTerm) {
+      results = results.filter((order) => {
+        const customerName = order.customer_name || "";
+        const orderName = order.order_name || "";
+        const categoryName =
+          categories.find((category) => category.id === order.category)?.name ||
+          "";
+
+        return (
+          customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+    }
+
+    // 3. Sorting
+    results = sortOrders(results, sortOrder);
+
+    setFilteredOrders(results);
+    setCurrentPage(1); // Reset pagination
+  }, [orders, filterDate, searchTerm, sortOrder, categories]);
 
   useEffect(() => {
     fetchOrders();
@@ -248,7 +306,7 @@ const OrderListSuperDesigner = () => {
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [filterDate]);
+  }, []);
 
   // Fetch orders and categories on mount
   useEffect(() => {
@@ -424,47 +482,13 @@ const OrderListSuperDesigner = () => {
     return moment(date).format("jYYYY/jMM/jDD");
   };
 
-  // Sort function that uses localeCompare for string comparison and handles number conversion
-  const sortOrders = (a, b) => {
-    const dateA = new Date(a.created_at || 0); // Treat null dates as the epoch
-    const dateB = new Date(b.created_at || 0);
-
-    if (sortOrder === "asc") {
-      return dateA - dateB;
-    } else {
-      return dateB - dateA;
-    }
-  };
-
-  useEffect(() => {
-    if (searchTerm) {
-      const results = orders.filter((order) => {
-        const customerName = order.customer_name || "";
-        const orderName = order.order_name || "";
-        const categoryName =
-          categories.find((category) => category.id === order.category)?.name ||
-          "";
-
-        return (
-          customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      });
-      setSearchResults(results);
-      setCurrentPage(1); // Reset to first page on new search
-    } else {
-      setSearchResults([]);
-    }
-  }, [searchTerm, orders, categories]);
-
   // Calculate pagination
-  const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
-  const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
+  const totalPages = Math.ceil(filteredOrders.length / postsPerPage);
 
-  const paginatedOrders = [...dataToPaginate] // Create a copy to avoid mutation
-    .reverse()
-    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * postsPerPage,
+    currentPage * postsPerPage
+  );
   // Function to handle search change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -546,7 +570,7 @@ const OrderListSuperDesigner = () => {
               </tr>
             </thead>
             <tbody>
-              {orders.length > 0 ? (
+              {filteredOrders.length > 0 ? (
                 paginatedOrders.map((order) => (
                   <tr
                     key={order.id}
@@ -595,7 +619,7 @@ const OrderListSuperDesigner = () => {
               ) : (
                 <tr>
                   <td colSpan="5" className="border p-2 text-center">
-                    هیچ سفارشی بدون قیمت پیدا نشد
+                    هیچ سفارشی پیدا نشد
                   </td>
                 </tr>
               )}

@@ -3,6 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { FaChevronDown, FaRegEdit } from "react-icons/fa";
 import { IoTrashSharp } from "react-icons/io5";
+import Pagination from "../../../Utilities/Pagination";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -68,6 +69,7 @@ const CategoryManagement = () => {
             timer: 3000,
             timerProgressBar: true,
           });
+          fetchCategories();
           setEditingCategory(null);
         } else {
           throw new Error("ویرایش کتگوری ناموفق بود.");
@@ -307,6 +309,13 @@ const CategoryManagement = () => {
           </tbody>
         </table>
       </div>
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
+      )}
     </div>
   );
 };

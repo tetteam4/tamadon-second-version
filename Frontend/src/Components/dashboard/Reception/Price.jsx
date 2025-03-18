@@ -3,9 +3,12 @@ import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import axios from "axios";
+<<<<<<< HEAD
+=======
 import moment from "moment-jalaali";
 import Swal from "sweetalert2";
 
+>>>>>>> d6f40b1c2475354cdef8b7ef45c5639b07f5a55f
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const Price = ({ editingPriceId, setShowPrice }) => {

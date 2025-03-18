@@ -1,135 +1,179 @@
-// ProcessingList.jsx
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import CryptoJS from "crypto-js";
 import Swal from "sweetalert2";
-import SearchBar from "../../../Utilities/Searching"; // Correct the path
+import SearchBar from "../../../Utilities/Searching";
 import Pagination from "../../../Utilities/Pagination";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const ProcessingList = () => {
   const secretKey = "TET4-1";
-  const decryptData = (hashedData) => {
-    if (!hashedData) {
-      console.error("No data to decrypt");
-      return null;
-    }
-    try {
-      const bytes = CryptoJS.AES.decrypt(hashedData, secretKey);
-      const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-      return JSON.parse(decrypted);
-    } catch (error) {
-      console.error("Decryption failed:", error);
-      return null;
-    }
-  };
+  const decryptData = useCallback(
+    (hashedData) => {
+      if (!hashedData) {
+        console.error("No data to decrypt");
+        return null;
+      }
+      try {
+        const bytes = CryptoJS.AES.decrypt(hashedData, secretKey);
+        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+        return JSON.parse(decrypted);
+      } catch (error) {
+        console.error("Decryption failed:", error);
+        return null;
+      }
+    },
+    [secretKey]
+  );
 
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isModelOpen, setIsModelOpen] = useState(false);
-  const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(20);
+  const [orderDetails, setOrderDetails] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [userRole, setUserRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const showMore = () => {
-    setVisibleCount((prev) => prev + 20);
-  };
-
-  const showLess = () => {
-    setVisibleCount(10);
-  };
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/categories/`);
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
-  };
+  }, [BASE_URL]);
 
-  const getProcessingList = async () => {
+  const getProcessingList = useCallback(async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/order/processing/`);
       setOrders(response.data);
     } catch (err) {
       console.error("Error fetching processing list:", err);
     }
-  };
+  }, [BASE_URL]);
 
-  const handleAdd = async (id) => {
-    const result = await Swal.fire({
-      title: "آیا مطمئن هستید؟",
-      text: "این سفارش به وضعیت 'تکمیل شده' تغییر خواهد کرد!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "بله، انجام بده",
-      cancelButtonText: "لغو",
-      reverseButtons: true,
-    });
-
-    if (result.isConfirmed) {
+  const getDetails = useCallback(
+    async (id) => {
       try {
-        await axios.post(`${BASE_URL}/group/update-order-status/`, {
-          order_id: id,
-          status: "done",
+        const token = decryptData(localStorage.getItem("auth_token"));
+        const response = await axios.get(`${BASE_URL}/group/orders/${id}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
-
-        setOrders((prevOrders) =>
-          prevOrders.filter((order) => order.id !== id)
-        );
-
-        Swal.fire({
-          icon: "success",
-          title: "سفارش تکمیل شد",
-          text: "وضعیت سفارش با موفقیت به 'تکمیل شده' تغییر کرد.",
-          confirmButtonText: "باشه",
-        });
+        setOrderDetails(response.data.attributes);
+        setIsModelOpen(true);
       } catch (err) {
-        console.error("Error changing status:", err);
-
-        Swal.fire({
-          icon: "error",
-          title: "خطا در تغییر وضعیت",
-          text: "مشکلی در تغییر وضعیت سفارش به وجود آمد. لطفاً دوباره تلاش کنید.",
-          confirmButtonText: "متوجه شدم",
-        });
+        console.error("Error fetching order details:", err);
       }
-    }
-  };
+    },
+    [BASE_URL, decryptData]
+  );
 
-  const handleShowDetails = async (id) => {
-    try {
-      const token = decryptData(localStorage.getItem("auth_token"));
-      const response = await axios.get(`${BASE_URL}/group/orders/${id}/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+  const handleAdd = useCallback(
+    async (id) => {
+      const result = await Swal.fire({
+        title: "آیا مطمئن هستید؟",
+        text: "این سفارش به وضعیت 'تکمیل شده' تغییر خواهد کرد!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "بله، انجام بده",
+        cancelButtonText: "لغو",
+        reverseButtons: true,
       });
-      setSelectedOrderDetails(response.data.attributes);
-      setIsModelOpen(true);
-    } catch (err) {
-      console.error("Error fetching order details:", err);
-    }
-  };
 
-  const handleClosePopup = () => {
+      if (result.isConfirmed) {
+        try {
+          await axios.post(`${BASE_URL}/group/update-order-status/`, {
+            order_id: id,
+            status: "done",
+          });
+
+          setOrders((prevOrders) =>
+            prevOrders.filter((order) => order.id !== id)
+          );
+
+          Swal.fire({
+            icon: "success",
+            title: "سفارش تکمیل شد",
+            text: "وضعیت سفارش با موفقیت به 'تکمیل شده' تغییر کرد.",
+            confirmButtonText: "باشه",
+          });
+        } catch (err) {
+          console.error("Error changing status:", err);
+
+          Swal.fire({
+            icon: "error",
+            title: "خطا در تغییر وضعیت",
+            text: "مشکلی در تغییر وضعیت سفارش به وجود آمد. لطفاً دوباره تلاش کنید.",
+            confirmButtonText: "متوجه شدم",
+          });
+        }
+      }
+    },
+    [BASE_URL]
+  );
+
+  const handleClosePopup = useCallback(() => {
     setIsModelOpen(false);
-    setSelectedOrderDetails(null);
-  };
-
-  useEffect(() => {
-    getProcessingList();
-    fetchCategories();
-      getProcessingList();
+    setOrderDetails(null);
   }, []);
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await getProcessingList();
+        await fetchCategories();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [fetchCategories, getProcessingList]);
+ /// work by aukto dgdd
+  useEffect(() => {
+    const roleData = localStorage.getItem("role");
+    if (roleData) {
+      try {
+        const decryptedRole = decryptData(roleData);
+        if (
+          typeof decryptedRole === "object" &&
+          Array.isArray(decryptedRole) &&
+          decryptedRole.length > 0
+        ) {
+          const roleValue = decryptedRole[0];
+          if (typeof roleValue === "number") {
+            setUserRole(roleValue);
+          } else {
+            console.warn("Role must be number, but is not.");
+          }
+        }
+      } catch (error) {
+        console.error("Error decrypting role:", error);
+      }
+    } else {
+      console.warn("No 'role' found in localStorage.");
+    }
+  }, [decryptData]);
+
+  const filteredOrders = useMemo(() => {
+    if (!userRole || categories.length === 0) {
+      return orders;
+    }
+
+    return orders.filter((order) => {
+      const category = categories.find((cat) => cat.id === order.category);
+      return category && category.role === userRole;
+    });
+  }, [orders, categories, userRole]);
+
+  useEffect(() => {
     if (searchTerm) {
-      const results = orders.filter((order) => {
+      const results = filteredOrders.filter((order) => {
         const customerName = order.customer_name || "";
         const orderName = order.order_name || "";
         const categoryName =
@@ -146,27 +190,39 @@ const ProcessingList = () => {
     } else {
       setSearchResults([]);
     }
-  }, [searchTerm, orders, categories]);
+  }, [searchTerm, filteredOrders, categories]);
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
-  };
-  // Pagination section
+  }, []);
+
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 15;
 
-  // تعیین داده‌ای که باید صفحه‌بندی شود (نتایج جستجو یا سفارش‌های دریافتی)
-  const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
+  const dataToPaginate =
+    searchResults.length > 0 ? searchResults : filteredOrders;
 
-  // ریست کردن صفحه فعلی هنگام تغییر جستجو
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, filteredOrders]);
 
   const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
-  const paginatedOrders = [...dataToPaginate]
-    .reverse()
-    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+  const paginatedOrders = useMemo(
+    () =>
+      [...dataToPaginate]
+        .reverse()
+        .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage),
+    [currentPage, dataToPaginate]
+  );
+
+  const onPageChange = useCallback((page) => {
+    setCurrentPage(page);
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div
       dir="rtl"
@@ -226,7 +282,7 @@ const ProcessingList = () => {
                       تایید تکمیلی
                     </button>
                     <button
-                      onClick={() => handleShowDetails(order.id)}
+                      onClick={() => getDetails(order.id)}
                       className="m-2 bg-blue-500 rounded-lg hover:!scale-105 duration-300 py-2 px-5 text-sm hover:bg-blue-700 text-white"
                     >
                       جزئیات
@@ -244,24 +300,23 @@ const ProcessingList = () => {
           </tbody>
         </table>
       </div>
-      {/* Pagination Component */}
       {totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          onPageChange={onPageChange}
         />
       )}
 
-      {isModelOpen && selectedOrderDetails && (
+      {isModelOpen && orderDetails && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
             <h3 className="text-xl font-bold mb-4 text-gray-800">
               اطلاعات سفارش
             </h3>
             <div className="bg-gray-100 p-4 rounded overflow-auto text-sm space-y-2">
-              {selectedOrderDetails &&
-                Object.entries(selectedOrderDetails).map(([key, value]) => (
+              {orderDetails &&
+                Object.entries(orderDetails).map(([key, value]) => (
                   <div
                     key={key}
                     className="flex justify-between items-center border-b border-gray-300 pb-2"
@@ -272,13 +327,10 @@ const ProcessingList = () => {
                 ))}
             </div>
             <div className="flex justify-center mt-5 items-center w-full">
-          <button
-              onClick={handleClosePopup}
-                 className="tertiary-btn"
-            >
-              بستن
-            </button>
-          </div>
+              <button onClick={handleClosePopup} className="tertiary-btn">
+                بستن
+              </button>
+            </div>
           </div>
         </div>
       )}
