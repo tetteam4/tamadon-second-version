@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.forms import ValidationError
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import generics, permissions, status, viewsets
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -422,3 +422,41 @@ class OrderListByCategoryView(generics.ListAPIView):
         category_id = self.kwargs["category_id"]
         # Filter orders by category_id
         return Order.objects.filter(category_id=category_id)
+
+
+class UpdateReminderPriceView(APIView):
+    def post(self, request, order_id):
+        try:
+            reception_order = ReceptionOrder.objects.get(order_id=order_id)
+        except ReceptionOrder.DoesNotExist:
+            raise NotFound(detail="ReceptionOrder not found for this order_id.")
+
+        if (
+            reception_order.price is not None
+            and reception_order.receive_price is not None
+        ):
+
+            reception_order.receive_price += reception_order.reminder_price
+            reception_order.reminder_price = 0
+
+            reception_order.save()
+
+            if reception_order.receive_price == reception_order.price:
+                message = "Price is completed receive"
+            else:
+                message = "Price is not fully received yet"
+
+            return Response(
+                {
+                    "order_id": reception_order.order_id,
+                    "reminder_price": reception_order.reminder_price,
+                    "receive_price": reception_order.receive_price,
+                    "message": message,
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"detail": "Price and receive price must not be null."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
