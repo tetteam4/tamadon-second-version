@@ -212,7 +212,7 @@ const TokenOrders = () => {
 
       if (confirm.isConfirmed) {
         const completeResponse = await axios.post(
-          `http://localhost:8000/group/order-by-price/complete/${id}/`,
+          `${BASE_URL}/group/order-by-price/complete/${id}/`,
           {},
           {
             headers: {
