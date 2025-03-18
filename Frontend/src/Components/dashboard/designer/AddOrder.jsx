@@ -102,7 +102,20 @@ const AddOrder = () => {
       const response = await axios.get(url, {
         headers,
       });
-      setOrders(response.data.filter((order) => order.designer == id));
+      // Apply date filtering on the frontend if backend filtering is not working
+
+      let filteredOrders = response.data.filter(
+        (order) => order.designer == id
+      );
+
+      if (filterDate) {
+        const formattedFilterDate = moment(filterDate).format("YYYY-MM-DD");
+        filteredOrders = filteredOrders.filter((order) => {
+          const orderDate = moment(order.created_at).format("YYYY-MM-DD");
+          return orderDate === formattedFilterDate;
+        });
+      }
+      setOrders(filteredOrders);
     } catch (error) {
       console.error("Error fetching orders:", error.response || error);
       // Handle error appropriately (e.g., display an error message)

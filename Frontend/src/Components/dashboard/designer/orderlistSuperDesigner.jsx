@@ -126,12 +126,12 @@ const OrderListSuperDesigner = () => {
         return;
       }
 
-      // Filter orders that are missing either total_price or receive_price
+   
       const filteredOrders = response.data.filter(
         (order) => !order.total_price || !order.receive_price
       );
 
-      setOrders(filteredOrders); // Now you're setting the filtered list of orders that are missing price
+      setOrders(filteredOrders); 
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
