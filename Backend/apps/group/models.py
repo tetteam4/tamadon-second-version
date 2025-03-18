@@ -8,9 +8,33 @@ from django_jalali.db import models as jmodels
 
 
 class Category(models.Model):
-    User = get_user_model()
+
+    Admin = 0
+    Designer = 1
+    Reception = 2
+    SuperDesigner = 3
+    Printer = 4
+    Delivered = 5
+    Digital = 6
+    Bill = 7
+    Chaspak = 8
+    Shop_role = 9
+    Laser = 10
+    ROLE_CHOICES = (
+        (Designer, "Designer"),
+        (Reception, "Reception"),
+        (SuperDesigner, "SuperDesigner"),
+        (Admin, "Admin"),
+        (Printer, "Printer"),
+        (Delivered, "Delivered"),
+        (Digital, "Digital"),
+        (Bill, "Bill"),
+        (Chaspak, "Chaspak"),
+        (Shop_role, "Shop role"),
+        (Laser, "Laser"),
+    )
     name = models.CharField(max_length=255)
-    role = models.ForeignKey(User, on_delete=models.PROTECT)
+    role = models.CharField(max_length=50, choices=ROLE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
