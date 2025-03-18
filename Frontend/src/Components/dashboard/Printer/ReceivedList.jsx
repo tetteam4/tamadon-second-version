@@ -286,7 +286,7 @@ const ReceivedList = () => {
                     </button>
                     <button
                       onClick={() => getDetails(order.id)}
-                      className="m-2 bg-blue-500 rounded-lg hover:!scale-105 duration-300 py-2 px-5 text-sm hover:bg-blue-700 text-white"
+                      className="secondry-btn"
                     >
                       جزئیات
                     </button>
