@@ -22,13 +22,9 @@ const OrderListSuperDesigner = () => {
   const [filterDate, setFilterDate] = useState("");
   const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
   const [searchTerm, setSearchTerm] = useState("");
-<<<<<<< HEAD
   const [filteredOrders, setFilteredOrders] = useState([]); // Orders after filtering/searching/sorting
   const [selectedAttribute, setSelectedAttribute] = useState(null);
 
-=======
-  const [searchResults, setSearchResults] = useState([]);
->>>>>>> d6f40b1c2475354cdef8b7ef45c5639b07f5a55f
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
     if (!hashedData) {
@@ -114,9 +110,8 @@ const OrderListSuperDesigner = () => {
       let url = `${BASE_URL}/group/order/pending`;
       const params = new URLSearchParams();
       if (filterDate) {
-        // Format the date to YYYY-MM-DD
         const formattedDate = moment(filterDate).format("YYYY-MM-DD");
-        params.append("created_at", formattedDate); //  Use the correct parameter name if different
+        params.append("created_at", formattedDate); 
       }
 
       if (params.toString()) {
