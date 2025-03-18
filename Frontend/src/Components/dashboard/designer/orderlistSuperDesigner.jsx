@@ -22,9 +22,13 @@ const OrderListSuperDesigner = () => {
   const [filterDate, setFilterDate] = useState("");
   const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
   const [searchTerm, setSearchTerm] = useState("");
+<<<<<<< HEAD
   const [filteredOrders, setFilteredOrders] = useState([]); // Orders after filtering/searching/sorting
   const [selectedAttribute, setSelectedAttribute] = useState(null);
 
+=======
+  const [searchResults, setSearchResults] = useState([]);
+>>>>>>> d6f40b1c2475354cdef8b7ef45c5639b07f5a55f
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
     if (!hashedData) {

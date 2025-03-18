@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import { FaXmark } from "react-icons/fa6";
 import Swal from "sweetalert2";
+import { FaEye } from "react-icons/fa";
+import { FaEyeSlash } from "react-icons/fa";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
@@ -36,15 +38,17 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-
-  // Function to show success message and clear it after 5 seconds
-  const showSuccessMessage = (message) => {
-    setSuccessMessage(message);
-    setTimeout(() => {
-      setSuccessMessage(null);
-    }, 5000); // Clear message after 5 seconds
+  const [showPassword, setShowPassword] = useState({
+    password: false,
+    confirm_password: false,
+    old_password: false,
+  });
+  const handleShowPassword = (field) => {
+    setShowPassword({
+      ...showPassword,
+      [field]: !showPassword[field],
+    });
   };
-
   const navigate = useNavigate();
 
   const handleProfileSubmit = async (e) => {
@@ -263,7 +267,7 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
 
         {/* Profile Update Form */}
         <form onSubmit={handleProfileSubmit} className="space-y-2 px-4">
-          <div className="md:grid space-y-3 md:space-y-0 grid-cols-2 place-content-center gap-5">
+          <div className="md:grid space-y-3 md:space-y-2 grid-cols-2 place-content-center gap-5">
             <div>
               <label
                 htmlFor="email"
@@ -277,7 +281,7 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full py-1.5  px-5 mt-2 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
+                className="w-full py-1.5 px-5 mt-2 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
               />
             </div>
             <div>
@@ -294,7 +298,7 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
                 onChange={handleChange}
                 required
                 autoComplete="tel"
-                className="w-full py-1.5  px-5 mt-2 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
+                className="w-full py-1.5 px-5  border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
               />
             </div>
           </div>
@@ -304,53 +308,81 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
                 htmlFor="password"
                 className="block text-gray-800 font-medium"
               >
-                رمز عبور:
+                رمز عبور جدید:
               </label>
-              <input
-                type="password"
-                id="password"
-                value={form.password}
-                onChange={handleChange}
-                required
-                autoComplete="new-password"
-                className="w-full py-1.5  px-5 mt-2 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword.password ? "text" : "password"}
+                  id="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                  autoComplete="new-password"
+                  className="w-full py-1.5 px-5 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleShowPassword("password")}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-600"
+                >
+                  {showPassword.password ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
             <div>
               <label
                 htmlFor="confirm_password"
                 className="block text-gray-800 font-medium"
               >
-                تأیید رمز عبور:
+                تأیید رمز عبور جدید:
               </label>
-              <input
-                type="password"
-                id="confirm_password"
-                value={form.confirm_password}
-                onChange={handleChange}
-                required
-                autoComplete="new-password"
-                className="w-full py-1.5  px-5 mt-2 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
-              />
-            </div>{" "}
+              <div className="relative">
+                <input
+                  type={showPassword.confirm_password ? "text" : "password"}
+                  id="confirm_password"
+                  value={form.confirm_password}
+                  onChange={handleChange}
+                  required
+                  autoComplete="new-password"
+                  className="w-full py-1.5 px-5 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleShowPassword("confirm_password")}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-600"
+                >
+                  {showPassword.confirm_password ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="md:flex justify-center items-center ">
+          <div className="md:flex justify-center items-center">
             <div className="md:flex items-center gap-x-2">
+              {" "}
               <label
                 htmlFor="old_password"
                 className="block text-gray-800 font-medium"
               >
                 رمز عبور قبلی:
               </label>
-              <input
-                type="password"
-                id="old_password"
-                value={form.old_password}
-                onChange={handleChange}
-                required
-                autoComplete="old-password"
-                className="md:w-[400px] w-[340px] px-4 py-1.5 mt-2 border bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green "
-              />
+              <div className="relative">
+                <input
+                  type={showPassword.old_password ? "text" : "password"}
+                  id="old_password"
+                  value={form.old_password}
+                  onChange={handleChange}
+                  required
+                  autoComplete="old-password"
+                  className="md:w-[400px] w-[340px] px-4 py-1.5 border bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleShowPassword("old_password")}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-600"
+                >
+                  {showPassword.old_password ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
           </div>
           <div className="flex items-center justify-center">

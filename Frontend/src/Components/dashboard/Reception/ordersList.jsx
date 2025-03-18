@@ -300,8 +300,6 @@ const OrderList = () => {
     setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
   const handleDateChange = (date) => {
-    console.log("Selected Date:", date); // Log the selected date passed from DatePicker
-
     // Function to convert Persian characters to English characters
     const convertPersianToEnglish = (str) => {
       // Replace Persian digits (۰-۹) with English digits (0-9)
@@ -314,7 +312,6 @@ const OrderList = () => {
     // Example if 'date' has a 'format' method like the Jalali date object
     if (date && date.format) {
       const formattedDate = date.format("YYYY-MM-DD"); // Format the date as YYYY-MM-DD
-      console.log("Formatted Jalali Date:", formattedDate);
 
       // Convert Persian digits to English digits in the formatted date
       const convertedDate = convertPersianToEnglish(formattedDate);
@@ -345,7 +342,6 @@ const OrderList = () => {
       return;
     }
     // Check if modalData.deliveryDate is a moment object
-    console.log(modalData.deliveryDate);
     const formattedDate = modalData.deliveryDate
       ? typeof modalData.deliveryDate === "string" &&
         moment(modalData.deliveryDate, "jYYYY/jMM/jDD", true).isValid() // Check if it's a valid Persian date string
@@ -362,16 +358,12 @@ const OrderList = () => {
         : null // Return null if invalid date
       : null; // If no date exists, return null
 
-    console.log(formattedDate); // Log the final formatted date
-
     const updatedOrder = {
       price: convertToEnglishNumbers(modalData.total_price) || null,
       receive_price: convertToEnglishNumbers(modalData.receive_price) || null,
       delivery_date: modalData.deliveryDate, // This should now be in Hijri format
       order: selectedOrder || null,
     };
-
-    console.log("Sending updated order:", updatedOrder);
     let token = getAuthToken();
     const headers = { Authorization: `Bearer ${token}` };
     try {
@@ -393,17 +385,11 @@ const OrderList = () => {
         { headers }
       );
 
-      // Update the order details
-      console.log(updatedOrder);
-
       const response = await axios.post(
         `${BASE_URL}/group/reception-orders/`,
         updatedOrder,
         { headers }
       );
-
-      console.log("Order updated successfully:", response.data);
-
       // Close the modal and update orders list
       setShowModal(false);
       setOrders((prevOrders) =>

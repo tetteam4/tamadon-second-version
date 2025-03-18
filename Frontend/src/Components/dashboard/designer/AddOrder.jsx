@@ -26,18 +26,12 @@ const AddOrder = () => {
   const [formFields, setFormFields] = useState([]);
   const [formData, setFormData] = useState({});
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-
   const [filterDate, setFilterDate] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
   const [customerSearchTerm, setCustomerSearchTerm] = useState("");
-
   const [refreshOrders, setRefreshOrders] = useState(false); // Add a state to force refresh
-
   const [searchTerm, setSearchTerm] = useState(""); // Search term state
   const [searchResults, setSearchResults] = useState([]); // Search results state
-
-  console.log(orders);
-
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
     if (!hashedData) {
@@ -108,7 +102,7 @@ const AddOrder = () => {
       const response = await axios.get(url, {
         headers,
       });
-      setOrders(response.data.filter((order) => order.designer != id));
+      setOrders(response.data.filter((order) => order.designer == id));
     } catch (error) {
       console.error("Error fetching orders:", error.response || error);
       // Handle error appropriately (e.g., display an error message)
@@ -205,7 +199,7 @@ const AddOrder = () => {
         icon: "error",
       });
       setSubmitting(false);
-      
+
       return;
     }
 
@@ -571,7 +565,7 @@ const AddOrder = () => {
                                   });
                                   setDropdownState((prev) => ({
                                     ...prev,
-                                    [field.name]: false, 
+                                    [field.name]: false,
                                   }));
                                 }}
                               >
@@ -590,7 +584,7 @@ const AddOrder = () => {
                                     });
                                     setDropdownState((prev) => ({
                                       ...prev,
-                                      [field.name]: false, 
+                                      [field.name]: false,
                                     }));
                                   }}
                                 >
