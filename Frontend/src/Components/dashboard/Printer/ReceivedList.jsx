@@ -47,7 +47,7 @@ const ReceivedList = () => {
 
   const getTakenList = useCallback(async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/group/order/taken/`);
+      const response = await axios.get(`${BASE_URL}/group/orders/`);
       setOrders(response.data);
     } catch (err) {
       console.log("Error fetching List", err);
