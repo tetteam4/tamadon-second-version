@@ -9,7 +9,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const CategoryManagement = () => {
   const [categoryName, setCategoryName] = useState("");
-  const [selectedRoles, setSelectedRoles] = useState([]); // Use this for storing the roles
+  const [selectedRoles, setSelectedRoles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,7 +43,6 @@ const CategoryManagement = () => {
     fetchCategories();
   }, []);
 
-  // Handle form submission (Add / Edit)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const actionType = editingCategory ? "ویرایش" : "اضافه کردن";
@@ -55,7 +54,7 @@ const CategoryManagement = () => {
           `${BASE_URL}/group/categories/${editingCategory.id}/`,
           {
             name: categoryName,
-            role: selectedRoles, // Send selectedRoles (array of IDs)
+            role: selectedRoles,
           }
         );
 
@@ -75,7 +74,7 @@ const CategoryManagement = () => {
       } else {
         response = await axios.post(`${BASE_URL}/group/categories/`, {
           name: categoryName,
-          role: selectedRoles, // Send selectedRoles (array of IDs)
+          role: selectedRoles,
         });
 
         if (response.status === 201) {
@@ -92,7 +91,7 @@ const CategoryManagement = () => {
       }
 
       setCategoryName("");
-      setSelectedRoles([]); // Clear selected roles after submission
+      setSelectedRoles([]);
       fetchCategories();
     } catch (error) {
       Swal.fire({
@@ -104,7 +103,6 @@ const CategoryManagement = () => {
     }
   };
 
-  // Handle delete
   const handleDelete = async (id) => {
     const confirmDelete = await Swal.fire({
       title: "آیا مطمئن هستید؟",
@@ -151,11 +149,10 @@ const CategoryManagement = () => {
 
   const handleEdit = (category) => {
     setCategoryName(category.name);
-    setSelectedRoles(category.role || []); // Set selected roles for editing
+    setSelectedRoles(category.role || []);
     setEditingCategory(category);
   };
 
-  // Handle search
   const handleSearch = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
@@ -168,7 +165,6 @@ const CategoryManagement = () => {
     );
   };
 
-  // Handle sort
   const handleSort = () => {
     const sortedCategories = [...filteredCategories].sort((a, b) =>
       sortOrder === "asc"
@@ -179,8 +175,8 @@ const CategoryManagement = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
-  // Handle role change
-  const handleRoleChange = (roleId) => {
+  const handleRoleChange = (roleId, e) => {
+    e.stopPropagation(); // Stop event propagation
     setSelectedRoles((prevRoles) =>
       prevRoles.includes(roleId)
         ? prevRoles.filter((id) => id !== roleId)
@@ -188,7 +184,6 @@ const CategoryManagement = () => {
     );
   };
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
@@ -223,23 +218,38 @@ const CategoryManagement = () => {
             <label className="block text-lg font-medium text-gray-700 mb-1">
               نقش
             </label>
-
-            <div className="space-y-2">
-              {roles.map((role) => (
-                <label
-                  key={role.id}
-                  className="flex items-center space-x-2 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    value={role.id}
-                    checked={selectedRoles.includes(role.id)}
-                    onChange={() => handleRoleChange(role.id)}
-                    className="form-checkbox h-5 w-5 text-green-500 focus:ring-green-500"
-                  />
-                  <span className="text-gray-700">{role.name}</span>
-                </label>
-              ))}
+            <div
+              className="relative cursor-pointer"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <div className="w-full px-3 py-2 border rounded bg-gray-200 text-black flex items-center justify-between">
+                <span>انتخاب نقش‌ها</span>
+                <FaChevronDown
+                  className={`transition-transform ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </div>
+              {isDropdownOpen && (
+                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  {roles.map((role) => (
+                    <label
+                      key={role.id}
+                      className="flex items-center space-x-2 p-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()} // Prevent dropdown close
+                    >
+                      <input
+                        type="checkbox"
+                        value={role.id}
+                        checked={selectedRoles.includes(role.id)}
+                        onChange={(e) => handleRoleChange(role.id, e)} // Pass event
+                        className="form-checkbox h-5 w-5 text-green-500 focus:ring-green-500"
+                      />
+                      <span className="text-gray-700">{role.name}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <div className="flex justify-center gap-4 mt-4">
