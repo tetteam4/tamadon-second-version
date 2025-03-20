@@ -198,7 +198,9 @@ const CategoryManagement = () => {
     : [];
 
   return (
-    <div className="py-10 bg-gray-200 w-full min-h-[91vh] px-5">
+    <div
+      className="py-10 bg-gray-200 w-full min-h-[91vh] px-5"
+    >
       <div className="max-w-3xl mx-auto py-4 px-5 shadow-lg bg-white rounded-md">
         <h2 className="text-xl text-center font-bold mb-4">
           {editingCategory ? "ویرایش کتگوری" : "افزودن کتگوری"}
@@ -224,6 +226,7 @@ const CategoryManagement = () => {
             <div
               className="relative cursor-pointer"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onMouseDown={(e)=>e.preventDefault()}
             >
               <div className="w-full px-3 py-2 border rounded bg-gray-200 text-black flex items-center justify-between">
                 <span>انتخاب نقش‌ها</span>
@@ -238,7 +241,7 @@ const CategoryManagement = () => {
                   {roles.map((role) => (
                     <label
                       key={role.id}
-                      className="flex items-center space-x-2 p-2 hover:bg-gray-100 cursor-pointer"
+                      className="flex items-center gap-x-2 p-2 border-b hover:bg-gray-100 cursor-pointer"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <input
@@ -256,14 +259,14 @@ const CategoryManagement = () => {
             </div>
           </div>
           <div className="flex justify-center gap-4 mt-4">
-            <button type="submit" className="btn-primary">
+            <button type="submit" className="secondry-btn">
               {editingCategory ? "ویرایش" : "اضافه کردن"}
             </button>
             {editingCategory && (
               <button
                 type="button"
                 onClick={() => setEditingCategory(null)}
-                className="btn-secondary"
+                className="tertiary-btn"
               >
                 انصراف
               </button>

@@ -21,7 +21,7 @@ const SocialMediaContact = () => {
               },
               {
                 name: "تلگرام ما",
-                url: "https://t.me/",
+                url: "https://t.me/+93772029545",
                 icon: "/Telegram-01-01-01.png",
               },
             ].map(({ name, url, icon }, index) => (

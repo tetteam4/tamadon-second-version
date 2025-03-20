@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import HeadFooter from "./HeadFooter";
 
 function Footer() {
-
   const navItems = [
     { id: 1, title: "صفحه اصلی", path: "/" },
     { id: 2, title: "محصولات", path: "/service" },
@@ -13,7 +12,6 @@ function Footer() {
     { id: 4, title: "درباره ما", path: "/about" },
     { id: 5, title: "تماس با ما", path: "/contactus" },
   ];
-
 
   return (
     <footer
@@ -33,12 +31,12 @@ function Footer() {
                 label: "facebook",
               },
               {
-                url: "https://wa.me/93772029545",
+                url: "https://wa.me/93728215482",
                 icon: "/whatsapp-03-01-01.png",
                 label: "whatsapp",
               },
               {
-                url: "https://t.me/yourtelegramusername",
+                url: "https://t.me/+93772029545",
                 icon: "/Telegram-01-01-01.png",
                 label: "Telegram",
               },

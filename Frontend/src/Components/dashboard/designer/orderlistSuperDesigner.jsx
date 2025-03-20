@@ -111,7 +111,7 @@ const OrderListSuperDesigner = () => {
       const params = new URLSearchParams();
       if (filterDate) {
         const formattedDate = moment(filterDate).format("YYYY-MM-DD");
-        params.append("created_at", formattedDate); 
+        params.append("created_at", formattedDate);
       }
 
       if (params.toString()) {
@@ -126,12 +126,11 @@ const OrderListSuperDesigner = () => {
         return;
       }
 
-   
       const filteredOrders = response.data.filter(
         (order) => !order.total_price || !order.receive_price
       );
 
-      setOrders(filteredOrders); 
+      setOrders(filteredOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
@@ -263,7 +262,9 @@ const OrderListSuperDesigner = () => {
       // Convert to Jalali and compare
       const formattedDate = moment(filterDate).format("jYYYY-jMM-jDD");
       results = results.filter((order) => {
-        const orderDateJalaali = moment(order.created_at).format("jYYYY-jMM-jDD");
+        const orderDateJalaali = moment(order.created_at).format(
+          "jYYYY-jMM-jDD"
+        );
         return orderDateJalaali === formattedDate;
       });
     }
@@ -497,38 +498,52 @@ const OrderListSuperDesigner = () => {
       {loading && <p>در حال بارگذاری...</p>}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-x-3">
-          <label htmlFor="filterDate" className="block text-sm font-medium">
-            Filter by Date:
+          <label htmlFor="filterDate" className="block text-sm font-semibold">
+            فیلتر بر اساس تاریخ:
           </label>
           <input
             type="date"
             id="filterDate"
             value={filterDate}
             onChange={handleFilterDateChange}
-            className="shadow appearance-none border rounded w-50 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border rounded-md w-56 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
 
           <button
             onClick={() => setFilterDate("")}
-            className="focus:outline-none"
+            className="focus:outline-none secondry-btn"
           >
-            Clear
+            پاک کردن
           </button>
         </div>
         {/* Search Input */}
-        <input
-          type="text"
-          placeholder="جستجو..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          className="shadow appearance-none border rounded w-50 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
+        <div className="flex items-center gap-x-3">
+          <label
+            htmlFor="customerSearch"
+            className="block text-sm font-semibold"
+          >
+            جستجوی مشتری:
+          </label>
+          <input
+            type="text"
+            placeholder="جستجو..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="shadow appearance-none border rounded-md w-56 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+          <button
+            onClick={() => setSearchTerm("")}
+            className="focus:outline-none secondry-btn"
+          >
+            پاک کردن
+          </button>
+        </div>
         {/* Sort Button */}
         <button
           onClick={toggleSortOrder}
-          className="flex items-center gap-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none"
+          className="flex items-center gap-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-00 focus:outline-none"
         >
-          Sort by Date
+          مرتب‌سازی بر اساس تاریخ
           {sortOrder === "asc" ? (
             <FaSortAlphaUp className="w-4 h-4" />
           ) : (
