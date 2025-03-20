@@ -8,6 +8,7 @@ from .views import (
     AttributeValueListCreateView,
     CategoryAttributeView,
     CategoryCreateView,
+    CategoryDeleteView,
     CategoryUpdateView,
     OrderListByCategoryView,
     OrderListView,
@@ -33,6 +34,11 @@ urlpatterns = [
         "categories/<int:pk>/",
         CategoryUpdateView.as_view(),
         name="category-update",
+    ),
+    path(
+        "categories/<int:pk>/delete/",
+        CategoryDeleteView.as_view(),
+        name="category-delete",
     ),
     path(
         "attribute-values/",
