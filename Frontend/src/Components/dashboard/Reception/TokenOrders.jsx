@@ -306,7 +306,10 @@ const TokenOrders = () => {
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="text-center mt-10 font-semibold">در حال بارگذاری...</div>
+    );
 
   return (
     <div className="mt-8 px-10 ">
@@ -323,6 +326,14 @@ const TokenOrders = () => {
 
       <center>
         <div className="overflow-x-scroll lg:overflow-hidden w-[420px] md:w-full rounded-lg">
+          <div className="flex gap-x-4 items-center justify-center bg-white shadow-md p-2  hover:shadow-lg transition-shadow duration-300">
+            <span className="text-lg font-semibold text-gray-700">
+              مجموع سفارشات :
+            </span>
+            <span className="text-2xl font-bold text-green">
+              {orders.length}
+            </span>
+          </div>
           <table className="w-full  rounded-lg border  border-gray-300 shadow-md">
             <thead className=" ">
               <tr className="bg-green text-gray-100 text-center">
