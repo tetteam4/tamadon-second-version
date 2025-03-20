@@ -27,7 +27,7 @@ const CategoryManagement = () => {
     { id: 4, name: "Printer" },
     { id: 5, name: "Delivery" },
     { id: 6, name: "Digital" },
-    { id: 7, name: "Digital" },
+    { id: 7, name: "Bill" },
     { id: 8, name: "Chaspak" },
     { id: 9, name: "Shop role" },
     { id: 10, name: "Laser" },
@@ -219,44 +219,46 @@ const CategoryManagement = () => {
               required
             />
           </div>
-          <div className="relative">
-            <label className="block text-lg font-medium text-gray-700 mb-1">
-              نقش
-            </label>
-            <div
-              className="relative cursor-pointer"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <div className="w-full px-3 py-2 border rounded bg-gray-200 text-black flex items-center justify-between">
-                <span>انتخاب نقش‌ها</span>
-                <FaChevronDown
-                  className={`transition-transform ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
+          <label className="block text-lg font-medium text-gray-700 mb-1">
+            مراحل
+          </label>
+          <div className="bg-gray-200 p-3 rounded-lg">
+            {roles.map((role) => (
+              <div
+                key={role.id}
+                className="flex items-center space-x-2 p-2 border-b last:border-b-0"
+              >
+                <input
+                  type="checkbox"
+                  value={role.id}
+                  checked={selectedRoles.includes(role.id)}
+                  onChange={(e) => handleRoleChange(role.id, e)}
+                  className="form-checkbox h-5 w-5 text-green-500 focus:ring-green-500"
                 />
+                <span className="text-gray-700">{role.name}</span>
               </div>
-              {isDropdownOpen && (
-                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                  {roles.map((role) => (
-                    <label
-                      key={role.id}
-                      className="flex items-center space-x-2 p-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="checkbox"
-                        value={role.id}
-                        checked={selectedRoles.includes(role.id)}
-                        onChange={(e) => handleRoleChange(role.id, e)}
-                        className="form-checkbox h-5 w-5 text-green-500 focus:ring-green-500"
-                      />
-                      <span className="text-gray-700">{role.name}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
+            ))}
           </div>
+
+          {/* Selected roles order display */}
+          {selectedRoles.length > 0 && (
+            <div className="mt-4 bg-white p-3 border rounded-lg shadow-md">
+              <h3 className="text-gray-800 font-semibold mb-2">
+                ترتیب مراحل انتخاب شده:
+              </h3>
+              <ul className="list-decimal pl-5 space-y-1">
+                {selectedRoles.map((roleId, index) => {
+                  const role = roles.find((r) => r.id === roleId);
+                  return (
+                    <li key={roleId} className="text-gray-700">
+                      {index + 1}. {role?.name}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
           <div className="flex justify-center gap-4 mt-4">
             <button type="submit" className="btn-primary">
               {editingCategory ? "ویرایش" : "اضافه کردن"}
