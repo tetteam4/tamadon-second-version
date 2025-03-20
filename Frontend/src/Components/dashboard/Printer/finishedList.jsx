@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import CryptoJS from "crypto-js";
 import SearchBar from "../../../Utilities/Searching";
 import Pagination from "../../../Utilities/Pagination";
+import jalaali from "jalaali-js";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -34,6 +35,7 @@ const DoneList = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deliverDate, setDeliveryDate] = useState();
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -43,6 +45,31 @@ const DoneList = () => {
       console.error("Error fetching categories:", error);
     }
   }, [BASE_URL]);
+  const fetchOrder = async (id) => {
+    console.log(id);
+
+    const token = decryptData(localStorage.getItem("auth_token"));
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/group/order-by-price/?order=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Add the token here
+          },
+        }
+      );
+      // Access data directly from the response
+      const data = response.data;
+
+      // Assuming the response is an array and you want the first item
+      if (Array.isArray(data) && data.length > 0) {
+        setDeliveryDate(data[0].delivery_date);
+      }
+    } catch (error) {
+      console.error("Error fetching order data:", error);
+    }
+  };
 
   const getDoneList = useCallback(async () => {
     try {
@@ -63,7 +90,7 @@ const DoneList = () => {
             "Content-Type": "application/json",
           },
         });
-        setOrderDetails(response.data.attributes);
+        setOrderDetails(response.data);
         setIsModelOpen(true);
       } catch (err) {
         console.error("Error fetching order details:", err);
@@ -177,6 +204,23 @@ const DoneList = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
+  const convertToHijriShamsi = (dateString) => {
+    // Parse the date string
+    const date = new Date(dateString);
+
+    // Extract the Gregorian year, month, and day
+    const gYear = date.getFullYear();
+    const gMonth = date.getMonth() + 1; // Months are zero-indexed
+    const gDay = date.getDate();
+
+    // Convert to Hijri Shamsi
+    const { jy, jm, jd } = jalaali.toJalaali(gYear, gMonth, gDay);
+
+    // Format the date as "yyyy/mm/dd"
+    return `${jy}/${jm.toString().padStart(2, "0")}/${jd
+      .toString()
+      .padStart(2, "0")}`;
+  };
 
   return (
     <div
@@ -232,7 +276,10 @@ const DoneList = () => {
                   </td>
                   <td className="border-gray-300 px-6 py-2 text-gray-700">
                     <button
-                      onClick={() => getDetails(order.id)}
+                      onClick={() => {
+                        getDetails(order.id);
+                        fetchOrder(order.id);
+                      }}
                       className="secondry-btn"
                     >
                       جزئیات
@@ -259,23 +306,33 @@ const DoneList = () => {
         />
       )}
 
-      {isModelOpen && orderDetails && (
+      {isModelOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg  w-full">
             <h3 className="text-xl font-bold mb-4 text-gray-800">
               اطلاعات سفارش
             </h3>
             <div className="bg-gray-100 p-4 rounded overflow-auto text-sm space-y-2">
-              {orderDetails &&
-                Object.entries(orderDetails).map(([key, value]) => (
+              {orderDetails.attributes &&
+                Object.entries(orderDetails.attributes).map(([key, value]) => (
                   <div
                     key={key}
                     className="flex justify-between items-center border-b border-gray-300 pb-2"
                   >
-                    <span className="font-medium text-gray-700">{key}</span>
+                    <span className="font-medium text-gray-700">{key}:</span>
                     <span className="text-gray-900">{String(value)}</span>
                   </div>
                 ))}
+              <div className="flex justify-between items-center border-b border-gray-300 pb-2">
+                <span className="font-medium text-gray-700"> تاریخ اخذ</span>
+                <span className="text-gray-900">
+                  {convertToHijriShamsi(orderDetails.created_at)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-300 pb-2">
+                <span className="font-medium text-gray-700">تاریخ تحویل</span>
+                <span className="text-gray-900">{deliverDate}</span>
+              </div>{" "}
             </div>
             <div className="flex justify-center mt-5 items-center w-full">
               <button onClick={handleClosePopup} className="tertiary-btn">
