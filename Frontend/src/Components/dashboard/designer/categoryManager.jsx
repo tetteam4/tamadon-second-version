@@ -222,11 +222,11 @@ const CategoryManagement = () => {
           <label className="block text-lg font-medium text-gray-700 mb-1">
             مراحل
           </label>
-          <div className="bg-gray-200 p-3 rounded-lg">
+          <div className="bg-gray-200 p-3 grid grid-cols-2 rounded-lg">
             {roles.map((role) => (
               <div
                 key={role.id}
-                className="flex items-center space-x-2 p-2 border-b last:border-b-0"
+                className="flex items-center gap-x-3 border-b p-2  last:border-b-0"
               >
                 <input
                   type="checkbox"
@@ -242,16 +242,19 @@ const CategoryManagement = () => {
 
           {/* Selected roles order display */}
           {selectedRoles.length > 0 && (
-            <div className="mt-4 bg-white p-3 border rounded-lg shadow-md">
-              <h3 className="text-gray-800 font-semibold mb-2">
+            <div className="mt-4 bg-white p-4 ">
+              <h3 className="text-gray-800 font-semibold mb-3 text-lg">
                 ترتیب مراحل انتخاب شده:
               </h3>
-              <ul className="list-decimal pl-5 space-y-1">
+              <ul className="list-decimal space-y-2 pl-5">
                 {selectedRoles.map((roleId, index) => {
                   const role = roles.find((r) => r.id === roleId);
                   return (
-                    <li key={roleId} className="text-gray-700">
-                      {index + 1}. {role?.name}
+                    <li
+                      key={roleId}
+                      className="text-gray-700 bg-gray-100 p-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
+                    >
+                       {role?.name}
                     </li>
                   );
                 })}
@@ -260,14 +263,14 @@ const CategoryManagement = () => {
           )}
 
           <div className="flex justify-center gap-4 mt-4">
-            <button type="submit" className="btn-primary">
+            <button type="submit" className="secondry-btn">
               {editingCategory ? "ویرایش" : "اضافه کردن"}
             </button>
             {editingCategory && (
               <button
                 type="button"
                 onClick={() => setEditingCategory(null)}
-                className="btn-secondary"
+                className="tertiary-btn"
               >
                 انصراف
               </button>
