@@ -33,7 +33,9 @@ const ReceivedList = () => {
   const [orderDetails, setOrderDetails] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [userRole, setUserRole] = useState(null);
+  const [userRole, setUserRole] = useState(
+    decryptData(localStorage.getItem("role"))
+  );
   const [loading, setLoading] = useState(true);
   const [deliverDate, setDeliveryDate] = useState();
 
@@ -48,8 +50,9 @@ const ReceivedList = () => {
 
   const getTakenList = useCallback(async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/group/orders/`);
+      const response = await axios.get(`${BASE_URL}/group/order/${userRole}`);
       setOrders(response.data);
+      console.log(response.data);
     } catch (err) {
       console.log("Error fetching List", err);
     }
@@ -193,7 +196,7 @@ const ReceivedList = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -210,14 +213,15 @@ const ReceivedList = () => {
   };
 
   const filteredOrders = useMemo(() => {
-    if (!userRole || categories.length === 0) {
+    if (userRole || categories.length == 0) {
       return orders;
     }
     return orders.filter((order) => {
-      const category = categories.find((cat) => cat.id === order.category);
-      if (!category) return false;
-      return category.role === userRole;
+      const category = categories.find((cat) => cat.id != order.category);
+      if (category) return false;
+      return category.role == userRole;
     });
+    return orders;
   }, [orders, categories, userRole]);
 
   const handleSearchChange = useCallback((e) => {
@@ -229,9 +233,7 @@ const ReceivedList = () => {
       const results = filteredOrders.filter((order) => {
         const customerName = order.customer_name || "";
         const orderName = order.order_name || "";
-        const categoryName =
-          categories.find((category) => category.id === order.category)?.name ||
-          "";
+
         return (
           customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||

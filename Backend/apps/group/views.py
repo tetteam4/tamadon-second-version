@@ -36,22 +36,16 @@ class CategoryCreateView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
 
 
-# class CategoryCreateView(APIView):
-#     permission_classes = [AllowAny]
+class CategoryUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
 
-#     def post(self, request, *args, **kwargs):
-#         # Initialize the serializer with the request data
-#         serializer = CategorySerializer(data=request.data)
 
-#         # Check if the serializer is valid
-#         if serializer.is_valid():
-#             category = serializer.save()  # Save the category to the database
-#             return Response(
-#                 serializer.data, status=status.HTTP_201_CREATED
-#             )  # Return the serialized data with HTTP 201
-
-#         # If validation fails, return the errors with HTTP 400
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class CategoryDeleteView(generics.DestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
 
 
 class CategoryUpdateView(APIView):
@@ -276,7 +270,7 @@ class OrderListView(generics.ListAPIView):
 
         if status_param:
             try:
-                # Ensure the status_param is an integer representing the status ID
+
                 status_id = int(status_param)
             except ValueError:
                 return Response(
@@ -295,8 +289,7 @@ class OrderListView(generics.ListAPIView):
             # Filter by status ID (not the status string)
             queryset = queryset.filter(status=status_id)
         else:
-            # If no status is provided, exclude orders with status 'Designer' (status=1)
-            queryset = queryset.exclude(status=Order.Designer)
+            queryset = queryset = queryset.exclude(status__in=[1, 2])
 
         return queryset
 

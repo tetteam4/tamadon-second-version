@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 import { FaChevronDown, FaRegEdit } from "react-icons/fa";
 import { IoTrashSharp } from "react-icons/io5";
 import Pagination from "../../../Utilities/Pagination";
-
+import CryptoJS from "crypto-js";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const CategoryManagement = () => {
@@ -33,7 +33,21 @@ const CategoryManagement = () => {
     { id: 10, name: "Laser" },
     { id: 11, name: "Completed" },
   ];
-
+  const secretKey = "TET4-1"; // Use a strong secret key
+  const decryptData = (hashedData) => {
+    if (!hashedData) {
+      console.error("No data to decrypt");
+      return null;
+    }
+    try {
+      const bytes = CryptoJS.AES.decrypt(hashedData, secretKey);
+      const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+      return JSON.parse(decrypted);
+    } catch (error) {
+      console.error("Decryption failed:", error);
+      return null;
+    }
+  };
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/categories/`);
@@ -54,13 +68,19 @@ const CategoryManagement = () => {
 
     try {
       let response;
+      const authToken = decryptData(localStorage.getItem("auth_token")); // ✅ Retrieve token from localStorage
+      const headers = {
+        Authorization: `Bearer ${authToken}`, // ✅ Add token to headers
+      };
+
       if (editingCategory) {
         response = await axios.put(
           `${BASE_URL}/group/categories/${editingCategory.id}/`,
           {
             name: categoryName,
             stages: selectedRoles,
-          }
+          },
+          { headers } // ✅ Pass headers
         );
 
         if (response.status === 200) {
@@ -77,10 +97,14 @@ const CategoryManagement = () => {
           throw new Error("ویرایش کتگوری ناموفق بود.");
         }
       } else {
-        response = await axios.post(`${BASE_URL}/group/categories/`, {
-          name: categoryName,
-          stages: selectedRoles,
-        });
+        response = await axios.post(
+          `${BASE_URL}/group/categories/`,
+          {
+            name: categoryName,
+            stages: selectedRoles,
+          },
+          { headers } // ✅ Pass headers
+        );
 
         if (response.status === 201) {
           Swal.fire({
@@ -123,7 +147,7 @@ const CategoryManagement = () => {
     if (confirmDelete.isConfirmed) {
       try {
         const response = await axios.delete(
-          `${BASE_URL}/group/categories/${id}/`
+          `${BASE_URL}/group/categories/${id}/delete/`
         );
         if (response.status === 204) {
           Swal.fire({
@@ -154,7 +178,7 @@ const CategoryManagement = () => {
 
   const handleEdit = (category) => {
     setCategoryName(category.name);
-    setSelectedRoles(category.role || []);
+    setSelectedRoles(category.stages || []); // ✅ Load existing roles in update mode
     setEditingCategory(category);
   };
 
@@ -231,7 +255,7 @@ const CategoryManagement = () => {
                 <input
                   type="checkbox"
                   value={role.id}
-                  checked={selectedRoles.includes(role.id)}
+                  checked={selectedRoles.includes(role.id)} // ✅ Pre-check existing roles
                   onChange={(e) => handleRoleChange(role.id, e)}
                   className="form-checkbox h-5 w-5 text-green-500 focus:ring-green-500"
                 />
@@ -254,7 +278,7 @@ const CategoryManagement = () => {
                       key={roleId}
                       className="text-gray-700 bg-gray-100 p-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
                     >
-                       {role?.name}
+                      {role?.name}
                     </li>
                   );
                 })}
@@ -288,7 +312,7 @@ const CategoryManagement = () => {
                 نام کتگوری
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
-                نقش
+                مراحل
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 عملیات
@@ -306,14 +330,14 @@ const CategoryManagement = () => {
                     {category.name}
                   </td>
                   <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {Array.isArray(category.role)
-                      ? category.role
-                          .map((roleId) => {
-                            const role = roles.find((r) => r.id === roleId);
+                    {Array.isArray(category.stages)
+                      ? category.stages
+                          .map((stageId) => {
+                            const role = roles.find((r) => r.id === stageId);
                             return role ? role.name : "";
                           })
                           .join(", ")
-                      : category.role}
+                      : ""}
                   </td>
                   <td className="flex items-center justify-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
                     <button
