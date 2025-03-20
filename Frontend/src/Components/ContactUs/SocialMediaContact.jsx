@@ -16,7 +16,7 @@ const SocialMediaContact = () => {
               },
               {
                 name: "واتساپ ما",
-                url: "https://wa.me/93772029545",
+                url: "https://wa.me/93728215482",
                 icon: "/whatsapp-03-01-01.png",
               },
               {

@@ -25,6 +25,18 @@ const HeadFooter = () => {
               />
             </span>
           </div>
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <p className="font-bold text-lg sm:text-xl text-gray-900 dark:text-gray-100">
+              93-728-215-5482+
+            </p>
+
+            <span className="bg-gray-200 p-2 rounded-full">
+              <BiSolidPhoneCall
+                className="text-black animate-pulse"
+                size={22}
+              />
+            </span>
+          </div>
         </div>
 
         {/* Right Section */}

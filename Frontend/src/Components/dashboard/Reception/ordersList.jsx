@@ -54,7 +54,7 @@ const OrderList = () => {
     decryptData(localStorage.getItem("auth_token"))
   );
   const [refreshingToken, setRefreshingToken] = useState(false); // Prevent multiple refresh requests
-
+  const [role, setRole] = useState(decryptData(localStorage.getItem("role")));
   // Function to get JWT token from localStorage
   const getAuthToken = () => {
     return decryptData(localStorage.getItem("auth_token"));
@@ -106,7 +106,7 @@ const OrderList = () => {
     }
 
     try {
-      const response = await axios.get(`${BASE_URL}/group/order/pending`, {
+      const response = await axios.get(`${BASE_URL}/group/order/${role}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -115,12 +115,11 @@ const OrderList = () => {
         return;
       }
 
-      // Filter orders that are missing either total_price or receive_price
       const filteredOrders = response.data.filter(
         (order) => !order.total_price || !order.receive_price
       );
 
-      setOrders(filteredOrders); // Now you're setting the filtered list of orders that are missing price
+      setOrders(filteredOrders); 
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
@@ -220,6 +219,7 @@ const OrderList = () => {
       total_price: order.total_price || "",
       reminder_price: order.reminder_price || "", // Show reminder_price here
       deliveryDate: "",
+      order: order || null,
       order_name: order.order_name,
       customer_name: order.customer_name,
       description: order.description || "",
@@ -377,11 +377,31 @@ const OrderList = () => {
           throw new Error("بروزرسانی توکن با شکست مواجه شد.");
         }
       }
+      const category = categories.find(
+        (category) => category.id == modalData.order.category
+      );
+      const statusStage = category?.stages; // Get stages from the found category
+      let nextStatus;
+      if (Array.isArray(statusStage)) {
+        const currentIndex = statusStage.indexOf(modalData.order.status);
+        console.log(currentIndex);
 
+        if (currentIndex) {
+          // Assign the next index status
+          nextStatus = statusStage[currentIndex + 1];
+        } else {
+          console.log(
+            "The current status is the last in the stages array or does not exist."
+          );
+        }
+      } else {
+        console.log("Stages not found or not an array.");
+      }
+      // console.log(nextStatus);
       // Update order status
       await axios.post(
         `${BASE_URL}/group/update-order-status/`,
-        { order_id: selectedOrder, status: "taken" },
+        { order_id: selectedOrder, status: nextStatus },
         { headers }
       );
 
@@ -433,7 +453,6 @@ const OrderList = () => {
     }
   };
 
-  // Function to convert Persian/Arabic numbers to English
   const convertToEnglishNumbers = (num) => {
     if (!num) return num;
     return num

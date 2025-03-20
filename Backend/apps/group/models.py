@@ -1,7 +1,5 @@
-import array
 import secrets
 import uuid
-from ctypes import Array
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -60,7 +58,6 @@ class Category(models.Model):
 
 
 class AttributeType(models.Model):
-
     ATTRIBUTE_CHOICE_TYPE = (
         ("dropdown", "dropdown"),
         ("date", "date"),
