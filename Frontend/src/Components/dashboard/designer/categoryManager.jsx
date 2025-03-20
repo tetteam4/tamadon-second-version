@@ -9,7 +9,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const CategoryManagement = () => {
   const [categoryName, setCategoryName] = useState("");
-  const [roleName, setRoleName] = useState(null);
+  const [selectedRoles, setSelectedRoles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,18 +19,21 @@ const CategoryManagement = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Define role options
   const roles = [
+    { id: 0, name: "Admin" },
+    { id: 1, name: "Designer" },
+    { id: 2, name: "Reception" },
     { id: 3, name: "Head of designers" },
     { id: 4, name: "Printer" },
+    { id: 5, name: "Delivery" },
     { id: 6, name: "Digital" },
     { id: 7, name: "Bill" },
     { id: 8, name: "Chaspak" },
     { id: 9, name: "Shop role" },
     { id: 10, name: "Laser" },
+    { id: 11, name: "Completed" },
   ];
 
-  // Fetch categories
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/categories/`);
@@ -45,7 +48,6 @@ const CategoryManagement = () => {
     fetchCategories();
   }, []);
 
-  // Handle form submission (Add / Edit)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const actionType = editingCategory ? "ویرایش" : "اضافه کردن";
@@ -57,7 +59,7 @@ const CategoryManagement = () => {
           `${BASE_URL}/group/categories/${editingCategory.id}/`,
           {
             name: categoryName,
-            role: roles.find(((role) => role.name == roleName)?.id),
+            stages: selectedRoles,
           }
         );
 
@@ -77,7 +79,7 @@ const CategoryManagement = () => {
       } else {
         response = await axios.post(`${BASE_URL}/group/categories/`, {
           name: categoryName,
-          role: roles.find((role) => role.name == roleName)?.id,
+          stages: selectedRoles,
         });
 
         if (response.status === 201) {
@@ -94,7 +96,7 @@ const CategoryManagement = () => {
       }
 
       setCategoryName("");
-      setRoleName("");
+      setSelectedRoles([]);
       fetchCategories();
     } catch (error) {
       Swal.fire({
@@ -106,7 +108,6 @@ const CategoryManagement = () => {
     }
   };
 
-  // Handle delete
   const handleDelete = async (id) => {
     const confirmDelete = await Swal.fire({
       title: "آیا مطمئن هستید؟",
@@ -151,14 +152,12 @@ const CategoryManagement = () => {
     }
   };
 
-  // Handle edit
   const handleEdit = (category) => {
     setCategoryName(category.name);
-    setRoleName(category.role);
+    setSelectedRoles(category.role || []);
     setEditingCategory(category);
   };
 
-  // Handle search
   const handleSearch = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
@@ -171,7 +170,6 @@ const CategoryManagement = () => {
     );
   };
 
-  // Handle sort
   const handleSort = () => {
     const sortedCategories = [...filteredCategories].sort((a, b) =>
       sortOrder === "asc"
@@ -182,14 +180,25 @@ const CategoryManagement = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
-  //  pagination section
-  const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 10;
+  const handleRoleChange = (roleId, e) => {
+    e.stopPropagation();
+    setSelectedRoles((prevRoles) =>
+      prevRoles.includes(roleId)
+        ? prevRoles.filter((id) => id !== roleId)
+        : [...prevRoles, roleId]
+    );
+  };
 
-  // Calculate pagination
-  const totalPages = Math.ceil(categories.length / postsPerPage);
-  const paginatetCategory = [...categories] // Create a copy to avoid mutation
-    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+  const paginatedCategories = Array.isArray(filteredCategories)
+    ? filteredCategories.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      )
+    : [];
+
   return (
     <div className="py-10 bg-gray-200 w-full min-h-[91vh] px-5">
       <div className="max-w-3xl mx-auto py-4 px-5 shadow-lg bg-white rounded-md">
@@ -215,42 +224,48 @@ const CategoryManagement = () => {
               نقش
             </label>
             <div
-              className="w-full px-3 py-2 border flex justify-between items-center bg-gray-200 rounded text-black cursor-pointer"
+              className="relative cursor-pointer"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
-              {roleName || "نقش را انتخاب کنید"}
-              <FaChevronDown
-                className={`transition-all duration-300 ${
-                  isDropdownOpen ? "rotate-180" : ""
-                }`}
-              />
+              <div className="w-full px-3 py-2 border rounded bg-gray-200 text-black flex items-center justify-between">
+                <span>انتخاب نقش‌ها</span>
+                <FaChevronDown
+                  className={`transition-transform ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </div>
+              {isDropdownOpen && (
+                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  {roles.map((role) => (
+                    <label
+                      key={role.id}
+                      className="flex items-center space-x-2 p-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        value={role.id}
+                        checked={selectedRoles.includes(role.id)}
+                        onChange={(e) => handleRoleChange(role.id, e)}
+                        className="form-checkbox h-5 w-5 text-green-500 focus:ring-green-500"
+                      />
+                      <span className="text-gray-700">{role.name}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
-            {isDropdownOpen && (
-              <ul className="absolute w-full bg-white text-black border border-gray-300 rounded-md shadow-lg mt-1 z-10">
-                {roles.map((role) => (
-                  <li
-                    key={role.id}
-                    className="py-2 px-5 hover:bg-gray-200 cursor-pointer"
-                    onClick={() => {
-                      setRoleName(role.name);
-                      setIsDropdownOpen(false);
-                    }}
-                  >
-                    {role.name}
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
           <div className="flex justify-center gap-4 mt-4">
-            <button type="submit" className="secondry-btn">
+            <button type="submit" className="btn-primary">
               {editingCategory ? "ویرایش" : "اضافه کردن"}
             </button>
             {editingCategory && (
               <button
                 type="button"
                 onClick={() => setEditingCategory(null)}
-                className="tertiary-btn "
+                className="btn-secondary"
               >
                 انصراف
               </button>
@@ -276,8 +291,8 @@ const CategoryManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {Array.isArray(paginatetCategory) &&
-              paginatetCategory.map((category) => (
+            {Array.isArray(paginatedCategories) &&
+              paginatedCategories.map((category) => (
                 <tr
                   key={category.id}
                   className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -286,7 +301,14 @@ const CategoryManagement = () => {
                     {category.name}
                   </td>
                   <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {roles.find((role) => role.id == category.role)?.name}
+                    {Array.isArray(category.role)
+                      ? category.role
+                          .map((roleId) => {
+                            const role = roles.find((r) => r.id === roleId);
+                            return role ? role.name : "";
+                          })
+                          .join(", ")
+                      : category.role}
                   </td>
                   <td className="flex items-center justify-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
                     <button

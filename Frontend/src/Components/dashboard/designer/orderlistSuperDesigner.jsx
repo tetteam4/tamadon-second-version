@@ -107,12 +107,11 @@ const OrderListSuperDesigner = () => {
     }
 
     try {
-      let url = `${BASE_URL}/group/order/pending`;
+      let url = `${BASE_URL}/group/order/2/`;
       const params = new URLSearchParams();
       if (filterDate) {
-        // Format the date to YYYY-MM-DD
         const formattedDate = moment(filterDate).format("YYYY-MM-DD");
-        params.append("created_at", formattedDate); //  Use the correct parameter name if different
+        params.append("created_at", formattedDate); 
       }
 
       if (params.toString()) {
@@ -127,12 +126,12 @@ const OrderListSuperDesigner = () => {
         return;
       }
 
-      // Filter orders that are missing either total_price or receive_price
+   
       const filteredOrders = response.data.filter(
         (order) => !order.total_price || !order.receive_price
       );
 
-      setOrders(filteredOrders); // Now you're setting the filtered list of orders that are missing price
+      setOrders(filteredOrders); 
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
@@ -232,7 +231,6 @@ const OrderListSuperDesigner = () => {
   const handleFilterDateChange = (e) => {
     setFilterDate(e.target.value);
   };
-
 
   const toggleSortOrder = () => {
     setSortOrder((prevSortOrder) => (prevSortOrder === "asc" ? "desc" : "asc"));

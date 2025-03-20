@@ -52,7 +52,7 @@ const AddOrder = () => {
     order_name: "",
     designer: decryptData(localStorage.getItem("email")),
     category: "",
-    status: "pending",
+    status: 2,
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editingOrderId, setEditingOrderId] = useState(null);
@@ -102,7 +102,20 @@ const AddOrder = () => {
       const response = await axios.get(url, {
         headers,
       });
-      setOrders(response.data.filter((order) => order.designer == id));
+      // Apply date filtering on the frontend if backend filtering is not working
+
+      let filteredOrders = response.data.filter(
+        (order) => order.designer == id
+      );
+
+      if (filterDate) {
+        const formattedFilterDate = moment(filterDate).format("YYYY-MM-DD");
+        filteredOrders = filteredOrders.filter((order) => {
+          const orderDate = moment(order.created_at).format("YYYY-MM-DD");
+          return orderDate === formattedFilterDate;
+        });
+      }
+      setOrders(filteredOrders);
     } catch (error) {
       console.error("Error fetching orders:", error.response || error);
       // Handle error appropriately (e.g., display an error message)
@@ -178,8 +191,10 @@ const AddOrder = () => {
       category: order.category,
       status: order.status,
     });
+
     // Set the selected category to load its dynamic form fields
     setSelectedCategoryId(order.category);
+
     // Populate the dynamic form fields (attributes)
     setFormData(order.attributes || {});
   };
@@ -249,7 +264,7 @@ const AddOrder = () => {
         order_name: "",
         designer: decryptData(localStorage.getItem("email")),
         category: "",
-        status: "pending",
+        status: 2,
       });
       setFormData({});
     } catch (error) {
@@ -669,14 +684,14 @@ const AddOrder = () => {
               id="filterDate"
               value={filterDate}
               onChange={handleFilterDateChange}
-              className="shadow appearance-none border rounded w-50 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded-md w-56 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
 
             <button
               onClick={() => setFilterDate("")}
-              className="focus:outline-none"
+              className="focus:outline-none secondry-btn"
             >
-              Clear
+              پاک کردن
             </button>
           </div>
 
@@ -693,22 +708,22 @@ const AddOrder = () => {
               id="customerSearch"
               value={searchTerm}
               onChange={handleSearchChange}
-              className="shadow appearance-none border rounded w-50 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded-md w-56 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               placeholder="جستجوی نام مشتری..."
             />
 
             <button
               onClick={() => setSearchTerm("")}
-              className="focus:outline-none"
+              className="focus:outline-none secondry-btn"
             >
-              Clear
+              پاک کردن
             </button>
           </div>
 
           {/* Sort Button */}
           <button
             onClick={toggleSortOrder}
-            className="flex items-center gap-x-2 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none"
+            className="flex items-center gap-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded hover:bg-gray-100 focus:outline-none"
           >
             مرتب‌سازی بر اساس تاریخ
             {sortOrder === "asc" ? (
