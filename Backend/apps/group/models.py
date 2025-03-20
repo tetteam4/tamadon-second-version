@@ -137,6 +137,7 @@ class Order(models.Model):
     Chaspak = 8
     Shop_role = 9
     Laser = 10
+    Complete = 11
     STATUS_CHOICES = (
         (Designer, DEFAULT_STATUS),
         (Reception, "Reception"),
@@ -149,6 +150,7 @@ class Order(models.Model):
         (Chaspak, "Chaspak"),
         (Shop_role, "Shop role"),
         (Laser, "Laser"),
+        (Complete, "Complete"),
     )
     User = get_user_model()
     order_name = models.CharField(max_length=255)
