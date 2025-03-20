@@ -25,11 +25,13 @@ const CategoryManagement = () => {
     { id: 2, name: "Reception" },
     { id: 3, name: "Head of designers" },
     { id: 4, name: "Printer" },
+    { id: 5, name: "Delivery" },
     { id: 6, name: "Digital" },
-    { id: 7, name: "Digital" },
+    { id: 7, name: "Bill" },
     { id: 8, name: "Chaspak" },
     { id: 9, name: "Shop role" },
     { id: 10, name: "Laser" },
+    { id: 11, name: "Completed" },
   ];
 
   const fetchCategories = async () => {
@@ -198,9 +200,7 @@ const CategoryManagement = () => {
     : [];
 
   return (
-    <div
-      className="py-10 bg-gray-200 w-full min-h-[91vh] px-5"
-    >
+    <div className="py-10 bg-gray-200 w-full min-h-[91vh] px-5">
       <div className="max-w-3xl mx-auto py-4 px-5 shadow-lg bg-white rounded-md">
         <h2 className="text-xl text-center font-bold mb-4">
           {editingCategory ? "ویرایش کتگوری" : "افزودن کتگوری"}
@@ -219,45 +219,49 @@ const CategoryManagement = () => {
               required
             />
           </div>
-          <div className="relative">
-            <label className="block text-lg font-medium text-gray-700 mb-1">
-              نقش
-            </label>
-            <div
-              className="relative cursor-pointer"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              onMouseDown={(e)=>e.preventDefault()}
-            >
-              <div className="w-full px-3 py-2 border rounded bg-gray-200 text-black flex items-center justify-between">
-                <span>انتخاب نقش‌ها</span>
-                <FaChevronDown
-                  className={`transition-transform ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
+          <label className="block text-lg font-medium text-gray-700 mb-1">
+            مراحل
+          </label>
+          <div className="bg-gray-200 p-3 grid grid-cols-2 rounded-lg">
+            {roles.map((role) => (
+              <div
+                key={role.id}
+                className="flex items-center gap-x-3 border-b p-2  last:border-b-0"
+              >
+                <input
+                  type="checkbox"
+                  value={role.id}
+                  checked={selectedRoles.includes(role.id)}
+                  onChange={(e) => handleRoleChange(role.id, e)}
+                  className="form-checkbox h-5 w-5 text-green-500 focus:ring-green-500"
                 />
+                <span className="text-gray-700">{role.name}</span>
               </div>
-              {isDropdownOpen && (
-                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                  {roles.map((role) => (
-                    <label
-                      key={role.id}
-                      className="flex items-center gap-x-2 p-2 border-b hover:bg-gray-100 cursor-pointer"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="checkbox"
-                        value={role.id}
-                        checked={selectedRoles.includes(role.id)}
-                        onChange={(e) => handleRoleChange(role.id, e)}
-                        className="form-checkbox h-5 w-5 text-green-500 focus:ring-green-500"
-                      />
-                      <span className="text-gray-700">{role.name}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
+            ))}
           </div>
+
+          {/* Selected roles order display */}
+          {selectedRoles.length > 0 && (
+            <div className="mt-4 bg-white p-4 ">
+              <h3 className="text-gray-800 font-semibold mb-3 text-lg">
+                ترتیب مراحل انتخاب شده:
+              </h3>
+              <ul className="list-decimal space-y-2 pl-5">
+                {selectedRoles.map((roleId, index) => {
+                  const role = roles.find((r) => r.id === roleId);
+                  return (
+                    <li
+                      key={roleId}
+                      className="text-gray-700 bg-gray-100 p-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
+                    >
+                       {role?.name}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
           <div className="flex justify-center gap-4 mt-4">
             <button type="submit" className="secondry-btn">
               {editingCategory ? "ویرایش" : "اضافه کردن"}
