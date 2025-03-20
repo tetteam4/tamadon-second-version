@@ -1,23 +1,23 @@
 from django.urls import path
 
-from .views import (
-    StaffListCreateView,
-    StaffRetrieveUpdateDestroyView,
-    UpsentModelListCreateView,
-    UpsentModelRetrieveUpdateDestroyView,
-)
+from . import views
 
 urlpatterns = [
-    path("", StaffListCreateView.as_view(), name="staff-list-create"),
     path(
-        "<int:pk>/",
-        StaffRetrieveUpdateDestroyView.as_view(),
-        name="staff-retrieve-update-destroy",
+        "upsentmodels/",
+        views.UpsentModelListCreateView.as_view(),
+        name="upsentmodel-list-create",
     ),
-    path("", UpsentModelListCreateView.as_view(), name="upsent-list-create"),
     path(
-        "<int:pk>/",
-        UpsentModelRetrieveUpdateDestroyView.as_view(),
-        name="upsent-retrieve-update-destroy",
+        "upsentmodels/<int:pk>/",
+        views.UpsentModelRetrieveUpdateDestroyView.as_view(),
+        name="upsentmodel-retrieve-update-destroy",
+    ),
+    # Staff URLs
+    path("staff/", views.StaffListCreateView.as_view(), name="staff-list-create"),
+    path(
+        "staff/<int:pk>/",
+        views.StaffRetrieveUpdateDestroyView.as_view(),
+        name="staff-retrieve-update-destroy",
     ),
 ]
