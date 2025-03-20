@@ -27,7 +27,7 @@ const CategoryManagement = () => {
     { id: 4, name: "Printer" },
     { id: 5, name: "Delivery" },
     { id: 6, name: "Digital" },
-    { id: 7, name: "Bill" },
+    { id: 7, name: "Digital" },
     { id: 8, name: "Chaspak" },
     { id: 9, name: "Shop role" },
     { id: 10, name: "Laser" },

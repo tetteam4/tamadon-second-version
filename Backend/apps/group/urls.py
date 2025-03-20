@@ -7,8 +7,8 @@ from .views import (
     AttributeValueDetailView,
     AttributeValueListCreateView,
     CategoryAttributeView,
-    CategoryDetailView,
-    CategoryListCreateView,
+    CategoryCreateView,
+    CategoryUpdateView,
     OrderListByCategoryView,
     OrderListView,
     OrderStatusUpdateView,
@@ -28,8 +28,12 @@ router.register(
     basename="receptionorder-by-price",
 )
 urlpatterns = [
-    path("categories/", CategoryListCreateView.as_view(), name="category-list-create"),
-    path("categories/<int:pk>/", CategoryDetailView.as_view(), name="category-detail"),
+    path("categories/", CategoryCreateView.as_view(), name="category-create"),
+    path(
+        "categories/<int:pk>/",
+        CategoryUpdateView.as_view(),
+        name="category-update",
+    ),
     path(
         "attribute-values/",
         AttributeValueListCreateView.as_view(),
@@ -55,8 +59,8 @@ urlpatterns = [
         CategoryAttributeView.as_view(),
         name="category-attributes",
     ),
+    path("order/", OrderListView.as_view(), name="order-list"),
     path("order/<str:status>/", OrderListView.as_view(), name="order-list-status"),
-    path("order/", OrderListView.as_view(), name="order-list-status"),
     path("", include(router.urls)),
     path(
         "update-order-status/",
