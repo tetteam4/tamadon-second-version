@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import Swal from "sweetalert2";
 import SearchBar from "../../../Utilities/Searching";
 import Pagination from "../../../Utilities/Pagination";
-
+import jalaali from "jalaali-js";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const ReceivedList = () => {
@@ -35,6 +35,7 @@ const ReceivedList = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deliverDate, setDeliveryDate] = useState();
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -64,7 +65,7 @@ const ReceivedList = () => {
             "Content-Type": "application/json",
           },
         });
-        setOrderDetails(response.data.attributes);
+        setOrderDetails(response.data);
         setIsModelOpen(true);
       } catch (err) {
         console.error("Error fetching order details:", err);
@@ -72,7 +73,23 @@ const ReceivedList = () => {
     },
     [BASE_URL, decryptData]
   );
+  const convertToHijriShamsi = (dateString) => {
+    // Parse the date string
+    const date = new Date(dateString);
 
+    // Extract the Gregorian year, month, and day
+    const gYear = date.getFullYear();
+    const gMonth = date.getMonth() + 1; // Months are zero-indexed
+    const gDay = date.getDate();
+
+    // Convert to Hijri Shamsi
+    const { jy, jm, jd } = jalaali.toJalaali(gYear, gMonth, gDay);
+
+    // Format the date as "yyyy/mm/dd"
+    return `${jy}/${jm.toString().padStart(2, "0")}/${jd
+      .toString()
+      .padStart(2, "0")}`;
+  };
   const handleAdd = useCallback(
     async (id) => {
       const result = await Swal.fire({
@@ -165,6 +182,32 @@ const ReceivedList = () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, [decryptData]);
+
+  const fetchOrder = async (id) => {
+    console.log(id);
+
+    const token = decryptData(localStorage.getItem("auth_token"));
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/group/order-by-price/?order=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Add the token here
+          },
+        }
+      );
+      // Access data directly from the response
+      const data = response.data;
+
+      // Assuming the response is an array and you want the first item
+      if (Array.isArray(data) && data.length > 0) {
+        setDeliveryDate(data[0].delivery_date);
+      }
+    } catch (error) {
+      console.error("Error fetching order data:", error);
+    }
+  };
 
   const filteredOrders = useMemo(() => {
     if (!userRole || categories.length === 0) {
@@ -285,8 +328,11 @@ const ReceivedList = () => {
                       تایید دریافت‌
                     </button>
                     <button
-                      onClick={() => getDetails(order.id)}
-                      className="m-2 bg-blue-500 rounded-lg hover:!scale-105 duration-300 py-2 px-5 text-sm hover:bg-blue-700 text-white"
+                      onClick={() => {
+                        getDetails(order.id);
+                        fetchOrder(order.id);
+                      }}
+                      className="secondry-btn"
                     >
                       جزئیات
                     </button>
@@ -319,8 +365,8 @@ const ReceivedList = () => {
               اطلاعات سفارش
             </h3>
             <div className="bg-gray-100 p-4 rounded overflow-auto text-sm space-y-2">
-              {orderDetails &&
-                Object.entries(orderDetails).map(([key, value]) => (
+              {orderDetails.attributes &&
+                Object.entries(orderDetails.attributes).map(([key, value]) => (
                   <div
                     key={key}
                     className="flex justify-between items-center border-b border-gray-300 pb-2"
@@ -329,6 +375,16 @@ const ReceivedList = () => {
                     <span className="text-gray-900">{String(value)}</span>
                   </div>
                 ))}
+              <div className="flex justify-between items-center border-b border-gray-300 pb-2">
+                <span className="font-medium text-gray-700"> تاریخ اخذ</span>
+                <span className="text-gray-900">
+                  {convertToHijriShamsi(orderDetails.created_at)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-300 pb-2">
+                <span className="font-medium text-gray-700">تاریخ تحویل</span>
+                <span className="text-gray-900">{deliverDate}</span>
+              </div>{" "}
             </div>
             <div className="flex justify-center mt-5 items-center w-full">
               <button onClick={handleClosePopup} className="tertiary-btn">

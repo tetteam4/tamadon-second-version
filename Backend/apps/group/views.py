@@ -271,15 +271,31 @@ class OrderListView(generics.ListAPIView):
     def get_queryset(self):
         queryset = Order.objects.all()
 
-        # Get the status parameter from URL kwargs (if available)
+        # Get the status parameter (status ID) from the URL kwargs (if available)
         status_param = self.kwargs.get("status")
 
         if status_param:
-            # If the status parameter is provided, filter by status
-            queryset = queryset.filter(status=status_param)
+            # Ensure the status_param is an integer representing the status ID
+            try:
+                status_id = int(status_param)
+            except ValueError:
+                return Response(
+                    {"message": "Invalid status ID."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Check if the status ID exists in the STATUS_CHOICES
+            if status_id not in dict(Order.STATUS_CHOICES).keys():
+                return Response(
+                    {"message": "Invalid status ID."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Filter by status ID (not the status string) using the status integer value
+            queryset = queryset.filter(status=status_id)
         else:
-            # If no status param, exclude 'pending' orders by default
-            queryset = queryset.exclude(status="pending")
+            # If no status parameter, exclude orders with the default status (Designer)
+            queryset = queryset.exclude(status=Order.Designer)
 
         return queryset
 
@@ -302,11 +318,11 @@ class OrderListView(generics.ListAPIView):
         if queryset.exists():
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-
+            status_param = self.kwargs.get("status")
             message = (
-                f"Order with status '{status_param}' is not found"
+                f"Order with status ID '{status_param}' is not found"
                 if status_param
-                else "No orders found except pending"
+                else "No orders found except 'Designer'"
             )
             return Response({"message": message}, status=status.HTTP_200_OK)
 

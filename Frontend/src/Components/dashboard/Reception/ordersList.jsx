@@ -54,7 +54,7 @@ const OrderList = () => {
     decryptData(localStorage.getItem("auth_token"))
   );
   const [refreshingToken, setRefreshingToken] = useState(false); // Prevent multiple refresh requests
-
+  const [role, setRole] = useState(decryptData(localStorage.getItem("role")));
   // Function to get JWT token from localStorage
   const getAuthToken = () => {
     return decryptData(localStorage.getItem("auth_token"));
@@ -106,9 +106,12 @@ const OrderList = () => {
     }
 
     try {
-      const response = await axios.get(`${BASE_URL}/group/order/pending`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${BASE_URL}/group/group/order/${role}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response.data.length === 0) {
         setError("No orders found.");
@@ -220,6 +223,7 @@ const OrderList = () => {
       total_price: order.total_price || "",
       reminder_price: order.reminder_price || "", // Show reminder_price here
       deliveryDate: "",
+      order: order || null,
       order_name: order.order_name,
       customer_name: order.customer_name,
       description: order.description || "",
@@ -377,18 +381,18 @@ const OrderList = () => {
           throw new Error("بروزرسانی توکن با شکست مواجه شد.");
         }
       }
-      const statusStage = categories.find(
-        (category) => category.Id == modalData.order.category
-      )?.stages;
+      const category = categories.find(
+        (category) => category.id == modalData.order.category
+      );
+      const statusStage = category?.stages; // Get stages from the found category
       let nextStatus;
       if (Array.isArray(statusStage)) {
-        const currentIndex = modalData.order.status.indexOf(
-          selectedOrder.status
-        );
+        const currentIndex = statusStage.indexOf(modalData.order.status);
+        console.log(currentIndex);
 
-        if (currentIndex !== -1 && currentIndex < stages.length - 1) {
+        if (currentIndex) {
           // Assign the next index status
-          nextStatus = stages[currentIndex + 1];
+          nextStatus = statusStage[currentIndex + 1];
         } else {
           console.log(
             "The current status is the last in the stages array or does not exist."
@@ -397,12 +401,13 @@ const OrderList = () => {
       } else {
         console.log("Stages not found or not an array.");
       }
+      // console.log(nextStatus);
       // Update order status
-      // await axios.post(
-      //   `${BASE_URL}/group/update-order-status/`,
-      //   { order_id: selectedOrder, status:categories.find((category)=>category.Id==selectedOrder.category)?.stages},
-      //   { headers }
-      // );
+      await axios.post(
+        `${BASE_URL}/group/update-order-status/`,
+        { order_id: selectedOrder, status: nextStatus },
+        { headers }
+      );
 
       const response = await axios.post(
         `${BASE_URL}/group/reception-orders/`,

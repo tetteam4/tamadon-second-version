@@ -59,7 +59,11 @@ urlpatterns = [
         CategoryAttributeView.as_view(),
         name="category-attributes",
     ),
-    path("order/<str:status>/", OrderListView.as_view(), name="order-list-status"),
+    path(
+        "group/order/<int:status>/",
+        OrderListView.as_view(),
+        name="order-list-by-status",
+    ),
     path("order/", OrderListView.as_view(), name="order-list-status"),
     path("", include(router.urls)),
     path(

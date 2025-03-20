@@ -48,6 +48,19 @@ const TokenOrders = () => {
       return null;
     }
   };
+  const status = [
+    { id: 1, name: "Designer" },
+    { id: 2, name: "Reception" },
+    // { id: 0, name: "Admin" },
+    { id: 3, name: "Head of designers" },
+    { id: 4, name: "Printer" },
+    { id: 5, name: "Delivery Agent" },
+    { id: 6, name: "Digital" },
+    { id: 7, name: "Bill" },
+    { id: 8, name: "Chaspak" },
+    { id: 9, name: "Shop role" },
+    { id: 10, name: "Laser" },
+  ];
 
   const printBill = async () => {
     const element = document.getElementById("bill-content");
@@ -377,13 +390,9 @@ const TokenOrders = () => {
                       {DDate[order.id] || "در حال بارگذاری..."}
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                      {order.status == "taken"
-                        ? " در مطبعه"
-                        : order.status == "processing"
-                        ? "تحت کار"
-                        : order.status == "done"
-                        ? "تکمیل"
-                        : "تحویل داده شده" || "در حال بارگذاری..."}
+                      {status.find((state) => state.id == order.status)?.name ||
+                        "در حال بارگذاری..."}
+                      {console.log(order.status)}
                     </td>
                     <td className="flex items-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
                       <button
