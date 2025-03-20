@@ -1,7 +1,8 @@
 from operator import concat
+
 from django.contrib import admin
 
-from .models import ChatMassage, User, UserProfile, Contact
+from .models import ChatMassage, Contact, User, UserProfile
 
 
 class ChatAdmin(admin.ModelAdmin):
@@ -17,8 +18,8 @@ admin.site.register(UserProfile)
 
 
 from django.contrib import admin
-from .models import Contact
 
+from .models import Contact
 
 # Custom admin class for the Contact model
 
@@ -54,7 +55,9 @@ admin.site.register(Contact,ContactAdmin)
 
 
 from django.contrib import admin
+
 from .models import User  # Assuming you have the User model in the same app
+
 
 class UserAdmin(admin.ModelAdmin):
     # Fields to display in the list view

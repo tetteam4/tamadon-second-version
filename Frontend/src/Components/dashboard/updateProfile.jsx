@@ -266,12 +266,12 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
         </form>
 
         {/* Profile Update Form */}
-        <form onSubmit={handleProfileSubmit} className="space-y-2 px-4">
-          <div className="md:grid space-y-3 md:space-y-2 grid-cols-2 place-content-center gap-5">
+        <form onSubmit={handleProfileSubmit} className="space-y-4 px-4">
+          <div className="md:grid space-y-3 md:space-y-0 grid-cols-2 place-content-center gap-5">
             <div>
               <label
                 htmlFor="email"
-                className="block text-gray-800 font-medium"
+                className="block text-gray-800 pb-2 font-medium"
               >
                 ایمیل:
               </label>
@@ -281,13 +281,13 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full py-1.5 px-5 mt-2 border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
+                className="w-full py-1.5 px-5  border rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green"
               />
             </div>
             <div>
               <label
                 htmlFor="phone_number"
-                className="block text-gray-800 font-medium"
+                className="block text-gray-800 pb-2  font-medium"
               >
                 شماره تلفن:
               </label>
@@ -306,7 +306,7 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-gray-800 font-medium"
+                className="block text-gray-800 pb-2  font-medium"
               >
                 رمز عبور جدید:
               </label>
@@ -332,7 +332,7 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
             <div>
               <label
                 htmlFor="confirm_password"
-                className="block text-gray-800 font-medium"
+                className="block text-gray-800 pb-2  font-medium"
               >
                 تأیید رمز عبور جدید:
               </label>
@@ -361,7 +361,7 @@ const UpdateProfile = ({ setIsProfilePopupOpen, userImage }) => {
               {" "}
               <label
                 htmlFor="old_password"
-                className="block text-gray-800 font-medium"
+                className="block text-gray-800  font-medium"
               >
                 رمز عبور قبلی:
               </label>

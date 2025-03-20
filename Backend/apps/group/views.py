@@ -1,4 +1,3 @@
-from urllib import request
 from apps.group.filters import OrderFilter
 from apps.users.tasks import (
     process_order_deletion,
@@ -31,47 +30,54 @@ from .serializers import (
 )
 
 
-class CategoryListCreateView(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
+class CategoryCreateView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-
-
-class CategoryDetailView(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, pk):
 
+# class CategoryCreateView(APIView):
+#     permission_classes = [AllowAny]
+
+#     def post(self, request, *args, **kwargs):
+#         # Initialize the serializer with the request data
+#         serializer = CategorySerializer(data=request.data)
+
+#         # Check if the serializer is valid
+#         if serializer.is_valid():
+#             category = serializer.save()  # Save the category to the database
+#             return Response(
+#                 serializer.data, status=status.HTTP_201_CREATED
+#             )  # Return the serialized data with HTTP 201
+
+#         # If validation fails, return the errors with HTTP 400
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CategoryUpdateView(APIView):
+    permission_classes = [AllowAny]
+
+    def put(self, request, pk, *args, **kwargs):
         try:
+            # Fetch the category object by its primary key (pk)
             category = Category.objects.get(pk=pk)
         except Category.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            raise NotFound(
+                detail="Category not found."
+            )  # If category doesn't exist, raise a 404 error
 
-        serializer = CategorySerializer(category)
-        return Response(serializer.data)
-
-    def put(self, request, pk):
-
-        try:
-            category = Category.objects.get(pk=pk)
-        except Category.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
+        # Initialize the serializer with the category instance and request data
         serializer = CategorySerializer(category, data=request.data)
+
+        # Check if the serializer is valid
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            category = serializer.save()  # Save the updated category
+            return Response(
+                serializer.data, status=status.HTTP_200_OK
+            )  # Return the updated data with HTTP 200
+
+        # If validation fails, return the errors with HTTP 400
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-
-        try:
-            category = Category.objects.get(pk=pk)
-        except Category.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        category.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AttributeValueListCreateView(APIView):
@@ -264,7 +270,6 @@ class OrderListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Order.objects.all()
-
 
         # Get the status parameter from URL kwargs (if available)
         status_param = self.kwargs.get("status")

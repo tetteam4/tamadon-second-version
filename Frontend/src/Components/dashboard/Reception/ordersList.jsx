@@ -377,13 +377,32 @@ const OrderList = () => {
           throw new Error("بروزرسانی توکن با شکست مواجه شد.");
         }
       }
+      const statusStage = categories.find(
+        (category) => category.Id == modalData.order.category
+      )?.stages;
+      let nextStatus;
+      if (Array.isArray(statusStage)) {
+        const currentIndex = modalData.order.status.indexOf(
+          selectedOrder.status
+        );
 
+        if (currentIndex !== -1 && currentIndex < stages.length - 1) {
+          // Assign the next index status
+          nextStatus = stages[currentIndex + 1];
+        } else {
+          console.log(
+            "The current status is the last in the stages array or does not exist."
+          );
+        }
+      } else {
+        console.log("Stages not found or not an array.");
+      }
       // Update order status
-      await axios.post(
-        `${BASE_URL}/group/update-order-status/`,
-        { order_id: selectedOrder, status: "taken" },
-        { headers }
-      );
+      // await axios.post(
+      //   `${BASE_URL}/group/update-order-status/`,
+      //   { order_id: selectedOrder, status:categories.find((category)=>category.Id==selectedOrder.category)?.stages},
+      //   { headers }
+      // );
 
       const response = await axios.post(
         `${BASE_URL}/group/reception-orders/`,
@@ -432,7 +451,6 @@ const OrderList = () => {
       });
     }
   };
-
 
   const convertToEnglishNumbers = (num) => {
     if (!num) return num;
