@@ -266,7 +266,7 @@ class OrderListView(generics.ListAPIView):
     serializer_class = OrderSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    search_fields = ["secret_key"]
+    search_fields = ["secret_key"]  # Filter by secret_key field
 
     def get_queryset(self):
         queryset = Order.objects.all()
@@ -275,8 +275,8 @@ class OrderListView(generics.ListAPIView):
         status_param = self.kwargs.get("status")
 
         if status_param:
-            # Ensure the status_param is an integer representing the status ID
             try:
+                # Ensure the status_param is an integer representing the status ID
                 status_id = int(status_param)
             except ValueError:
                 return Response(
@@ -285,16 +285,17 @@ class OrderListView(generics.ListAPIView):
                 )
 
             # Check if the status ID exists in the STATUS_CHOICES
-            if status_id not in dict(Order.STATUS_CHOICES).keys():
+            valid_statuses = dict(Order.STATUS_CHOICES).keys()
+            if status_id not in valid_statuses:
                 return Response(
                     {"message": "Invalid status ID."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            # Filter by status ID (not the status string) using the status integer value
+            # Filter by status ID (not the status string)
             queryset = queryset.filter(status=status_id)
         else:
-            # If no status parameter, exclude orders with the default status (Designer)
+            # If no status is provided, exclude orders with status 'Designer' (status=1)
             queryset = queryset.exclude(status=Order.Designer)
 
         return queryset
@@ -313,16 +314,18 @@ class OrderListView(generics.ListAPIView):
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
+        # Return the serialized data if found
         serializer = self.get_serializer(queryset, many=True)
 
+        # Provide appropriate response if the queryset is empty
         if queryset.exists():
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             status_param = self.kwargs.get("status")
             message = (
-                f"Order with status ID '{status_param}' is not found"
+                f"Order with status ID '{status_param}' not found."
                 if status_param
-                else "No orders found except 'Designer'"
+                else "No orders found except those with 'Designer' status."
             )
             return Response({"message": message}, status=status.HTTP_200_OK)
 

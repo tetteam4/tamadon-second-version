@@ -39,7 +39,8 @@ urlpatterns = [
     path("users/", include("apps.users.urls")),
     path("common/", include("apps.common.urls")),
     path("group/", include("apps.group.urls")),
-    path("ordering",include("apps.order.urls")),
+    path("ordering", include("apps.order.urls")),
+    path("staff", include("apps.staff.urls")),
     path("ckeditor/", include("ckeditor_uploader.urls")),
 ]
 admin.site.site_header = "Tamadon Admin"
