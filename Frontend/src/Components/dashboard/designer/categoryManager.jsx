@@ -154,7 +154,7 @@ const CategoryManagement = () => {
 
   const handleEdit = (category) => {
     setCategoryName(category.name);
-    setSelectedRoles(category.role || []);
+    setSelectedRoles(category.stages || []); // ✅ Load existing roles in update mode
     setEditingCategory(category);
   };
 
@@ -231,7 +231,7 @@ const CategoryManagement = () => {
                 <input
                   type="checkbox"
                   value={role.id}
-                  checked={selectedRoles.includes(role.id)}
+                  checked={selectedRoles.includes(role.id)} // ✅ Pre-check existing roles
                   onChange={(e) => handleRoleChange(role.id, e)}
                   className="form-checkbox h-5 w-5 text-green-500 focus:ring-green-500"
                 />
@@ -285,7 +285,7 @@ const CategoryManagement = () => {
                 نام کتگوری
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
-                نقش
+                مراحل
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 عملیات
@@ -303,14 +303,14 @@ const CategoryManagement = () => {
                     {category.name}
                   </td>
                   <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {Array.isArray(category.role)
-                      ? category.role
-                          .map((roleId) => {
-                            const role = roles.find((r) => r.id === roleId);
+                    {Array.isArray(category.stages)
+                      ? category.stages
+                          .map((stageId) => {
+                            const role = roles.find((r) => r.id === stageId);
                             return role ? role.name : "";
                           })
                           .join(", ")
-                      : category.role}
+                      : ""}
                   </td>
                   <td className="flex items-center justify-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
                     <button
