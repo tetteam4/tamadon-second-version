@@ -48,15 +48,24 @@ const ReceivedList = () => {
     }
   }, [BASE_URL]);
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
   const getTakenList = useCallback(async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/order/${userRole}`);
-      setOrders(response.data);
-      console.log(response.data);
+
+      if (Array.isArray(response.data)) {
+        setOrders(response.data);
+      } else {
+        setOrders([]); // Set empty array if no data
+        console.warn("Unexpected response format:", response.data);
+      }
     } catch (err) {
-      console.log("Error fetching List", err);
+      console.error("Error fetching List", err);
+      setOrders([]); // Ensure orders is always an array
     }
-  }, [BASE_URL]);
+  }, [BASE_URL, userRole]);
 
   const getDetails = useCallback(
     async (id) => {
@@ -94,10 +103,10 @@ const ReceivedList = () => {
       .padStart(2, "0")}`;
   };
   const handleAdd = useCallback(
-    async (id) => {
+    async (order) => {
       const result = await Swal.fire({
         title: "آیا مطمئن هستید؟",
-        text: "این سفارش به وضعیت 'در حال پردازش' تغییر خواهد کرد!",
+        text: "این سفارش به وضعیت 'کامل' تغییر خواهد کرد!",
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "بله، تغییر بده",
@@ -105,36 +114,58 @@ const ReceivedList = () => {
         reverseButtons: true,
       });
 
-      if (result.isConfirmed) {
-        try {
-          await axios.post(`${BASE_URL}/group/update-order-status/`, {
-            order_id: id,
-            status: "processing",
-          });
+      if (!result.isConfirmed) return;
 
-          setOrders((prevOrders) =>
-            prevOrders.filter((order) => order.id !== id)
-          );
+      console.log(order);
 
-          Swal.fire({
-            icon: "success",
-            title: "سفارش بروزرسانی شد",
-            text: "وضعیت سفارش با موفقیت به 'در حال پردازش' تغییر کرد.",
-            confirmButtonText: "باشه",
-          });
-        } catch (err) {
-          console.error("Error changing status", err);
+      let nextStatus;
+      const category = categories.find((cat) => cat.id === order.category);
 
-          Swal.fire({
-            icon: "error",
-            title: "خطا در تغییر وضعیت",
-            text: "مشکلی در تغییر وضعیت سفارش به وجود آمد. لطفاً دوباره تلاش کنید.",
-            confirmButtonText: "متوجه شدم",
-          });
+      if (category && Array.isArray(category.stages)) {
+        const currentIndex = category.stages.indexOf(order.status);
+
+        if (currentIndex !== -1 && currentIndex < category.stages.length - 1) {
+          nextStatus = category.stages[currentIndex + 1];
+        } else {
+          console.log("No next status available.");
+          return;
         }
+      } else {
+        console.log("Stages not found or not an array.");
+        return;
+      }
+
+      try {
+        await axios.post(`${BASE_URL}/group/update-order-status/`, {
+          order_id: order.id,
+          status: nextStatus,
+        });
+
+        // ✅ Correctly update the order status without removing the order
+        setOrders((prevOrders) =>
+          prevOrders.map((o) =>
+            o.id === order.id ? { ...o, status: nextStatus } : o
+          )
+        );
+
+        Swal.fire({
+          icon: "success",
+          title: "سفارش بروزرسانی شد",
+          text: `وضعیت سفارش به 'کامل' تغییر کرد.`,
+          confirmButtonText: "باشه",
+        });
+      } catch (err) {
+        console.error("Error changing status", err);
+
+        Swal.fire({
+          icon: "error",
+          title: "خطا در تغییر وضعیت",
+          text: "مشکلی در تغییر وضعیت سفارش به وجود آمد. لطفاً دوباره تلاش کنید.",
+          confirmButtonText: "متوجه شدم",
+        });
       }
     },
-    [BASE_URL]
+    [BASE_URL, categories]
   );
 
   const handleClosePopup = useCallback(() => {
@@ -212,17 +243,14 @@ const ReceivedList = () => {
     }
   };
 
-  const filteredOrders = useMemo(() => {
-    if (userRole || categories.length == 0) {
-      return orders;
-    }
-    return orders.filter((order) => {
-      const category = categories.find((cat) => cat.id != order.category);
-      if (category) return false;
-      return category.role == userRole;
-    });
-    return orders;
-  }, [orders, categories, userRole]);
+const filteredOrders = useMemo(() => {
+  if (!Array.isArray(orders)) return []; // Ensure it’s an array
+
+  return orders.filter((order) => {
+    const category = categories.find((cat) => cat.id === order.category);
+    return category && category.role === userRole;
+  });
+}, [orders, categories, userRole]);
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
@@ -250,8 +278,8 @@ const ReceivedList = () => {
 
   const postsPerPage = 15;
 
-  const dataToPaginate =
-    searchResults.length > 0 ? searchResults : filteredOrders;
+const dataToPaginate =
+  searchResults.length > 0 ? searchResults : filteredOrders || [];
 
   useEffect(() => {
     setCurrentPage(1);
@@ -324,10 +352,10 @@ const ReceivedList = () => {
                   </td>
                   <td className="border-gray-300 px-6 flex items-center gap-x-5 justify-center text-gray-700">
                     <button
-                      onClick={() => handleAdd(order.id)}
+                      onClick={() => handleAdd(order)}
                       className="secondry-btn"
                     >
-                      تایید دریافت‌
+                      تایید تکمیلی
                     </button>
                     <button
                       onClick={() => {
@@ -386,7 +414,7 @@ const ReceivedList = () => {
               <div className="flex justify-between items-center border-b border-gray-300 pb-2">
                 <span className="font-medium text-gray-700">تاریخ تحویل</span>
                 <span className="text-gray-900">{deliverDate}</span>
-              </div>{" "}
+              </div>
             </div>
             <div className="flex justify-center mt-5 items-center w-full">
               <button onClick={handleClosePopup} className="tertiary-btn">
