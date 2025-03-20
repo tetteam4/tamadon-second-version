@@ -107,7 +107,7 @@ const OrderListSuperDesigner = () => {
     }
 
     try {
-      let url = `${BASE_URL}/group/order/pending`;
+      let url = `${BASE_URL}/group/order/2/`;
       const params = new URLSearchParams();
       if (filterDate) {
         const formattedDate = moment(filterDate).format("YYYY-MM-DD");

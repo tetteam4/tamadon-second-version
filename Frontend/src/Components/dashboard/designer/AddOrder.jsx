@@ -52,7 +52,7 @@ const AddOrder = () => {
     order_name: "",
     designer: decryptData(localStorage.getItem("email")),
     category: "",
-    status: "pending",
+    status: 2,
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editingOrderId, setEditingOrderId] = useState(null);
@@ -222,7 +222,7 @@ const AddOrder = () => {
       designer: decryptData(localStorage.getItem("id")),
       category: selectedCategoryId,
       attributes: formData || {},
-      status:2,
+      status: form1.status,
     };
 
     try {
@@ -264,7 +264,7 @@ const AddOrder = () => {
         order_name: "",
         designer: decryptData(localStorage.getItem("email")),
         category: "",
-        status: null,
+        status: 2,
       });
       setFormData({});
     } catch (error) {

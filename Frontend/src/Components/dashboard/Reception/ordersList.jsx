@@ -106,12 +106,9 @@ const OrderList = () => {
     }
 
     try {
-      const response = await axios.get(
-        `${BASE_URL}/group/group/order/${role}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get(`${BASE_URL}/group/order/${role}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.data.length === 0) {
         setError("No orders found.");

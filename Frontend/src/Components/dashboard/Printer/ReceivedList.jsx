@@ -193,7 +193,7 @@ const ReceivedList = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Add the token here
+            Authorization: `Bearer ${token}`, 
           },
         }
       );
