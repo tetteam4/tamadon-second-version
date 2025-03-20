@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from import_export import resources
 from import_export.admin import ExportMixin
 
-from .models import Category, Order, ReceptionOrder
+from .models import Category, Order, ReceptionOrder, Stage
 
 
 # Create a resource for the Order model
@@ -273,6 +273,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Category, CategoryAdmin)
-from .models import AttributeType,AttributeValue
+from .models import AttributeType, AttributeValue
+
 admin.site.register(AttributeType)
 admin.site.register(AttributeValue)
+admin.site.register(Stage)

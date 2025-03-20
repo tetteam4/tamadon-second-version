@@ -1,5 +1,6 @@
 import datetime
 from decimal import Decimal
+from weakref import ref
 
 import jdatetime
 from apps.users.models import User
@@ -7,7 +8,14 @@ from django import forms
 from jdatetime import datetime
 from rest_framework import serializers
 
-from .models import AttributeType, AttributeValue, Category, Order, ReceptionOrder
+from .models import (
+    AttributeType,
+    AttributeValue,
+    Category,
+    Order,
+    ReceptionOrder,
+    Stage,
+)
 
 
 class JalaliDateField(serializers.DateField):
@@ -28,22 +36,51 @@ class JalaliDateField(serializers.DateField):
             )
 
 
+from rest_framework import serializers
+
+from .models import Category, Stage
+
+
+class StageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stage
+        fields = ["stage_type"]
+
+
 class CategorySerializer(serializers.ModelSerializer):
-    role = serializers.ChoiceField(choices=Category.ROLE_CHOICES)
+    stages = serializers.PrimaryKeyRelatedField(queryset=Stage.objects.all(), many=True)
+    # stages = StageSerializer(many=True)
 
     class Meta:
         model = Category
-        fields = ["id", "name", "role", "created_at", "updated_at"]
+        fields = ["id", "name", "stages", "created_at", "updated_at"]
         ref_name = "GroupCategorySerializer"
 
-    def create(self, validated_data):
-        role = validated_data.get("role")
-        category = Category.objects.create(name=validated_data["name"], role=role)
-        return category
+    # def create(self, validated_data):
+    #     stages_data = validated_data.pop("stages")
+    #     category = Category.objects.create(**validated_data)
+
+    #     # Fetch the Stage instances based on stage_type values
+    #     stages = Stage.objects.filter(stage_type__in=stages_data)
+
+    #     # Set the selected stages for the category
+    #     category.stages.set(stages)
+    #     return category
+
+    # def update(self, instance, validated_data):
+    #     stages_data = validated_data.pop("stages", [])
+    #     instance.name = validated_data.get("name", instance.name)
+    #     instance.save()
+
+    #     # Fetch the Stage instances based on stage_type values
+    #     stages = Stage.objects.filter(stage_type__in=stages_data)
+
+    #     # Set the selected stages for the category
+    #     instance.stages.set(stages)
+    #     return instance
 
 
 class AttributeTypeSerializer(serializers.ModelSerializer):
-
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     attribute_type = serializers.ChoiceField(
         choices=AttributeType.ATTRIBUTE_CHOICE_TYPE,

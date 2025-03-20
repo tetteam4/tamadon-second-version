@@ -1,5 +1,7 @@
+import array
 import secrets
 import uuid
+from ctypes import Array
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -7,7 +9,7 @@ from django.db import models
 from django_jalali.db import models as jmodels
 
 
-class Category(models.Model):
+class Stage(models.Model):
     Admin = 0
     Designer = 1
     Reception = 2
@@ -19,7 +21,8 @@ class Category(models.Model):
     Chaspak = 8
     Shop_role = 9
     Laser = 10
-    ROLE_CHOICES = (
+
+    STAGE_CHOICES = (
         (Designer, "Designer"),
         (Reception, "Reception"),
         (SuperDesigner, "SuperDesigner"),
@@ -32,19 +35,22 @@ class Category(models.Model):
         (Shop_role, "Shop role"),
         (Laser, "Laser"),
     )
+
+    stage_type = models.IntegerField(choices=STAGE_CHOICES)
+
+    def __str__(self):
+        return str(self.stage_type)
+
+
+class Category(models.Model):
+
     name = models.CharField(max_length=255)
-    role = models.CharField(max_length=50, choices=ROLE_CHOICES, null=True, blank=True)
+    stages = models.ManyToManyField(Stage, related_name="categories")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
-
-    def clean(self):
-        if Category.objects.filter(name=self.name).exists():
-            raise ValidationError(
-                f"A category with the name '{self.name}' already exists."
-            )
 
     class Meta:
         verbose_name = "Category"
@@ -52,6 +58,7 @@ class Category(models.Model):
 
 
 class AttributeType(models.Model):
+
     ATTRIBUTE_CHOICE_TYPE = (
         ("dropdown", "dropdown"),
         ("date", "date"),
@@ -118,13 +125,31 @@ def generate_secret_key():
 
 
 class Order(models.Model):
-    STATUS_CHOICES = [
-        ("pending", "Pending"),
-        ("taken", "Taken"),
-        ("processing", "Processing"),
-        ("done", "Done"),
-        ("delivered", "Delivered"),
-    ]
+    DEFAULT_STATUS = "Designer"
+    Admin = 0
+    Designer = 1
+    Reception = 2
+    SuperDesigner = 3
+    Printer = 4
+    Delivered = 5
+    Digital = 6
+    Bill = 7
+    Chaspak = 8
+    Shop_role = 9
+    Laser = 10
+    STATUS_CHOICES = (
+        (Designer, DEFAULT_STATUS),
+        (Reception, "Reception"),
+        (SuperDesigner, "SuperDesigner"),
+        (Admin, "Admin"),
+        (Printer, "Printer"),
+        (Delivered, "Delivered"),
+        (Digital, "Digital"),
+        (Bill, "Bill"),
+        (Chaspak, "Chaspak"),
+        (Shop_role, "Shop role"),
+        (Laser, "Laser"),
+    )
     User = get_user_model()
     order_name = models.CharField(max_length=255)
     customer_name = models.CharField(max_length=255)
@@ -136,15 +161,17 @@ class Order(models.Model):
         null=True,
         blank=True,
     )
-
     secret_key = models.CharField(
         max_length=6,
         default=generate_secret_key,
         editable=False,
         unique=True,
     )
+
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="pending")
+    status = models.CharField(
+        max_length=50, choices=STATUS_CHOICES, default=DEFAULT_STATUS
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     attributes = models.JSONField(default=dict, null=True, blank=True)
