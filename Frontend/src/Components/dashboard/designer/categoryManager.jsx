@@ -179,7 +179,7 @@ const CategoryManagement = () => {
   };
 
   const handleRoleChange = (roleId, e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     setSelectedRoles((prevRoles) =>
       prevRoles.includes(roleId)
         ? prevRoles.filter((id) => id !== roleId)
@@ -239,14 +239,13 @@ const CategoryManagement = () => {
                     <label
                       key={role.id}
                       className="flex items-center space-x-2 p-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={(e) => e.stopPropagation()} 
+                      onClick={(e) => e.stopPropagation()}
                     >
-
                       <input
                         type="checkbox"
                         value={role.id}
                         checked={selectedRoles.includes(role.id)}
-                        onChange={(e) => handleRoleChange(role.id, e)} 
+                        onChange={(e) => handleRoleChange(role.id, e)}
                         className="form-checkbox h-5 w-5 text-green-500 focus:ring-green-500"
                       />
                       <span className="text-gray-700">{role.name}</span>
@@ -328,6 +327,14 @@ const CategoryManagement = () => {
           </tbody>
         </table>
       </div>
+      {/* Pagination Component */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 };
