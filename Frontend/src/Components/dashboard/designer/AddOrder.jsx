@@ -466,6 +466,24 @@ const AddOrder = () => {
                     />
                   </div>
                 </div>
+                {/* Order Name */}
+                <div className="mt-4">
+                  <label
+                    htmlFor="order_name"
+                    className="block mb-2 text-gray-700"
+                  >
+                    توضیحات سفارش
+                  </label>
+                  <textarea
+                    id="order_name"
+                    name="order_name"
+                    value={form1.order_name}
+                    onChange={handleForm1InputChange}
+                    maxLength={3}
+                    className="w-full px-3 py-2 border rounded min-h-[100px] max-h-[100px] resize-y focus:outline-none  bg-gray-200 text-black"
+                    placeholder=" "
+                  />
+                </div>
 
                 {/* Category Selection */}
                 <div className="mb-4 mt-3">
@@ -479,6 +497,7 @@ const AddOrder = () => {
                       onClick={() =>
                         setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
                       }
+                      onMouseDown={(e) => e.preventDefault()}
                     >
                       {selectedCategoryId
                         ? categories.find(
