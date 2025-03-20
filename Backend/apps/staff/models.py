@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from pyexpat import model
 
 
 class UpsentModel(models.Model):
@@ -25,6 +26,11 @@ class Staff(models.Model):
         ACTIVE = "Active", _("Active")
         INACTIVE = "Inactive", _("Inactive")
 
+    class Location(models.TextChoices):
+        FACTORY = "Factory", _("Factory")
+        SHOP = "Shop", _("Shop")
+        OTHER = "Other", _("Other")
+
     name = models.CharField(_("Name"), max_length=250)
     father_name = models.CharField(_("Father Name"), max_length=250)
     nic = models.IntegerField(_("NIC"))
@@ -33,8 +39,7 @@ class Staff(models.Model):
     salary_per_day = models.DecimalField(
         max_digits=12, decimal_places=2, default=Decimal("0.00")
     )
-    up_sent_day = models.PositiveSmallIntegerField(null=True, blank=True)
-    location = models.CharField(max_length=255)
+    location = models.CharField(_("Location"), choices=Location.choices, max_length=255)
     position = models.CharField(_("Position"), choices=Position.choices, max_length=250)
     state = models.CharField(
         _("State"), choices=State.choices, max_length=250, default=State.ACTIVE
@@ -42,13 +47,13 @@ class Staff(models.Model):
     total = models.DecimalField(
         max_digits=12, decimal_places=2, default=Decimal("0.00")
     )
-    clear_date = models.DateField()
-    taken = models.DecimalField(
-        max_digits=12, decimal_places=2, default=Decimal("0.00")
-    )
+
+    # Add related_name to avoid reverse query name clash
     upsent_day = models.ForeignKey(
         UpsentModel, on_delete=models.PROTECT, related_name="staff_members"
     )
+
+    clear_date = models.DateField()
 
     def __str__(self):
         return f"{self.name} ({self.position})"

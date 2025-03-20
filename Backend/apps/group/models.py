@@ -21,6 +21,7 @@ class Stage(models.Model):
     Chaspak = 8
     Shop_role = 9
     Laser = 10
+    Complete = 11
 
     STAGE_CHOICES = (
         (Designer, "Designer"),
@@ -34,6 +35,7 @@ class Stage(models.Model):
         (Chaspak, "Chaspak"),
         (Shop_role, "Shop role"),
         (Laser, "Laser"),
+        (Complete, "Complete"),
     )
 
     stage_type = models.IntegerField(choices=STAGE_CHOICES)
