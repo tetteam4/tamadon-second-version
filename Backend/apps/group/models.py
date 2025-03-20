@@ -155,6 +155,7 @@ class Order(models.Model):
     order_name = models.CharField(max_length=255)
     customer_name = models.CharField(max_length=255)
     designer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
+    description = models.TextField()
     printer = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

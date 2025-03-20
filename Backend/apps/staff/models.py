@@ -1,8 +1,9 @@
 from decimal import Decimal
 
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
-from pyexpat import model
 
 
 class UpsentModel(models.Model):
@@ -13,6 +14,14 @@ class UpsentModel(models.Model):
 
     def __str__(self):
         return f"Upsent day: {self.day} - Staff: {self.staff.name}"
+
+    def create_salary(self):
+        staff = self.staff
+        salary_for_the_day = staff.salary_per_day
+        total_salary = staff.total - salary_for_the_day
+        staff.total = total_salary
+        staff.save()
+        Salary.objects.create(staff=staff, amount=salary_for_the_day)
 
 
 class Staff(models.Model):
@@ -48,7 +57,6 @@ class Staff(models.Model):
         max_digits=12, decimal_places=2, default=Decimal("0.00")
     )
 
-    # Add related_name to avoid reverse query name clash
     upsent_day = models.ForeignKey(
         UpsentModel, on_delete=models.PROTECT, related_name="staff_members"
     )
@@ -57,3 +65,22 @@ class Staff(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.position})"
+
+
+class Salary(models.Model):
+    staff = models.ForeignKey(
+        Staff, on_delete=models.PROTECT, related_name="staff_salary"
+    )
+    amount = models.DecimalField(
+        max_digits=12, decimal_places=2, default=Decimal("0.00")
+    )
+
+    def __str__(self):
+        return f"{self.staff.name} - {self.amount}"
+
+
+# Signal to trigger salary creation after an UpsentModel is created
+@receiver(post_save, sender=UpsentModel)
+def handle_upsent_salary(sender, instance, created, **kwargs):
+    if created:
+        instance.create_salary()

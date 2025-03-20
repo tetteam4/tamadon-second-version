@@ -117,7 +117,6 @@ class OrderSerializer(serializers.ModelSerializer):
     designer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     status = serializers.ChoiceField(choices=Order.STATUS_CHOICES)
-    # created_at = JalaliDateField()
 
     class Meta:
         model = Order
@@ -126,6 +125,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "order_name",
             "customer_name",
             "designer",
+            "description",
             "category",
             "secret_key",
             "attributes",
