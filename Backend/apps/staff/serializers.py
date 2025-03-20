@@ -10,7 +10,7 @@ class UpsentModelSerializer(serializers.ModelSerializer):
 
 
 class StaffSerializer(serializers.ModelSerializer):
-    upsent_day = UpsentModelSerializer()
+    # upsent_day = UpsentModelSerializer()
 
     class Meta:
         model = Staff
