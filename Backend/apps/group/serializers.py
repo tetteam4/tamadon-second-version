@@ -26,7 +26,7 @@ class JalaliDateField(serializers.DateField):
         return jalali_date.strftime("%Y-%m-%d")
 
     def to_internal_value(self, data):
-        # Convert from Jalali date string to Gregorian date when saving to the database
+      
         try:
             jalali_date = jdatetime.datetime.strptime(data, "%Y-%m-%d")
             return jalali_date.togregorian().date()
@@ -34,7 +34,6 @@ class JalaliDateField(serializers.DateField):
             raise serializers.ValidationError(
                 "Invalid date format. Please use YYYY-MM-DD."
             )
-
 
 from rest_framework import serializers
 
@@ -49,7 +48,6 @@ class StageSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     stages = serializers.PrimaryKeyRelatedField(queryset=Stage.objects.all(), many=True)
-    # stages = StageSerializer(many=True)
 
     class Meta:
         model = Category
