@@ -338,7 +338,7 @@ class OrderStatusUpdateView(APIView):
         if serializer.is_valid():
             order_id = serializer.validated_data["order_id"]
             status_value = serializer.validated_data["status"]
-            # print(status_value)
+        
             order = Order.objects.get(id=order_id)
             order.status = status_value
             order.save()

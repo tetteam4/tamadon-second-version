@@ -108,7 +108,7 @@ class Order(models.Model):
     )
 
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    status = models.JSONField(default=list)
+    status = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     attributes = models.JSONField(default=dict, null=True, blank=True)

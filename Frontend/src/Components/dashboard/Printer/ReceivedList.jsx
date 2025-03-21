@@ -38,7 +38,19 @@ const ReceivedList = () => {
   );
   const [loading, setLoading] = useState(true);
   const [deliverDate, setDeliveryDate] = useState();
-
+  const roles = [
+    { id: 1, name: "Designer" },
+    { id: 2, name: "Reception" },
+    // { id: 0, name: "Admin" },
+    { id: 3, name: "Head of designers" },
+    { id: 4, name: "Printer" },
+    { id: 5, name: "Delivery" },
+    { id: 6, name: "Digital" },
+    { id: 7, name: "Bill" },
+    { id: 8, name: "Chaspak" },
+    { id: 9, name: "Shop role" },
+    { id: 10, name: "Laser" },
+  ];
   const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/categories/`);
@@ -53,7 +65,8 @@ const ReceivedList = () => {
   }, []);
   const getTakenList = useCallback(async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/group/order/${userRole}`);
+      const newrole = roles.find((r) => r.id == userRole)?.name;
+      const response = await axios.get(`${BASE_URL}/group/order/${newrole}`);
 
       if (Array.isArray(response.data)) {
         setOrders(response.data);
@@ -243,11 +256,11 @@ const ReceivedList = () => {
     }
   };
 
-const filteredOrders = useMemo(() => {
-  if (!Array.isArray(orders)) return []; // Ensure it’s an array
+  const filteredOrders = useMemo(() => {
+    if (!Array.isArray(orders)) return []; // Ensure it’s an array
 
-  return orders
-}, [orders, userRole]);
+    return orders;
+  }, [orders, userRole]);
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
@@ -262,7 +275,6 @@ const filteredOrders = useMemo(() => {
         return (
           customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           orderName.toLowerCase().includes(searchTerm.toLowerCase())
-          
         );
       });
       setSearchResults(results);
@@ -275,8 +287,8 @@ const filteredOrders = useMemo(() => {
 
   const postsPerPage = 15;
 
-const dataToPaginate =
-  searchResults.length > 0 ? searchResults : filteredOrders || [];
+  const dataToPaginate =
+    searchResults.length > 0 ? searchResults : filteredOrders || [];
 
   useEffect(() => {
     setCurrentPage(1);

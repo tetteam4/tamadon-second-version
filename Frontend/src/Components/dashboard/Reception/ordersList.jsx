@@ -106,20 +106,11 @@ const OrderList = () => {
     }
 
     try {
-      const response = await axios.get(`${BASE_URL}/group/order/${role}`, {
+      const response = await axios.get(`${BASE_URL}/group/order/Reception`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.data.length === 0) {
-        setError("No orders found.");
-        return;
-      }
-
-      const filteredOrders = response.data.filter(
-        (order) => !order.total_price || !order.receive_price
-      );
-
-      setOrders(filteredOrders); 
+      setOrders(response.data);
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
@@ -384,8 +375,6 @@ const OrderList = () => {
       let nextStatus;
       if (Array.isArray(statusStage)) {
         const currentIndex = statusStage.indexOf(modalData.order.status);
-        console.log(currentIndex);
-
         if (currentIndex) {
           // Assign the next index status
           nextStatus = statusStage[currentIndex + 1];
@@ -399,17 +388,19 @@ const OrderList = () => {
       }
       // console.log(nextStatus);
       // Update order status
+      console.log(nextStatus, selectedOrder);
+
       await axios.post(
         `${BASE_URL}/group/update-order-status/`,
         { order_id: selectedOrder, status: nextStatus },
         { headers }
       );
 
-      const response = await axios.post(
-        `${BASE_URL}/group/reception-orders/`,
-        updatedOrder,
-        { headers }
-      );
+      // const response = await axios.post(
+      //   `${BASE_URL}/group/reception-orders/`,
+      //   updatedOrder,
+      //   { headers }
+      // );
       // Close the modal and update orders list
       setShowModal(false);
       setOrders((prevOrders) =>
@@ -478,10 +469,11 @@ const OrderList = () => {
 
   // Calculate pagination
   const totalPages = Math.ceil(orders.length / postsPerPage);
-  const paginatedOrders = [...orders] // Create a copy to avoid mutation
-    .reverse()
-    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
-
+  const paginatedOrders = Array.isArray(orders)
+    ? [...orders]
+        .reverse()
+        .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage)
+    : [];
   return (
     <div className="w-[400px] md:w-[700px]  mt-10 lg:w-[90%] mx-auto  lg:overflow-hidden">
       <h2 className="md:text-2xl text-base font-Ray_black text-center font-bold mb-4">

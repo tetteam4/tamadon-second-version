@@ -173,8 +173,8 @@ class ReceptionOrderSerializer(serializers.ModelSerializer):
 
 
 class OrderStatusUpdateSerializer(serializers.Serializer):
-    order_id = serializers.IntegerField()  # The ID of the order
-    status = serializers.ListField(child=serializers.CharField())
+    order_id = serializers.IntegerField()  
+    status = serializers.CharField()
 
     def validate_order_id(self, value):
         # Ensure the order exists
