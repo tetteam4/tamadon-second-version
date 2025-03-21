@@ -1,6 +1,4 @@
 import secrets
-import uuid
-from ast import List
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -90,21 +88,6 @@ def generate_secret_key():
 
 
 class Order(models.Model):
-
-    STATUS_CHOICES = (
-        ("Designer", "Designer"),
-        ("Reception", "Reception"),
-        ("SuperDesigner", "SuperDesigner"),
-        ("Admin", "Admin"),
-        ("Printer", "Printer"),
-        ("Delivered", "Delivered"),
-        ("Digital", "Digital"),
-        ("Bill", "Bill"),
-        ("Chaspak", "Chaspak"),
-        ("Shop_role", "Shop role"),
-        ("Laser", "Laser"),
-        ("Complete", "Complete"),
-    )
     User = get_user_model()
     order_name = models.CharField(max_length=255)
     customer_name = models.CharField(max_length=255)
@@ -125,10 +108,10 @@ class Order(models.Model):
     )
 
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="Designer")
+    status = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    attributes = models.JSONField(default=dict, null=True, blank=True)
+    attributes = models.CharField(max_length=200)
 
     def __str__(self):
         return f"Order {self.order_name} by {self.customer_name}"
