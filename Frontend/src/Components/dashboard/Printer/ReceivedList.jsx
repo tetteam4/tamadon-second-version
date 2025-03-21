@@ -246,11 +246,8 @@ const ReceivedList = () => {
 const filteredOrders = useMemo(() => {
   if (!Array.isArray(orders)) return []; // Ensure it’s an array
 
-  return orders.filter((order) => {
-    const category = categories.find((cat) => cat.id === order.category);
-    return category && category.role === userRole;
-  });
-}, [orders, categories, userRole]);
+  return orders
+}, [orders, userRole]);
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
@@ -264,8 +261,8 @@ const filteredOrders = useMemo(() => {
 
         return (
           customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+          orderName.toLowerCase().includes(searchTerm.toLowerCase())
+          
         );
       });
       setSearchResults(results);
