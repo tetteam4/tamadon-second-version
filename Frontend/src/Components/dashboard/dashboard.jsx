@@ -58,6 +58,7 @@ import DesignerChart from "./designer/designersChart.jsx";
 import { BiArrowBack, BiArrowFromRight, BiArrowToRight } from "react-icons/bi";
 import WellcomePage from "./wellcomePage.jsx";
 import Deliver from "./Reception/deliverOrder.jsx";
+import PastOrders from "./designer/pastOrders.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 import ModeToggle from "./ModeToggling.jsx";
 import Token from "./TokenOrdeing/Token.jsx";
@@ -212,10 +213,18 @@ const Dashboard = () => {
 
   // Define user role permissions
   const access = {
-    1: ["defaultPage", "Add Order", "defaultPage", "designerChart", "Logout"],
+    1: [
+      "defaultPage",
+      "Add Order",
+      "defaultPage",
+      "pastOrders",
+      "designerChart",
+      "Logout",
+    ],
     3: [
       "defaultPage",
       "category management",
+      "pastOrders",
       "Add Order",
       "designerChart",
       // "token",
@@ -313,6 +322,11 @@ const Dashboard = () => {
       component: "AddOrder",
       icon: <FaPlusCircle />,
       label: "سفارشات",
+    },
+    pastOrders: {
+      component: "pastOrders",
+      icon: <FaPlusCircle />,
+      label: "سفارشات قبلی",
     },
 
     token: {
@@ -432,6 +446,8 @@ const Dashboard = () => {
         return <OrderList />;
       case "OrderListSuperDesigner":
         return <OrderListSuperDesigner />;
+      case "pastOrders":
+        return <PastOrders />;
       case "ProcessingList":
         return <ProcessingList />;
       case "TokenOrders":

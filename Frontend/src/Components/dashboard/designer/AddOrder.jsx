@@ -104,8 +104,10 @@ const AddOrder = () => {
       });
       // Apply date filtering on the frontend if backend filtering is not working
       // const datanew=response.data.filter((order)=>order.created)
+      const today = new Date().toISOString().split("T")[0]; // Get today's date in
       let filteredOrders = response.data.filter(
-        (order) => order.designer == id
+        (order) =>
+          order.designer == id && order.created_at.substring(0, 10) == today
       );
 
       if (filterDate) {
