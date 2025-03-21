@@ -48,32 +48,6 @@ class CategoryDeleteView(generics.DestroyAPIView):
     permission_classes = [AllowAny]
 
 
-class CategoryUpdateView(APIView):
-    permission_classes = [AllowAny]
-
-    def put(self, request, pk, *args, **kwargs):
-        try:
-            # Fetch the category object by its primary key (pk)
-            category = Category.objects.get(pk=pk)
-        except Category.DoesNotExist:
-            raise NotFound(
-                detail="Category not found."
-            )  # If category doesn't exist, raise a 404 error
-
-        # Initialize the serializer with the category instance and request data
-        serializer = CategorySerializer(category, data=request.data)
-
-        # Check if the serializer is valid
-        if serializer.is_valid():
-            category = serializer.save()  # Save the updated category
-            return Response(
-                serializer.data, status=status.HTTP_200_OK
-            )  # Return the updated data with HTTP 200
-
-        # If validation fails, return the errors with HTTP 400
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class AttributeValueListCreateView(APIView):
     permission_classes = [AllowAny]
 
@@ -439,7 +413,6 @@ class OrderListByCategoryView(generics.ListAPIView):
 
     def get_queryset(self):
         category_id = self.kwargs["category_id"]
-        # Filter orders by category_id
         return Order.objects.filter(category_id=category_id)
 
 
