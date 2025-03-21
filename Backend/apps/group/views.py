@@ -234,41 +234,27 @@ class OrderListView(generics.ListAPIView):
     serializer_class = OrderSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    search_fields = ["secret_key"]  # Filter by secret_key field
+    search_fields = ["secret_key"]
 
     def get_queryset(self):
         queryset = Order.objects.all()
 
-        # Get the status parameter (status ID) from the URL kwargs (if available)
+        # Get the status parameter from the URL kwargs (if available)
         status_param = self.kwargs.get("status")
 
         if status_param:
-            try:
-
-                status_id = int(status_param)
-            except ValueError:
-                return Response(
-                    {"message": "Invalid status ID."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            # Check if the status ID exists in the STATUS_CHOICES
-            valid_statuses = dict(Order.STATUS_CHOICES).keys()
-            if status_id not in valid_statuses:
-                return Response(
-                    {"message": "Invalid status ID."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            # Filter by status ID (not the status string)
-            queryset = queryset.filter(status=status_id)
+            # Filter orders where the status contains the given status_param (e.g., "Printer")
+            # Use `icontains` for case-insensitive partial matches
+            queryset = queryset.filter(status__icontains=status_param)
         else:
-            queryset = queryset = queryset.exclude(status__in=[1, 2])
+            # If no status param is given, you can add default filtering if needed
+            queryset = queryset.exclude(
+                Q(status__icontains="Reception") | Q(status__icontains="Designer")
+            )
 
         return queryset
 
     def list(self, request, *args, **kwargs):
-        # Get the filtered queryset
         queryset = self.get_queryset()
 
         # Handle search parameter if it exists
@@ -284,15 +270,14 @@ class OrderListView(generics.ListAPIView):
         # Return the serialized data if found
         serializer = self.get_serializer(queryset, many=True)
 
-        # Provide appropriate response if the queryset is empty
         if queryset.exists():
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             status_param = self.kwargs.get("status")
             message = (
-                f"Order with status ID '{status_param}' not found."
+                f"Order with status '{status_param}' not found."
                 if status_param
-                else "No orders found except those with 'Designer' status."
+                else "order not found ."
             )
             return Response({"message": message}, status=status.HTTP_200_OK)
 
@@ -353,6 +338,7 @@ class OrderStatusUpdateView(APIView):
         if serializer.is_valid():
             order_id = serializer.validated_data["order_id"]
             status_value = serializer.validated_data["status"]
+            # print(status_value)
             order = Order.objects.get(id=order_id)
             order.status = status_value
             order.save()
