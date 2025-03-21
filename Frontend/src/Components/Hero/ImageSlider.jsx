@@ -71,8 +71,11 @@ const ImageSlider = () => {
             </SwiperSlide>
           ))
         ) : (
-          <div className="w-full flex items-center justify-center text-gray-500">
-            تصاویری در دسترس نیست
+          <div className="w-full h-[300px] lg:h-[500px] flex items-center justify-center text-gray-500">
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-8 h-8 border-4 border-green border-dashed rounded-full animate-spin"></div>
+              <span>  در حال بارگذاری عکس ها...</span>
+            </div>
           </div>
         )}
       </Swiper>
