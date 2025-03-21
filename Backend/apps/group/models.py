@@ -111,7 +111,7 @@ class Order(models.Model):
     status = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    attributes = models.CharField(max_length=200)
+    attributes = models.JSONField(default=dict, null=True, blank=True)
 
     def __str__(self):
         return f"Order {self.order_name} by {self.customer_name}"
