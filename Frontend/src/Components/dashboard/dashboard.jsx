@@ -226,7 +226,7 @@ const Dashboard = () => {
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
     2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
     4: ["defaultPage", "ReceivedList", "Logout"],
-    5: ["defaultPage", "deliver", "Logout"],
+    5: ["defaultPage", "deliver", "ReceivedList", "Logout"],
     6: ["defaultPage", "ReceivedList", "Logout"],
     7: ["defaultPage", "ReceivedList", "Logout"],
     8: ["defaultPage", "ReceivedList", "Logout"],

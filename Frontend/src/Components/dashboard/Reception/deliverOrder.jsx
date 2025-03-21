@@ -5,7 +5,7 @@ import CryptoJS from "crypto-js";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
 import Pagination from "../../../Utilities/Pagination";
-import SearchBar from "../../../Utilities/Searching"; 
+import SearchBar from "../../../Utilities/Searching";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Deliver = () => {
@@ -23,7 +23,8 @@ const Deliver = () => {
       console.error("Decryption failed:", error);
       return null;
     }
-  };12
+  };
+  12;
 
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -33,7 +34,7 @@ const Deliver = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [refreshingToken, setRefreshingToken] = useState(false); 
+  const [refreshingToken, setRefreshingToken] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
@@ -128,7 +129,7 @@ const Deliver = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/group/order/done/`);
+      const response = await axios.get(`${BASE_URL}/group/order/11`);
       setOrders(response.data);
     } catch (error) {
       console.error("Error fetching orders:", error);
