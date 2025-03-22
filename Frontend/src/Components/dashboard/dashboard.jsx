@@ -234,7 +234,7 @@ const Dashboard = () => {
       "OrderListSuperDesigner",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
-    2: ["defaultPage", "OrderList", "TokenOrders", "BillTotal", "Logout"],
+    2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
     4: ["defaultPage", "ReceivedList", "Logout"],
     5: ["defaultPage", "deliver", "ReceivedList", "Logout"],
     6: ["defaultPage", "ReceivedList", "Logout"],
@@ -317,11 +317,6 @@ const Dashboard = () => {
       component: "TokenOrders",
       icon: <FaClipboardList />,
       label: "سفارشات گرفته شده",
-    },
-    BillTotal: {
-      component: "BillTotal",
-      icon: <FaClipboardList />,
-      label: "بیل سفارشات گرفته شده",
     },
 
     "Add Order": {
@@ -454,8 +449,6 @@ const Dashboard = () => {
         return <OrderListSuperDesigner />;
       case "pastOrders":
         return <PastOrders />;
-      case "BillTotal":
-        return <BillTotal />;
       case "ProcessingList":
         return <ProcessingList />;
       case "TokenOrders":

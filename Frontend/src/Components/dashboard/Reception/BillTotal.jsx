@@ -233,9 +233,9 @@ const BillTotal = () => {
         cancelButtonText: "خیر",
       });
 
-      if (confirm.isConfirmed) {
+      if (confirm.isConfirmed) {  
         const completeResponse = await axios.post(
-          `${BASE_URL}group/order-by-price/complete/${id}/`,
+          `${BASE_URL}/group/order-by-price/complete/${id}/`,
           {},
           {
             headers: {
@@ -516,16 +516,14 @@ const BillTotal = () => {
             className="scale-75 fixed inset-0 bg-opacity-75 flex top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 items-center justify-center z-50"
           >
             <button
-              onClick={() => setIsModelOpen(!isModelOpen)}
+              onClick={() => setIsTotalModelOpen(!isTotalModelOpen)}
               className="absolute -top-16 border-gray-900 bg-gray-400 rounded-full p-1 h-10 w-10 text-red-800 text-3xl z-50"
             >
               ✕
             </button>
             <BillTotalpage
               // order={passedOrder}
-              orders={orders.filter((order) =>
-                selectedOrders.includes(order)
-              )}
+              orders={orders.filter((order) => selectedOrders.includes(order))}
             />
             <button
               onClick={printBill}

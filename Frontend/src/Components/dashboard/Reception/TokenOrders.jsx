@@ -13,12 +13,14 @@ import { FaCheck, FaEdit } from "react-icons/fa";
 import { Price } from "./Price";
 
 import Swal from "sweetalert2";
+import BillTotalpage from "../../Bill_Page/BillTotalpage";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const TokenOrders = () => {
   const [orders, setOrders] = useState([]);
   const [passedOrder, setPassedOrder] = useState([]);
   const [isModelOpen, setIsModelOpen] = useState(false);
+  const [isTotalModelOpen, setIsTotalModelOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [designers, setDesigners] = useState([]);
   const [prices, setPrices] = useState({});
@@ -32,6 +34,7 @@ const TokenOrders = () => {
   const [searchResults, setSearchResults] = useState([]); // Search results state
   const [showPrice, setShowPrice] = useState(false);
   const [editingPriceId, setEditingPriceId] = useState(null);
+  const [selectedOrders, setSelectedOrders] = useState([]);
   const secretKey = "TET4-1";
 
   const decryptData = (hashedData) => {
@@ -61,6 +64,13 @@ const TokenOrders = () => {
     { id: 9, name: "Shop role" },
     { id: 10, name: "Laser" },
   ];
+  const toggleOrderSelection = (neworder) => {
+    setSelectedOrders((prevSelected) =>
+      prevSelected.includes(neworder)
+        ? prevSelected.filter((order) => order !== neworder)
+        : [...prevSelected, neworder]
+    );
+  };
 
   const printBill = async () => {
     const element = document.getElementById("bill-content");
@@ -225,7 +235,7 @@ const TokenOrders = () => {
 
       if (confirm.isConfirmed) {
         const completeResponse = await axios.post(
-          `${BASE_URL}group/order-by-price/complete/${id}/`,
+          `${BASE_URL}/group/order-by-price/complete/${id}/`,
           {},
           {
             headers: {
@@ -320,12 +330,22 @@ const TokenOrders = () => {
         value={searchTerm}
         onChange={handleSearchChange}
       />
-
+      {selectedOrders.length > 0 && (
+        <button
+          onClick={() => setIsTotalModelOpen(true)}
+          className="secondry-btn mt-4"
+        >
+          نمایش بیل انتخاب شده‌ها
+        </button>
+      )}
       <center>
         <div className="overflow-x-scroll lg:overflow-hidden w-[420px] md:w-full rounded-lg">
           <table className="w-full  rounded-lg border  border-gray-300 shadow-md">
             <thead className=" ">
               <tr className="bg-green text-gray-100 text-center">
+                <th className="border border-gray-300 px-6 py-2.5 font-semibold text-sm md:text-base">
+                  انتخاب
+                </th>
                 <th className="border border-gray-300 px-6 py-2.5  font-semibold text-sm md:text-base">
                   نام مشتری
                 </th>
@@ -365,6 +385,14 @@ const TokenOrders = () => {
                     key={order.id}
                     className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
                   >
+                    {" "}
+                    <td className="border-gray-300 px-6 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedOrders.includes(order)}
+                        onChange={() => toggleOrderSelection(order)}
+                      />
+                    </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
                       {order.customer_name || "در حال بارگذاری..."}
                     </td>
@@ -391,7 +419,6 @@ const TokenOrders = () => {
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
                       {order.status || "در حال بارگذاری..."}
-                      {console.log(order.status)}
                     </td>
                     <td className="flex items-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
                       <button
@@ -442,6 +469,8 @@ const TokenOrders = () => {
           />
         )}
       </center>
+      {/* Show Bill Button */}
+
       {/* Popup */}
       {isModelOpen && (
         <>
@@ -460,7 +489,42 @@ const TokenOrders = () => {
             >
               ✕
             </button>
-            <Bill order={passedOrder} />
+            <Bill
+              order={passedOrder}
+              orders={orders.filter((order) =>
+                selectedOrders.includes(order.id)
+              )}
+            />
+            <button
+              onClick={printBill}
+              className="absolute secondry-btn -bottom-20 text-lg px-4  z-50"
+            >
+              چاپ بیل
+            </button>
+          </div>
+        </>
+      )}
+      {isTotalModelOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setIsModelOpen(false)}
+          ></div>
+
+          <div
+            id="bill-content"
+            className="scale-75 fixed inset-0 bg-opacity-75 flex top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 items-center justify-center z-50"
+          >
+            <button
+              onClick={() => setIsTotalModelOpen(!isTotalModelOpen)}
+              className="absolute -top-16 border-gray-900 bg-gray-400 rounded-full p-1 h-10 w-10 text-red-800 text-3xl z-50"
+            >
+              ✕
+            </button>
+            <BillTotalpage
+              // order={passedOrder}
+              orders={orders.filter((order) => selectedOrders.includes(order))}
+            />
             <button
               onClick={printBill}
               className="absolute secondry-btn -bottom-20 text-lg px-4  z-50"
