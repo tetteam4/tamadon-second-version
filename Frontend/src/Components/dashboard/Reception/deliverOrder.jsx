@@ -28,6 +28,7 @@ const Deliver = () => {
 
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
+
   const [token, setToken] = useState(
     decryptData(localStorage.getItem("auth_token"))
   );
@@ -130,9 +131,11 @@ const Deliver = () => {
   const fetchOrders = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/order/11`);
-      setOrders(response.data);
+      setOrders(Array.isArray(response.data) ? response.data : []);
+      console.log(response.data);
     } catch (error) {
       console.error("Error fetching orders:", error);
+      setOrders([]); // Set to an empty array on error
     }
   };
 
@@ -179,7 +182,10 @@ const Deliver = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 15;
 
-  const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
+  const dataToPaginate =
+    Array.isArray(searchResults) && searchResults.length > 0
+      ? searchResults
+      : orders;
 
   useEffect(() => {
     setCurrentPage(1);

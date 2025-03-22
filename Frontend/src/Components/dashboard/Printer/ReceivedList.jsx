@@ -33,7 +33,9 @@ const ReceivedList = () => {
   const [orderDetails, setOrderDetails] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [userRole, setUserRole] = useState(null);
+  const [userRole, setUserRole] = useState(
+    decryptData(localStorage.getItem("role"))
+  );
   const [loading, setLoading] = useState(true);
   const [deliverDate, setDeliveryDate] = useState();
 
@@ -152,6 +154,7 @@ const ReceivedList = () => {
           text: `وضعیت سفارش به 'کامل' تغییر کرد.`,
           confirmButtonText: "باشه",
         });
+        getTakenList();
       } catch (err) {
         console.error("Error changing status", err);
 
@@ -225,7 +228,7 @@ const ReceivedList = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -241,11 +244,11 @@ const ReceivedList = () => {
     }
   };
 
-const filteredOrders = useMemo(() => {
-  if (!Array.isArray(orders)) return []; // Ensure it’s an array
+  const filteredOrders = useMemo(() => {
+    if (!Array.isArray(orders)) return []; // Ensure it’s an array
 
-  return orders
-}, [orders, userRole]);
+    return orders;
+  }, [orders, userRole]);
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
@@ -256,13 +259,10 @@ const filteredOrders = useMemo(() => {
       const results = filteredOrders.filter((order) => {
         const customerName = order.customer_name || "";
         const orderName = order.order_name || "";
-        const categoryName =
-          categories.find((category) => category.id === order.category)?.name ||
-          "";
+
         return (
           customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           orderName.toLowerCase().includes(searchTerm.toLowerCase())
-          
         );
       });
       setSearchResults(results);
@@ -275,8 +275,8 @@ const filteredOrders = useMemo(() => {
 
   const postsPerPage = 15;
 
-const dataToPaginate =
-  searchResults.length > 0 ? searchResults : filteredOrders || [];
+  const dataToPaginate =
+    searchResults.length > 0 ? searchResults : filteredOrders || [];
 
   useEffect(() => {
     setCurrentPage(1);

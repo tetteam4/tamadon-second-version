@@ -695,7 +695,7 @@ const AddOrder = () => {
 
       <div className="w-[350px] sm:w-[450px] md:w-[700px] mt-10 lg:w-[80%] mx-auto overflow-x-scroll lg:overflow-hidden">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-x-3">
+          {/* <div className="flex items-center gap-x-3">
             <label htmlFor="filterDate" className="block text-sm font-semibold">
               فیلتر بر اساس تاریخ:
             </label>
@@ -713,7 +713,7 @@ const AddOrder = () => {
             >
               پاک کردن
             </button>
-          </div>
+          </div> */}
 
           {/* Customer Search */}
           <div className="flex items-center gap-x-3">
