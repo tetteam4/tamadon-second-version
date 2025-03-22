@@ -244,6 +244,58 @@ const Bill = ({ order, orders }) => {
                     ))}
                 </div>
               </div>
+              <div className="mt-3 col-span-1 ">
+                {" "}
+                <div className=" p-1 gap-x-2 flex items-start">
+                  <div className="p-1 gap-x-2 flex items-start">
+                    <p>جمله :</p>
+                    <p>
+                      {orders.length > 0
+                        ? orders
+                            .map(
+                              (order) =>
+                                Number(
+                                  selectedOrdersPrices[order.id]?.[0]?.price
+                                ) || 0
+                            ) // Convert to number and default to 0
+                            .reduce((total, price) => total + price, 0) // Sum all prices
+                        : 0}
+                    </p>
+                  </div>
+                  <div className="p-1 gap-x-2 flex items-start">
+                    <p>پیش پرداخت:</p>
+                    <p>
+                      {orders.length > 0
+                        ? orders
+                            .map(
+                              (order) =>
+                                Number(
+                                  selectedOrdersPrices[order.id]?.[0]
+                                    ?.receive_price
+                                ) || 0
+                            ) // Convert to number and default to 0
+                            .reduce((total, price) => total + price, 0) // Sum all prices
+                        : 0}
+                    </p>
+                  </div>
+                  <div className="p-1 gap-x-2 flex items-start">
+                    <p>باقی :</p>
+                    <p>
+                      {orders.length > 0
+                        ? orders
+                            .map(
+                              (order) =>
+                                Number(
+                                  selectedOrdersPrices[order.id]?.[0]
+                                    ?.reminder_price
+                                ) || 0
+                            ) // Convert to number and default to 0
+                            .reduce((total, price) => total + price, 0) // Sum all prices
+                        : 0}
+                    </p>
+                  </div>{" "}
+                </div>
+              </div>
               {/* <div className=" col-span-3 grid grid-cols-3 mt-4">
                 {order &&
                   order.attributes &&
