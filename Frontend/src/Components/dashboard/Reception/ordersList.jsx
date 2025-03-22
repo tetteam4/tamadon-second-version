@@ -396,11 +396,11 @@ const OrderList = () => {
         { headers }
       );
 
-      // const response = await axios.post(
-      //   `${BASE_URL}/group/reception-orders/`,
-      //   updatedOrder,
-      //   { headers }
-      // );
+      const response = await axios.post(
+        `${BASE_URL}/group/reception-orders/`,
+        updatedOrder,
+        { headers }
+      );
       // Close the modal and update orders list
       setShowModal(false);
       setOrders((prevOrders) =>
@@ -418,7 +418,7 @@ const OrderList = () => {
       console.error("Error updating the order:", error.response || error);
       const remove = await axios.post(
         `${BASE_URL}/group/update-order-status/`,
-        { order_id: selectedOrder, status: "pending" },
+        { order_id: selectedOrder, status: "Reception" },
         { headers }
       );
 

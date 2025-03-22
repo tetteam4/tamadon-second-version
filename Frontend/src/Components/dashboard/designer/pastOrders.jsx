@@ -127,8 +127,7 @@ const PastOrders = () => {
       const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
 
       const filterTime = filterDesigner.filter(
-        (order) =>
-          order.created_at && order.created_at.substring(0, 10) !== today
+        (order) => order.created_at && order.created_at == today
       );
       setOrders(filterTime);
     } catch (error) {

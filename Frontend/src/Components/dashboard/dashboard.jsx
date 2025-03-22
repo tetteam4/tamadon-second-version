@@ -233,7 +233,7 @@ const Dashboard = () => {
       "OrderListSuperDesigner",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
-    2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
+    2: ["defaultPage", "OrderList", "TokenOrders", "Bill", "Logout"],
     4: ["defaultPage", "ReceivedList", "Logout"],
     5: ["defaultPage", "deliver", "ReceivedList", "Logout"],
     6: ["defaultPage", "ReceivedList", "Logout"],
@@ -313,6 +313,11 @@ const Dashboard = () => {
       label: "  لیست سفارشات جدید",
     },
     TokenOrders: {
+      component: "TokenOrders",
+      icon: <FaClipboardList />,
+      label: "سفارشات گرفته شده",
+    },
+    Bill: {
       component: "TokenOrders",
       icon: <FaClipboardList />,
       label: "سفارشات گرفته شده",

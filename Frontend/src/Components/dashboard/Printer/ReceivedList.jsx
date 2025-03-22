@@ -167,6 +167,7 @@ const ReceivedList = () => {
           text: `وضعیت سفارش به 'کامل' تغییر کرد.`,
           confirmButtonText: "باشه",
         });
+        getTakenList();
       } catch (err) {
         console.error("Error changing status", err);
 

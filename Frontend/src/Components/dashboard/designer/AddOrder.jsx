@@ -90,7 +90,6 @@ const AddOrder = () => {
       const response = await axios.get(url, {
         headers,
       });
-
       let filteredOrders = response.data.filter(
         (order) => order.designer == id
       );

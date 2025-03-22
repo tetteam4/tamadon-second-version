@@ -33,6 +33,7 @@ const Delivery = () => {
   const [orderDetails, setOrderDetails] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [selectedDetails, setSelectedDetail] = useState([]);
   const [userRole, setUserRole] = useState(
     decryptData(localStorage.getItem("role"))
   );
@@ -91,7 +92,6 @@ const Delivery = () => {
           },
         });
         setOrderDetails(response.data);
-        setIsModelOpen(true);
       } catch (err) {
         console.error("Error fetching order details:", err);
       }
@@ -333,6 +333,9 @@ const Delivery = () => {
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 دسته بندی
+              </th>{" "}
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                تاریخ تحویل دهی
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 اقدامات
@@ -359,6 +362,20 @@ const Delivery = () => {
                       (category) => category.id === order.category
                     )?.name || "دسته‌بندی نامشخص"}
                   </td>
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    <span className="flex flex-col">
+                      {" "}
+                      <span>{convertToHijriShamsi(order.updated_at)}</span>
+                      <span>
+                        {
+                          order.updated_at
+                            .split("T")[1]
+                            .split("Z")[0]
+                            .split(".")[0]
+                        }
+                      </span>
+                    </span>
+                  </td>
                   <td className="border-gray-300 px-6 flex items-center gap-x-5 justify-center text-gray-700">
                     {/* <button
                       onClick={() => handleAdd(order)}
@@ -368,8 +385,8 @@ const Delivery = () => {
                     </button> */}
                     <button
                       onClick={() => {
-                        getDetails(order.id);
-                        fetchOrder(order.id);
+                        setOrderDetails(order);
+                        setIsModelOpen(true);
                       }}
                       className="secondry-btn"
                     >
@@ -417,12 +434,9 @@ const Delivery = () => {
               <div className="flex justify-between items-center border-b border-gray-300 pb-2">
                 <span className="font-medium text-gray-700"> تاریخ اخذ</span>
                 <span className="text-gray-900">
+                  {console.log(orderDetails)}
                   {convertToHijriShamsi(orderDetails.created_at)}
                 </span>
-              </div>
-              <div className="flex justify-between items-center border-b border-gray-300 pb-2">
-                <span className="font-medium text-gray-700">تاریخ تحویل</span>
-                <span className="text-gray-900">{deliverDate}</span>
               </div>
             </div>
             <div className="flex justify-center mt-5 items-center w-full">
