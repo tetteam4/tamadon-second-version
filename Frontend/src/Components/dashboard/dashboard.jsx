@@ -63,6 +63,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 import ModeToggle from "./ModeToggling.jsx";
 import Token from "./TokenOrdeing/Token.jsx";
 import OrderListSuperDesigner from "./designer/orderlistSuperDesigner.jsx";
+import BillTotal from "./Reception/BillTotal.jsx";
 const Dashboard = () => {
   // Modal visibility state
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -233,7 +234,7 @@ const Dashboard = () => {
       "OrderListSuperDesigner",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
-    2: ["defaultPage", "OrderList", "TokenOrders", "Bill", "Logout"],
+    2: ["defaultPage", "OrderList", "TokenOrders", "BillTotal", "Logout"],
     4: ["defaultPage", "ReceivedList", "Logout"],
     5: ["defaultPage", "deliver", "ReceivedList", "Logout"],
     6: ["defaultPage", "ReceivedList", "Logout"],
@@ -317,10 +318,10 @@ const Dashboard = () => {
       icon: <FaClipboardList />,
       label: "سفارشات گرفته شده",
     },
-    Bill: {
-      component: "TokenOrders",
+    BillTotal: {
+      component: "BillTotal",
       icon: <FaClipboardList />,
-      label: "سفارشات گرفته شده",
+      label: "بیل سفارشات گرفته شده",
     },
 
     "Add Order": {
@@ -453,6 +454,8 @@ const Dashboard = () => {
         return <OrderListSuperDesigner />;
       case "pastOrders":
         return <PastOrders />;
+      case "BillTotal":
+        return <BillTotal />;
       case "ProcessingList":
         return <ProcessingList />;
       case "TokenOrders":
