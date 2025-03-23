@@ -42,13 +42,13 @@ const ReceivedList = () => {
     { id: 1, name: "Designer" },
     { id: 2, name: "Reception" },
     // { id: 0, name: "Admin" },
-    { id: 3, name: "Head of designers" },
+    { id: 3, name: "Head_of_designers" },
     { id: 4, name: "Printer" },
     { id: 5, name: "Delivery" },
     { id: 6, name: "Digital" },
     { id: 7, name: "Bill" },
     { id: 8, name: "Chaspak" },
-    { id: 9, name: "Shop role" },
+    { id: 9, name: "Shop_role" },
     { id: 10, name: "Laser" },
   ];
   const fetchCategories = useCallback(async () => {
@@ -84,7 +84,7 @@ const ReceivedList = () => {
     async (id) => {
       try {
         const token = decryptData(localStorage.getItem("auth_token"));
-        const response = await axios.get(`${BASE_URL}/group/orders/${id}/`, {
+        const response = await axios.get(`${BASE_URL}/group/order/?order_id${id}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

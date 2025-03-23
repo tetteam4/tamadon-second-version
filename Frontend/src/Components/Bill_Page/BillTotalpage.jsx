@@ -171,18 +171,18 @@ const Bill = ({ order, orders }) => {
           {/* contain */}
 
           <div className="flex justify-center mt-2 items-center ">
-            <div className="border border-gray-400 h-[290px]  w-[800px]  rounded-lg bg-white grid overflow-hidden grid-cols-4  px-4 shadow-md">
-              <div className="mt-3 col-span-1 ">
+            <div className="border border-gray-400 h-[300px]  w-[800px]  rounded-lg bg-white grid overflow-hidden grid-cols-3  px-4 shadow-md">
+              <div className="mt-3 col-span-2 ">
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>مشتری:</p>
-                  <span className=" ">{order && order.customer_name}</span>
+                  <span className=" ">{orders && orders[0].customer_name}</span>
                 </div>
                 <div className=" p-1 gap-x-2 flex items-start">
                   <p>دیزاینر:</p>{" "}
                   {orders &&
                     orders.map((order) => (
                       <span className=" ">
-                        {getDesignerName(order && order.designer)}
+                        {getDesignerName(order && order.designer)},
                       </span>
                     ))}
                 </div>
@@ -190,7 +190,7 @@ const Bill = ({ order, orders }) => {
                   <p>نام سفارش:</p>
                   {orders &&
                     orders.map((order) => (
-                      <span className=" ">{order && order.order_name}</span>
+                      <span className=" ">{order && order.order_name},</span>
                     ))}
                 </div>
                 <div className=" p-1 gap-x-2 flex items-start">
@@ -203,6 +203,7 @@ const Bill = ({ order, orders }) => {
                             (category) => category.id === order.category
                           )?.name) ||
                           "نامشخص"}
+                        ,
                       </span>
                     ))}
                 </div>
@@ -213,6 +214,7 @@ const Bill = ({ order, orders }) => {
                       <span className="">
                         {selectedOrdersPrices[order.id]?.[0]?.price ||
                           "unknown"}
+                        ,
                       </span>
                     ))}
                 </div>
@@ -223,6 +225,7 @@ const Bill = ({ order, orders }) => {
                       <span className="">
                         {selectedOrdersPrices[order.id]?.[0]?.receive_price ||
                           "unknown"}
+                        ,
                       </span>
                     ))}
                 </div>
@@ -233,6 +236,7 @@ const Bill = ({ order, orders }) => {
                       <span className="">
                         {selectedOrdersPrices[order.id]?.[0]?.reminder_price ||
                           "unknown"}
+                        ,
                       </span>
                     ))}
                 </div>
@@ -240,13 +244,12 @@ const Bill = ({ order, orders }) => {
                   <p>کدهای سفارشات :</p>
                   {orders &&
                     orders.map((order) => (
-                      <span className=" ">{order && order.secret_key}</span>
+                      <span className=" ">{order && order.secret_key},</span>
                     ))}
                 </div>
               </div>
-              <div className="mt-3 col-span-1 ">
-                {" "}
-                <div className=" p-1 gap-x-2 flex items-start">
+              <div className="mt-3 col-span-1 flex items-center justify-center">
+                <div className="">
                   <div className="p-1 gap-x-2 flex items-start">
                     <p>جمله :</p>
                     <p>
@@ -293,34 +296,12 @@ const Bill = ({ order, orders }) => {
                             .reduce((total, price) => total + price, 0) // Sum all prices
                         : 0}
                     </p>
-                  </div>{" "}
+                  </div>
                 </div>
               </div>
-              {/* <div className=" col-span-3 grid grid-cols-3 mt-4">
-                {order &&
-                  order.attributes &&
-                  Object.entries(order.attributes).map(
-                    ([key, value], index) => (
-                      <div
-                        key={index}
-                        className="flex justify-center items-center mb-3 gap-x-2 pb-2 last:border-b-0"
-                      >
-                        <span className="font-medium">{key}:</span>
-                        <span>{value || "ندارد"}</span>
-                      </div>
-                    )
-                  )}{" "}
-              </div> */}
             </div>
           </div>
           <div className="flex items-center mt-6 px-8 justify-between  ">
-            <div className="flex items-center justify-center gap-x-2 text-lg">
-              {/* <div className="flex items-center text-lg gap-x-1">
-                <p>کد سفارش :</p>
-
-                <p>{order && order.secret_key}</p>
-              </div> */}
-            </div>
             <div className="flex items-center text-lg gap-x-1">
               <p>تاریخ اخذ :</p>
               <p>

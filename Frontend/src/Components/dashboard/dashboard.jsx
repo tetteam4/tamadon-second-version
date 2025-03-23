@@ -64,6 +64,7 @@ import ModeToggle from "./ModeToggling.jsx";
 import Token from "./TokenOrdeing/Token.jsx";
 import OrderListSuperDesigner from "./designer/orderlistSuperDesigner.jsx";
 import BillTotal from "./Reception/BillTotal.jsx";
+import PTokenOrders from "./Reception/PTokenOrders.jsx";
 const Dashboard = () => {
   // Modal visibility state
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -234,7 +235,7 @@ const Dashboard = () => {
       "OrderListSuperDesigner",
     ],
     0: ["defaultPage", "User Management", "data", "designerChart", "Logout"],
-    2: ["defaultPage", "OrderList", "TokenOrders", "Logout"],
+    2: ["defaultPage", "OrderList", "TokenOrders", "PTokenOrders", "Logout"],
     4: ["defaultPage", "ReceivedList", "Logout"],
     5: ["defaultPage", "deliver", "ReceivedList", "Logout"],
     6: ["defaultPage", "ReceivedList", "Logout"],
@@ -317,6 +318,11 @@ const Dashboard = () => {
       component: "TokenOrders",
       icon: <FaClipboardList />,
       label: "سفارشات گرفته شده",
+    },
+    PTokenOrders: {
+      component: "PTokenOrders",
+      icon: <FaClipboardList />,
+      label: "سفارشات  قبلی",
     },
 
     "Add Order": {
@@ -453,6 +459,8 @@ const Dashboard = () => {
         return <ProcessingList />;
       case "TokenOrders":
         return <TokenOrders />;
+      case "PTokenOrders":
+        return <PTokenOrders />;
       case "data":
         return <ChartGraph />;
       case "Logout":

@@ -294,6 +294,12 @@ const PastOrders = () => {
 
   useEffect(() => {
     fetchOrders();
+    const intervalId = setInterval(() => {
+      fetchOrders();
+    }, 5000); // Call fetchOrder every 5 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   // Fetch orders and categories on mount

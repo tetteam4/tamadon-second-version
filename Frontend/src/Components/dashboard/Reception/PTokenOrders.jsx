@@ -16,7 +16,7 @@ import Swal from "sweetalert2";
 import BillTotalpage from "../../Bill_Page/BillTotalpage";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-const TokenOrders = () => {
+const PTokenOrders = () => {
   const [orders, setOrders] = useState([]);
   const [passedOrder, setPassedOrder] = useState([]);
   const [isModelOpen, setIsModelOpen] = useState(false);
@@ -140,9 +140,8 @@ const TokenOrders = () => {
     try {
       const [ordersResponse, categoriesResponse, usersResponse] =
         await Promise.all([
-          axios.get(`${BASE_URL}/group/order/`, {
+          axios.get(`${BASE_URL}/group/order/Reception`, {
             headers: { Authorization: `Bearer ${token}` },
-            params: { status: "done" },
           }),
           axios.get(`${BASE_URL}/group/categories/`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -156,12 +155,11 @@ const TokenOrders = () => {
       const ordersData = Array.isArray(ordersResponse.data)
         ? ordersResponse.data
         : [];
-      const today = new Date().toISOString().split("T")[0]; // Get today's date in "YYYY-MM-DD" format
 
+      const today = new Date().toISOString().split("T")[0]; // Get today's date in "YYYY-MM-DD" format
       setOrders(
         ordersData.filter((order) => order.created_at.split("T")[0] == today)
       );
-
       setCategories(categoriesResponse.data || []);
       setDesigners(usersResponse.data || []);
     } catch (error) {
@@ -501,4 +499,4 @@ const TokenOrders = () => {
   );
 };
 
-export default TokenOrders;
+export default PTokenOrders;

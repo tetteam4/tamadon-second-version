@@ -79,7 +79,6 @@ const AddOrder = () => {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       };
-
       let url = `${BASE_URL}/group/orders/`;
       const params = new URLSearchParams();
 
@@ -190,20 +189,69 @@ const AddOrder = () => {
 
     const token = decryptData(localStorage.getItem("auth_token"));
     if (!token) {
-      console.error("No authentication token found in localStorage.");
       Swal.fire({
         title: "خطا!",
         text: "توکن احراز هویت یافت نشد.",
         icon: "error",
       });
       setSubmitting(false);
+      return;
+    }
 
+    // Validate required fields
+    if (!form1.order_name) {
+      Swal.fire({
+        title: "خطا!",
+        text: "نام سفارش را وارد کنید.",
+        icon: "warning",
+      });
+      setSubmitting(false);
+      return;
+    }
+
+    if (!form1.customer_name) {
+      Swal.fire({
+        title: "خطا!",
+        text: "نام مشتری را وارد کنید.",
+        icon: "warning",
+      });
+      setSubmitting(false);
+      return;
+    }
+
+    if (!selectedCategoryId) {
+      Swal.fire({
+        title: "خطا!",
+        text: "دسته‌بندی را انتخاب کنید.",
+        icon: "warning",
+      });
+      setSubmitting(false);
+      return;
+    }
+
+    if (!form1.status) {
+      Swal.fire({
+        title: "خطا!",
+        text: "وضعیت سفارش را مشخص کنید.",
+        icon: "warning",
+      });
+      setSubmitting(false);
+      return;
+    }
+
+    if (!form1.description) {
+      Swal.fire({
+        title: "خطا!",
+        text: "توضیحات سفارش را وارد کنید.",
+        icon: "warning",
+      });
+      setSubmitting(false);
       return;
     }
 
     const payload = {
-      order_name: form1.order_name || "",
-      customer_name: form1.customer_name || "",
+      order_name: form1.order_name,
+      customer_name: form1.customer_name,
       designer: decryptData(localStorage.getItem("id")),
       category: selectedCategoryId,
       attributes: formData || {},
@@ -219,20 +267,17 @@ const AddOrder = () => {
 
       let response;
       if (isEditing) {
-        // Update existing order
         response = await axios.put(
           `${BASE_URL}/group/orders/${editingOrderId}/`,
           payload,
           { headers }
         );
       } else {
-        // Create new order
         response = await axios.post(`${BASE_URL}/group/orders/`, payload, {
           headers,
         });
       }
 
-      // Show success alert
       Swal.fire({
         title: "موفق!",
         text: isEditing
@@ -256,8 +301,6 @@ const AddOrder = () => {
       setFormData({});
     } catch (error) {
       console.error("Error submitting form:", error.response || error);
-
-      // Show error alert
       Swal.fire({
         title: "خطا!",
         text: "مشکلی در ثبت سفارش پیش آمد.",

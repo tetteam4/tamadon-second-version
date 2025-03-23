@@ -414,6 +414,7 @@ const OrderList = () => {
         text: "سفارش با موفقیت بروزرسانی شد.",
         confirmButtonText: "تایید",
       });
+      fetchOrders();
     } catch (error) {
       console.error("Error updating the order:", error.response || error);
       const remove = await axios.post(
@@ -470,9 +471,10 @@ const OrderList = () => {
   // Calculate pagination
   const totalPages = Math.ceil(orders.length / postsPerPage);
   const paginatedOrders = Array.isArray(orders)
-    ? [...orders]
-        .reverse()
-        .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage)
+    ? [...orders].slice(
+        (currentPage - 1) * postsPerPage,
+        currentPage * postsPerPage
+      )
     : [];
   return (
     <div className="w-[400px] md:w-[700px]  mt-10 lg:w-[90%] mx-auto  lg:overflow-hidden">
