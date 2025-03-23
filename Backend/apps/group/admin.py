@@ -277,3 +277,4 @@ from .models import AttributeType, AttributeValue
 
 admin.site.register(AttributeType)
 admin.site.register(AttributeValue)
+admin.site.register(ReceptionOrder)

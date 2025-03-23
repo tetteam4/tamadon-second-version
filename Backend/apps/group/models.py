@@ -147,4 +147,5 @@ class ReceptionOrder(models.Model):
                 )
 
     def __str__(self):
-        return self.order.order_name
+       
+        return str(self.price)
