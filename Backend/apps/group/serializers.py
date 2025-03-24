@@ -1,6 +1,5 @@
 import datetime
 from decimal import Decimal
-from weakref import ref
 
 import jdatetime
 from apps.users.models import User
@@ -8,14 +7,7 @@ from django import forms
 from jdatetime import datetime
 from rest_framework import serializers
 
-from .models import (
-    AttributeType,
-    AttributeValue,
-    Category,
-    Order,
-    ReceptionOrder,
-    Stage,
-)
+from .models import AttributeType, AttributeValue, Category, Order, ReceptionOrder
 
 
 class JalaliDateField(serializers.DateField):
@@ -36,48 +28,13 @@ class JalaliDateField(serializers.DateField):
             )
 
 
-from rest_framework import serializers
-
-from .models import Category, Stage
-
-
-class StageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Stage
-        fields = ["stage_type"]
-
-
 class CategorySerializer(serializers.ModelSerializer):
-    stages = serializers.PrimaryKeyRelatedField(queryset=Stage.objects.all(), many=True)
-    # stages = StageSerializer(many=True)
+    stages = serializers.ListField(child=serializers.CharField())
 
     class Meta:
         model = Category
         fields = ["id", "name", "stages", "created_at", "updated_at"]
         ref_name = "GroupCategorySerializer"
-
-    # def create(self, validated_data):
-    #     stages_data = validated_data.pop("stages")
-    #     category = Category.objects.create(**validated_data)
-
-    #     # Fetch the Stage instances based on stage_type values
-    #     stages = Stage.objects.filter(stage_type__in=stages_data)
-
-    #     # Set the selected stages for the category
-    #     category.stages.set(stages)
-    #     return category
-
-    # def update(self, instance, validated_data):
-    #     stages_data = validated_data.pop("stages", [])
-    #     instance.name = validated_data.get("name", instance.name)
-    #     instance.save()
-
-    #     # Fetch the Stage instances based on stage_type values
-    #     stages = Stage.objects.filter(stage_type__in=stages_data)
-
-    #     # Set the selected stages for the category
-    #     instance.stages.set(stages)
-    #     return instance
 
 
 class AttributeTypeSerializer(serializers.ModelSerializer):
@@ -116,7 +73,7 @@ class AttributeValueSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     designer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
-    status = serializers.ChoiceField(choices=Order.STATUS_CHOICES)
+    # status = serializers.ListField(child=serializers.CharField())
 
     class Meta:
         model = Order
@@ -216,8 +173,8 @@ class ReceptionOrderSerializer(serializers.ModelSerializer):
 
 
 class OrderStatusUpdateSerializer(serializers.Serializer):
-    order_id = serializers.IntegerField()  # The ID of the order
-    status = serializers.ChoiceField(choices=Order.STATUS_CHOICES)  # The new status
+    order_id = serializers.IntegerField()  
+    status = serializers.CharField()
 
     def validate_order_id(self, value):
         # Ensure the order exists
@@ -237,7 +194,6 @@ class OrderSerializerByPrice(serializers.ModelSerializer):
 
 
 class ReceptionOrderSerializerByPrice(serializers.ModelSerializer):
-    # Correct way to define PrimaryKeyRelatedField
     order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
     delivery_date = JalaliDateField()
 
@@ -254,12 +210,7 @@ class ReceptionOrderSerializerByPrice(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        # `validated_data` already contains the 'order' as a related instance.
-        order = validated_data.pop(
-            "order"
-        )  # Directly access the related Order instance
-
-        # Now you can create the ReceptionOrder with the provided data
+        order = validated_data.pop("order")
         reception_order = ReceptionOrder.objects.create(
             order=order,
             price=validated_data["price"],

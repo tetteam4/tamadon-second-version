@@ -40,6 +40,7 @@ urlpatterns = [
         CategoryDeleteView.as_view(),
         name="category-delete",
     ),
+    
     path(
         "attribute-values/",
         AttributeValueListCreateView.as_view(),

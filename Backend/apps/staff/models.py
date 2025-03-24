@@ -1,4 +1,5 @@
 from decimal import Decimal
+from statistics import harmonic_mean
 
 from django.db import models
 from django.db.models.signals import post_save
@@ -60,8 +61,10 @@ class Staff(models.Model):
     upsent_day = models.ForeignKey(
         UpsentModel, on_delete=models.PROTECT, related_name="staff_members"
     )
+    
+    
 
-    clear_date = models.DateField()
+    clear_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.position})"

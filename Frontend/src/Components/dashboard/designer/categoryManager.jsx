@@ -254,9 +254,9 @@ const CategoryManagement = () => {
               >
                 <input
                   type="checkbox"
-                  value={role.id}
-                  checked={selectedRoles.includes(role.id)} // ✅ Pre-check existing roles
-                  onChange={(e) => handleRoleChange(role.id, e)}
+                  value={role.name}
+                  checked={selectedRoles.includes(role.name)} // ✅ Pre-check existing roles
+                  onChange={(e) => handleRoleChange(role.name, e)}
                   className="form-checkbox h-5 w-5 text-green-500 focus:ring-green-500"
                 />
                 <span className="text-gray-700">{role.name}</span>
@@ -271,14 +271,14 @@ const CategoryManagement = () => {
                 ترتیب مراحل انتخاب شده:
               </h3>
               <ul className="list-decimal space-y-2 pl-5">
-                {selectedRoles.map((roleId, index) => {
+                {selectedRoles.map((roleId) => {
                   const role = roles.find((r) => r.id === roleId);
                   return (
                     <li
                       key={roleId}
                       className="text-gray-700 bg-gray-100 p-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
                     >
-                      {role?.name}
+                      {roleId}
                     </li>
                   );
                 })}
@@ -330,14 +330,16 @@ const CategoryManagement = () => {
                     {category.name}
                   </td>
                   <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {Array.isArray(category.stages)
-                      ? category.stages
-                          .map((stageId) => {
-                            const role = roles.find((r) => r.id === stageId);
-                            return role ? role.name : "";
-                          })
-                          .join(", ")
-                      : ""}
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {Array.isArray(category.stages) &&
+                      category.stages.length > 0
+                        ? category.stages
+                            .map((stageId) => {
+                              return stageId; // Ensure a valid name is returned
+                            })
+                            .join(", ") // Convert the array to a readable string
+                        : "ندارد"}
+                    </td>
                   </td>
                   <td className="flex items-center justify-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
                     <button

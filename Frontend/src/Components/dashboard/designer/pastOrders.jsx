@@ -1,28 +1,29 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 import jwt_decode from "jwt-decode";
 import CryptoJS from "crypto-js";
-import Swal from "sweetalert2";
 import Pagination from "../../../Utilities/Pagination.jsx";
-import DatePicker from "react-multi-date-picker";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
-import moment from "moment-hijri";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
+import moment from "moment-jalaali";
+import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 
-const OrderList = () => {
-  const [showBill, setShowBill] = useState(false); // State to control Bill rendering
+const PastOrders = () => {
   const [orders, setOrders] = useState([]);
   const [passedOrder, setPassedOrder] = useState([]);
-  const [selectedOrderId, setSelectedOrderId] = useState(null); // Store the orderId of the order to be deleted
-  const [isModelOpen, setIsModelOpen] = useState(false);
   const [isViewModelOpen, setIsViewModelOpen] = useState(false);
-  const [selectedAttribute, setSelectedAttribute] = useState({}); // State for popup data
   const [categories, setCategories] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [users, setUsers] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingData, setEditingData] = useState({});
+
+  // New state variables
+  const [filterDate, setFilterDate] = useState("");
+  const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredOrders, setFilteredOrders] = useState([]); // Orders after filtering/searching/sorting
+  const [selectedAttribute, setSelectedAttribute] = useState(null);
 
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
@@ -44,17 +45,18 @@ const OrderList = () => {
     receive_price: "",
     total_price: "",
     reminder_price: "",
-    deliveryDate: moment(), // Initialize with the current date or a valid date
+    deliveryDate: "",
     order: selectedOrder,
   });
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [id, setId] = useState(decryptData(localStorage.getItem("id")));
   const [token, setToken] = useState(
     decryptData(localStorage.getItem("auth_token"))
   );
   const [refreshingToken, setRefreshingToken] = useState(false); // Prevent multiple refresh requests
-  const [role, setRole] = useState(decryptData(localStorage.getItem("role")));
+
   // Function to get JWT token from localStorage
   const getAuthToken = () => {
     return decryptData(localStorage.getItem("auth_token"));
@@ -106,27 +108,34 @@ const OrderList = () => {
     }
 
     try {
-      const response = await axios.get(`${BASE_URL}/group/order/Reception`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-<<<<<<< HEAD
-      if (response.data.length === 0) {
-        setError("No orders found.");
-        return;
+      let url = `${BASE_URL}/group/orders/`;
+      const params = new URLSearchParams();
+      if (filterDate) {
+        const formattedDate = moment(filterDate).format("YYYY-MM-DD");
+        params.append("created_at", formattedDate);
       }
 
-      const filteredOrders = response.data.filter(
-        (order) => !order.total_price || !order.receive_price
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const filterDesigner = response.data.filter(
+        (order) => order.designer === id
       );
+      const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
 
-      setOrders(filteredOrders);
-=======
-      setOrders(response.data);
->>>>>>> d0cacd95e84979fb6e7e911644aa6d8a27aac645
+      const filterTime = filterDesigner.filter(
+        (order) =>
+          order.created_at && order.created_at.substring(0, 10) !== today
+      );
+      setOrders(filterTime);
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
+    } finally {
+      setLoading(false);
     }
   };
   const handleEdit = (order) => {
@@ -147,13 +156,28 @@ const OrderList = () => {
           },
         }
       );
-      console.log("Data updated successfully");
+
       // Optionally, update the local state or refresh data
       setIsEditing(false);
       handleClosePopup();
-      console.log(editingData);
+
+      // Show success notification with Swal
+      Swal.fire({
+        icon: "success",
+        title: "بروز رسانی موفق",
+        text: "اطلاعات با موفقیت بروز شد.",
+        confirmButtonText: "باشه",
+      });
     } catch (error) {
       console.error("Error updating data:", error);
+
+      // Show error notification with Swal
+      Swal.fire({
+        icon: "error",
+        title: "خطا در بروز رسانی",
+        text: "مشکلی در بروز رسانی اطلاعات رخ داده است.",
+        confirmButtonText: "تلاش مجدد",
+      });
     }
   };
 
@@ -202,36 +226,88 @@ const OrderList = () => {
       setLoading(false);
     }
   };
-  // Fetch orders and categories on mount
+  // Function to handle date filter change
+  const handleFilterDateChange = (e) => {
+    setFilterDate(e.target.value);
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder((prevSortOrder) => (prevSortOrder === "asc" ? "desc" : "asc"));
+  };
+
+  const sortOrders = (ordersToSort, sortDirection) => {
+    // Create a copy to avoid mutating the original array
+    const sortedOrders = [...ordersToSort];
+
+    sortedOrders.sort((a, b) => {
+      const dateA = new Date(a.created_at || 0);
+      const dateB = new Date(b.created_at || 0);
+
+      if (sortDirection === "asc") {
+        return dateA - dateB;
+      } else {
+        return dateB - dateA;
+      }
+    });
+
+    return sortedOrders;
+  };
+
+  // Apply sorting, filtering, and searching
+  useEffect(() => {
+    let results = [...orders]; // Start with all orders (copy to avoid mutation)
+
+    // 1. Date Filter
+    if (filterDate) {
+      // Convert to Jalali and compare
+      const formattedDate = moment(filterDate).format("jYYYY-jMM-jDD");
+      results = results.filter((order) => {
+        const orderDateJalaali = moment(order.created_at).format(
+          "jYYYY-jMM-jDD"
+        );
+        return orderDateJalaali === formattedDate;
+      });
+    }
+
+    // 2. Search Filter
+    if (searchTerm) {
+      results = results.filter((order) => {
+        const customerName = order.customer_name || "";
+        const orderName = order.order_name || "";
+        const categoryName =
+          categories.find((category) => category.id === order.category)?.name ||
+          "";
+
+        return (
+          customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+    }
+
+    // 3. Sorting
+    results = sortOrders(results, sortOrder);
+
+    setFilteredOrders(results);
+    setCurrentPage(1); // Reset pagination
+  }, [orders, filterDate, searchTerm, sortOrder, categories]);
+
   useEffect(() => {
     fetchOrders();
+    const intervalId = setInterval(() => {
+      fetchOrders();
+    }, 5000); // Call fetchOrder every 5 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // Fetch orders and categories on mount
+  useEffect(() => {
     fetchCategories();
     fetchUsers();
   }, [token]); // Dependency array now includes token to refetch when token changes
-
-  // Handle "check" button click (open modal)
-  const handleCheckClick = (order) => {
-    setSelectedOrder(order.id);
-    const category = categories.find((cat) => cat.id === order.category_id);
-    const initialPrice =
-      category && category.default_price !== undefined
-        ? category.default_price
-        : "";
-
-    setModalData({
-      receive_price: order.receive_price || "",
-      total_price: order.total_price || "",
-      reminder_price: order.reminder_price || "", // Show reminder_price here
-      deliveryDate: "",
-      order: order || null,
-      order_name: order.order_name,
-      customer_name: order.customer_name,
-      description: order.description || "",
-      category_name: category ? category.name : "",
-    });
-
-    setShowModal(true);
-  };
 
   // Handle delete button click
   const handleDelete = async (orderId) => {
@@ -276,8 +352,6 @@ const OrderList = () => {
 
       console.log("Order deleted:", response.data);
       setOrders(orders.filter((order) => order.id !== orderId)); // Remove deleted order
-      setIsModelOpen(false); // Close modal
-
       // Show success message
       Swal.fire({
         title: "حذف شد!",
@@ -303,74 +377,19 @@ const OrderList = () => {
     const { name, value } = e.target;
     setModalData((prevData) => ({ ...prevData, [name]: value }));
   };
-  const handleDateChange = (date) => {
-    // Function to convert Persian characters to English characters
-    const convertPersianToEnglish = (str) => {
-      // Replace Persian digits (۰-۹) with English digits (0-9)
-      return str.replace(
-        /[۰-۹]/g,
-        (d) => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)]
-      );
-    };
-
-    // Example if 'date' has a 'format' method like the Jalali date object
-    if (date && date.format) {
-      const formattedDate = date.format("YYYY-MM-DD"); // Format the date as YYYY-MM-DD
-
-      // Convert Persian digits to English digits in the formatted date
-      const convertedDate = convertPersianToEnglish(formattedDate);
-
-      // Store the converted date
-      setModalData((prevData) => ({
-        ...prevData,
-        deliveryDate: convertedDate, // Store the formatted and converted date
-      }));
-    } else {
-      console.log("Invalid or Empty Date:", date);
-      setModalData((prevData) => ({
-        ...prevData,
-        deliveryDate: null, // Handle invalid date
-      }));
-    }
-  };
 
   // Handle form submission in modal (update order)
-  const handleModalSubmit = async () => {
-    if (!modalData.total_price || !modalData.receive_price) {
-      Swal.fire({
-        icon: "error",
-        title: "خطا",
-        text: "لطفا قیمت و قیمت دریافتی را وارد کنید.",
-        confirmButtonText: "متوجه شدم",
-      });
-      return;
-    }
-    // Check if modalData.deliveryDate is a moment object
-    const formattedDate = modalData.deliveryDate
-      ? typeof modalData.deliveryDate === "string" &&
-        moment(modalData.deliveryDate, "jYYYY/jMM/jDD", true).isValid() // Check if it's a valid Persian date string
-        ? moment(modalData.deliveryDate, "jYYYY/jMM/jDD") // Parse using the correct format
-            .format("iYYYY-iMM-iDD")
-            .replace(/[/]/g, "-")
-            .replace(/[۰-۹]/g, (d) => "0123456789"["۰-۹".indexOf(d)] || d) // Replace Persian numerals
-        : modalData.deliveryDate instanceof Date &&
-          !isNaN(modalData.deliveryDate) // If it's a valid Date object
-        ? moment(modalData.deliveryDate) // Parse using Date object
-            .format("iYYYY-iMM-iDD")
-            .replace(/[/]/g, "-")
-            .replace(/[۰-۹]/g, (d) => "0123456789"["۰-۹".indexOf(d)] || d)
-        : null // Return null if invalid date
-      : null; // If no date exists, return null
 
+  const handleModalSubmit = async () => {
     const updatedOrder = {
-      price: convertToEnglishNumbers(modalData.total_price) || null,
-      receive_price: convertToEnglishNumbers(modalData.receive_price) || null,
-      delivery_date: modalData.deliveryDate, // This should now be in Hijri format
+      price: modalData.total_price || null,
+      receive_price: modalData.receive_price || null,
+      delivery_date: modalData.deliveryDate || null,
       order: selectedOrder || null,
     };
-    let token = getAuthToken();
-    const headers = { Authorization: `Bearer ${token}` };
+
     try {
+      let token = getAuthToken();
       if (!token) {
         throw new Error("توکن احراز هویت وجود ندارد.");
       }
@@ -378,42 +397,24 @@ const OrderList = () => {
       if (isTokenExpired(token)) {
         token = await refreshAuthToken();
         if (!token) {
-          throw new Error("بروزرسانی توکن با شکست مواجه شد.");
+          throw new Error("بروز رسانی توکن با شکست مواجه شد.");
         }
       }
-      const category = categories.find(
-        (category) => category.id == modalData.order.category
-      );
-      const statusStage = category?.stages; // Get stages from the found category
-      let nextStatus;
-      if (Array.isArray(statusStage)) {
-        const currentIndex = statusStage.indexOf(modalData.order.status);
-        if (currentIndex) {
-          // Assign the next index status
-          nextStatus = statusStage[currentIndex + 1];
-        } else {
-          console.log(
-            "The current status is the last in the stages array or does not exist."
-          );
-        }
-      } else {
-        console.log("Stages not found or not an array.");
-      }
-      // console.log(nextStatus);
-      // Update order status
-      console.log(nextStatus, selectedOrder);
 
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // Update order status
       await axios.post(
         `${BASE_URL}/group/update-order-status/`,
-        { order_id: selectedOrder, status: nextStatus },
+        { order_id: selectedOrder, status: "taken" },
         { headers }
       );
 
-      // const response = await axios.post(
-      //   `${BASE_URL}/group/reception-orders/`,
-      //   updatedOrder,
-      //   { headers }
-      // );
+      // Update the order details
+      await axios.post(`${BASE_URL}/group/reception-orders/`, updatedOrder, {
+        headers,
+      });
+
       // Close the modal and update orders list
       setShowModal(false);
       setOrders((prevOrders) =>
@@ -427,13 +428,10 @@ const OrderList = () => {
         text: "سفارش با موفقیت بروزرسانی شد.",
         confirmButtonText: "تایید",
       });
+
+      console.log("Order updated successfully.");
     } catch (error) {
-      console.error("Error updating the order:", error.response || error);
-      const remove = await axios.post(
-        `${BASE_URL}/group/update-order-status/`,
-        { order_id: selectedOrder, status: "pending" },
-        { headers }
-      );
+      console.error("Error updating the order:", error);
 
       let errorMessage = "خطا در به‌روزرسانی سفارش. لطفاً دوباره تلاش کنید.";
 
@@ -457,13 +455,6 @@ const OrderList = () => {
     }
   };
 
-  const convertToEnglishNumbers = (num) => {
-    if (!num) return num;
-    return num
-      .toString()
-      .replace(/[۰-۹]/g, (d) => "0123456789"[+"۰۱۲۳۴۵۶۷۸۹".indexOf(d)]);
-  };
-
   const handleShowAttribute = (order) => {
     setPassedOrder(order);
     // Convert JSON object to an array
@@ -480,33 +471,70 @@ const OrderList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 15;
 
+  // Format date in Jalaali calendar
+  const formatDate = (date) => {
+    if (!date) return "N/A"; // Handle cases where the date is null/undefined
+    return moment(date).format("jYYYY/jMM/jDD");
+  };
+
   // Calculate pagination
-  const totalPages = Math.ceil(orders.length / postsPerPage);
-  const paginatedOrders = Array.isArray(orders)
-    ? [...orders]
-        .reverse()
-        .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage)
-    : [];
+  const totalPages = Math.ceil(filteredOrders.length / postsPerPage);
+
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * postsPerPage,
+    currentPage * postsPerPage
+  );
+  // Function to handle search change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   return (
     <div className="w-[400px] md:w-[700px]  mt-10 lg:w-[90%] mx-auto  lg:overflow-hidden">
       <h2 className="md:text-2xl text-base font-Ray_black text-center font-bold mb-4">
         لیست سفارشات
       </h2>
 
-      {loading && (
-        <p className="text-center font-semibold ">در حال بارگذاری...</p>
-      )}
+      {loading && <p>در حال بارگذاری...</p>}
+      <div className="flex items-center justify-between mb-4">
+        {/* Search Input */}
+        <div className="flex items-center gap-x-3">
+          <label
+            htmlFor="customerSearch"
+            className="block text-sm font-semibold"
+          >
+            جستجوی مشتری:
+          </label>
+          <input
+            type="text"
+            placeholder="جستجو..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="shadow appearance-none border rounded-md w-56 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+          <button
+            onClick={() => setSearchTerm("")}
+            className="focus:outline-none secondry-btn"
+          >
+            پاک کردن
+          </button>
+        </div>
+        {/* Sort Button */}
+        <button
+          onClick={toggleSortOrder}
+          className="flex items-center gap-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-00 focus:outline-none"
+        >
+          مرتب‌سازی بر اساس تاریخ
+          {sortOrder === "asc" ? (
+            <FaSortAlphaUp className="w-4 h-4" />
+          ) : (
+            <FaSortAlphaDown className="w-4 h-4" />
+          )}
+        </button>
+      </div>
 
       <center>
         <div className=" overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg md:w-full">
-          <div className="flex gap-x-4 items-center justify-center bg-white  p-2  hover:shadow-lg transition-shadow duration-300">
-            <span className="text-lg font-semibold text-gray-700">
-              تعداد سفارشات جدید :
-            </span>
-            <span className="text-2xl font-bold text-green">
-              {orders.length}
-            </span>
-          </div>
           <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
             <thead className="">
               <tr className="bg-green text-gray-100 text-center">
@@ -522,8 +550,9 @@ const OrderList = () => {
                 <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                   طراح
                 </th>
+
                 <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
-                  اقدامات
+                  تاریخ ایجاد
                 </th>
                 <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                   جزئیات
@@ -531,7 +560,7 @@ const OrderList = () => {
               </tr>
             </thead>
             <tbody>
-              {orders.length > 0 ? (
+              {filteredOrders.length > 0 ? (
                 paginatedOrders.map((order) => (
                   <tr
                     key={order.id}
@@ -554,19 +583,8 @@ const OrderList = () => {
                           ?.first_name
                       }
                     </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 gap-x-5 flex justify-center ">
-                      <button
-                        onClick={() => handleCheckClick(order)}
-                        className="bg-green h-8 w-8 text-white p-1 rounded"
-                      >
-                        ✔
-                      </button>
-                      <button
-                        onClick={() => handleDelete(order.id)}
-                        className="bg-red-500 text-white p-1 h-8 w-8 rounded hover:bg-red-600"
-                      >
-                        ✖
-                      </button>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {formatDate(order.created_at)}
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700">
                       <button
@@ -576,6 +594,14 @@ const OrderList = () => {
                         className="secondry-btn"
                       >
                         نمایش
+                      </button>{" "}
+                      <button
+                        onClick={() => {
+                          handleDelete(order.id);
+                        }}
+                        className=" bg-red-600 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300"
+                      >
+                        حذف
                       </button>
                     </td>
                   </tr>
@@ -583,7 +609,7 @@ const OrderList = () => {
               ) : (
                 <tr>
                   <td colSpan="5" className="border p-2 text-center">
-                    هیچ سفارشی بدون قیمت پیدا نشد
+                    هیچ سفارشی پیدا نشد
                   </td>
                 </tr>
               )}
@@ -633,25 +659,25 @@ const OrderList = () => {
                 />
               </div>
 
-              <div className="mb-4 w-full">
+              <div className="mb-4">
                 <label className="block mb-1 font-medium">تاریخ تحویل:</label>
-                <DatePicker
-                  style={{ width: "500px" }}
+                <input
+                  type="date"
+                  name="deliveryDate"
                   value={modalData.deliveryDate}
-                  onChange={handleDateChange}
-                  calendar={persian} // Use Hijri Shamsi (Jalali) Calendar
-                  locale={persian_fa} // Persian language support
-                  inputClass=" border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
+                  onChange={handleModalChange}
+                  className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
+                  required
                 />
               </div>
             </div>
-            <div className="flex justify-center pb-6 items-center gap-5">
+            <div className="flex justify-center pb-6 items-center gap-2">
               <button onClick={handleModalSubmit} className="secondry-btn">
                 تایید
               </button>
               <button
                 onClick={() => setShowModal(false)}
-                className="tertiary-btn"
+                className="bg-red-500 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300 hover:bg-red-600"
               >
                 انصراف
               </button>
@@ -701,7 +727,7 @@ const OrderList = () => {
                   handleClosePopup();
                   setIsEditing(false);
                 }}
-                className="tertiary-btn"
+                className="bg-red-600 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300 hover:bg-red-700"
               >
                 بستن
               </button>
@@ -713,7 +739,7 @@ const OrderList = () => {
               ) : (
                 <button
                   onClick={() => handleEdit(passedOrder)}
-                  className="bg-update text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300 hover:bg-yellow-700"
+                  className="secondry-btn"
                 >
                   ویرایش
                 </button>
@@ -726,4 +752,4 @@ const OrderList = () => {
   );
 };
 
-export default OrderList;
+export default PastOrders;

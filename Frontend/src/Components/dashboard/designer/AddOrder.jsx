@@ -52,11 +52,13 @@ const AddOrder = () => {
     order_name: "",
     designer: decryptData(localStorage.getItem("email")),
     category: "",
-    status: 2,
+    status: "Reception",
+    description: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editingOrderId, setEditingOrderId] = useState(null);
   const [id, setId] = useState(decryptData(localStorage.getItem("id")));
+
   const handleForm1InputChange = (e) => {
     const { name, value } = e.target;
     setForm1((prevState) => ({
@@ -81,20 +83,6 @@ const AddOrder = () => {
       let url = `${BASE_URL}/group/orders/`;
       const params = new URLSearchParams();
 
-      if (filterDate) {
-        // Format the date to YYYY-MM-DD
-        const formattedDate = moment(filterDate).format("YYYY-MM-DD");
-        params.append("created_at", formattedDate); //  Use the correct parameter name if different
-
-        // Alternative:  If backend expects a range:
-        // params.append("created_at_gte", formattedDate);
-        // params.append("created_at_lte", formattedDate); // You might need to add one day to the end date
-      }
-      // Remove backend search
-      // if (customerSearchTerm) {
-      //   params.append("customer_name__icontains", customerSearchTerm);
-      // }
-
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
@@ -102,12 +90,10 @@ const AddOrder = () => {
       const response = await axios.get(url, {
         headers,
       });
-      // Apply date filtering on the frontend if backend filtering is not working
-      // const datanew=response.data.filter((order)=>order.created)
+
       let filteredOrders = response.data.filter(
         (order) => order.designer == id
       );
-
       if (filterDate) {
         const formattedFilterDate = moment(filterDate).format("YYYY-MM-DD");
         filteredOrders = filteredOrders.filter((order) => {
@@ -223,7 +209,7 @@ const AddOrder = () => {
       category: selectedCategoryId,
       attributes: formData || {},
       status: form1.status,
-      description: "new new",
+      description: form1.description,
     };
 
     try {
@@ -265,7 +251,8 @@ const AddOrder = () => {
         order_name: "",
         designer: decryptData(localStorage.getItem("email")),
         category: "",
-        status: 2,
+        description: "",
+        status: "Reception",
       });
       setFormData({});
     } catch (error) {
@@ -408,12 +395,23 @@ const AddOrder = () => {
         );
       });
       setSearchResults(results);
-      setCurrentPage(1); // Reset to first page on new search
+      setCurrentPage(1);
     } else {
       setSearchResults([]);
     }
   }, [searchTerm, orders, categories]);
 
+  // Function to filter orders for today
+  const getOrdersForToday = () => {
+    const today = moment().format("YYYY-MM-DD"); // Get today's date in YYYY-MM-DD format
+    return sortedOrders.filter((order) => {
+      const orderDate = moment(order.created_at).format("YYYY-MM-DD"); // Format order's created_at date
+      return orderDate === today; // Compare if the order date is today
+    });
+  };
+  const todayOrders = getOrdersForToday();
+  const dataToPaginateToday =
+    searchResults.length > 0 ? searchResults : todayOrders;
   return (
     <div className="py-10 bg-gray-200 w-full min-h-[91vh] px-5">
       <div className="flex items-center justify-center py-3">
@@ -470,22 +468,21 @@ const AddOrder = () => {
                 {/* Order Name */}
                 <div className="mt-4">
                   <label
-                    htmlFor="order_name"
+                    htmlFor="description"
                     className="block mb-2 text-gray-700"
                   >
                     توضیحات سفارش
                   </label>
                   <textarea
-                    id="order_name"
-                    name="order_name"
-                    value={form1.order_name}
-                    onChange={handleForm1InputChange}
-                    maxLength={3}
-                    className="w-full px-3 py-2 border rounded min-h-[100px] max-h-[100px] resize-y focus:outline-none  bg-gray-200 text-black"
+                    id="description"
+                    name="description"
+                    value={form1.description} // should reflect the current state correctly
+                    onChange={handleForm1InputChange} // this updates the state when the user types
+                    // maxLength={3} // ensure this is appropriate for your use case
+                    className="w-full px-3 py-2 border rounded min-h-[100px] max-h-[100px] resize-y focus:outline-none bg-gray-200 text-black"
                     placeholder=" "
                   />
                 </div>
-
                 {/* Category Selection */}
                 <div className="mb-4 mt-3">
                   <label className="block text-lg font-medium mb-2 text-gray-700">
@@ -775,7 +772,7 @@ const AddOrder = () => {
             </tr>
           </thead>
           <tbody>
-            {paginatedOrders.map((order) => (
+            {dataToPaginateToday.map((order) => (
               <tr
                 key={order.id}
                 className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"

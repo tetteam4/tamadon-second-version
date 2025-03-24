@@ -1,5 +1,4 @@
 import secrets
-import uuid
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -7,45 +6,10 @@ from django.db import models
 from django_jalali.db import models as jmodels
 
 
-class Stage(models.Model):
-    Admin = 0
-    Designer = 1
-    Reception = 2
-    SuperDesigner = 3
-    Printer = 4
-    Delivered = 5
-    Digital = 6
-    Bill = 7
-    Chaspak = 8
-    Shop_role = 9
-    Laser = 10
-    Complete = 11
-
-    STAGE_CHOICES = (
-        (Designer, "Designer"),
-        (Reception, "Reception"),
-        (SuperDesigner, "SuperDesigner"),
-        (Admin, "Admin"),
-        (Printer, "Printer"),
-        (Delivered, "Delivered"),
-        (Digital, "Digital"),
-        (Bill, "Bill"),
-        (Chaspak, "Chaspak"),
-        (Shop_role, "Shop role"),
-        (Laser, "Laser"),
-        (Complete, "Complete"),
-    )
-
-    stage_type = models.IntegerField(choices=STAGE_CHOICES)
-
-    def __str__(self):
-        return str(self.stage_type)
-
-
 class Category(models.Model):
 
     name = models.CharField(max_length=255)
-    stages = models.ManyToManyField(Stage, related_name="categories")
+    stages = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -124,33 +88,6 @@ def generate_secret_key():
 
 
 class Order(models.Model):
-    DEFAULT_STATUS = "Designer"
-    Admin = 0
-    Designer = 1
-    Reception = 2
-    SuperDesigner = 3
-    Printer = 4
-    Delivered = 5
-    Digital = 6
-    Bill = 7
-    Chaspak = 8
-    Shop_role = 9
-    Laser = 10
-    Complete = 11
-    STATUS_CHOICES = (
-        (Designer, DEFAULT_STATUS),
-        (Reception, "Reception"),
-        (SuperDesigner, "SuperDesigner"),
-        (Admin, "Admin"),
-        (Printer, "Printer"),
-        (Delivered, "Delivered"),
-        (Digital, "Digital"),
-        (Bill, "Bill"),
-        (Chaspak, "Chaspak"),
-        (Shop_role, "Shop role"),
-        (Laser, "Laser"),
-        (Complete, "Complete"),
-    )
     User = get_user_model()
     order_name = models.CharField(max_length=255)
     customer_name = models.CharField(max_length=255)
@@ -171,9 +108,7 @@ class Order(models.Model):
     )
 
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    status = models.CharField(
-        max_length=50, choices=STATUS_CHOICES, default=DEFAULT_STATUS
-    )
+    status = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     attributes = models.JSONField(default=dict, null=True, blank=True)

@@ -21,7 +21,6 @@ urlpatterns = [
         views.StaffRetrieveUpdateDestroyView.as_view(),
         name="staff-detail",
     ),
-    # Salary URLs
     path("salaries/", views.SalaryListCreateView.as_view(), name="salary-list-create"),
     path(
         "salaries/<int:pk>/",

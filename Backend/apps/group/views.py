@@ -48,32 +48,6 @@ class CategoryDeleteView(generics.DestroyAPIView):
     permission_classes = [AllowAny]
 
 
-class CategoryUpdateView(APIView):
-    permission_classes = [AllowAny]
-
-    def put(self, request, pk, *args, **kwargs):
-        try:
-            # Fetch the category object by its primary key (pk)
-            category = Category.objects.get(pk=pk)
-        except Category.DoesNotExist:
-            raise NotFound(
-                detail="Category not found."
-            )  # If category doesn't exist, raise a 404 error
-
-        # Initialize the serializer with the category instance and request data
-        serializer = CategorySerializer(category, data=request.data)
-
-        # Check if the serializer is valid
-        if serializer.is_valid():
-            category = serializer.save()  # Save the updated category
-            return Response(
-                serializer.data, status=status.HTTP_200_OK
-            )  # Return the updated data with HTTP 200
-
-        # If validation fails, return the errors with HTTP 400
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class AttributeValueListCreateView(APIView):
     permission_classes = [AllowAny]
 
@@ -260,41 +234,27 @@ class OrderListView(generics.ListAPIView):
     serializer_class = OrderSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    search_fields = ["secret_key"]  # Filter by secret_key field
+    search_fields = ["secret_key"]
 
     def get_queryset(self):
         queryset = Order.objects.all()
 
-        # Get the status parameter (status ID) from the URL kwargs (if available)
+        # Get the status parameter from the URL kwargs (if available)
         status_param = self.kwargs.get("status")
 
         if status_param:
-            try:
-
-                status_id = int(status_param)
-            except ValueError:
-                return Response(
-                    {"message": "Invalid status ID."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            # Check if the status ID exists in the STATUS_CHOICES
-            valid_statuses = dict(Order.STATUS_CHOICES).keys()
-            if status_id not in valid_statuses:
-                return Response(
-                    {"message": "Invalid status ID."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            # Filter by status ID (not the status string)
-            queryset = queryset.filter(status=status_id)
+            # Filter orders where the status contains the given status_param (e.g., "Printer")
+            # Use `icontains` for case-insensitive partial matches
+            queryset = queryset.filter(status__icontains=status_param)
         else:
-            queryset = queryset = queryset.exclude(status__in=[1, 2])
+            # If no status param is given, you can add default filtering if needed
+            queryset = queryset.exclude(
+                Q(status__icontains="Reception") | Q(status__icontains="Designer")
+            )
 
         return queryset
 
     def list(self, request, *args, **kwargs):
-        # Get the filtered queryset
         queryset = self.get_queryset()
 
         # Handle search parameter if it exists
@@ -310,15 +270,14 @@ class OrderListView(generics.ListAPIView):
         # Return the serialized data if found
         serializer = self.get_serializer(queryset, many=True)
 
-        # Provide appropriate response if the queryset is empty
         if queryset.exists():
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             status_param = self.kwargs.get("status")
             message = (
-                f"Order with status ID '{status_param}' not found."
+                f"Order with status '{status_param}' not found."
                 if status_param
-                else "No orders found except those with 'Designer' status."
+                else "order not found ."
             )
             return Response({"message": message}, status=status.HTTP_200_OK)
 
@@ -379,6 +338,7 @@ class OrderStatusUpdateView(APIView):
         if serializer.is_valid():
             order_id = serializer.validated_data["order_id"]
             status_value = serializer.validated_data["status"]
+        
             order = Order.objects.get(id=order_id)
             order.status = status_value
             order.save()
@@ -439,7 +399,6 @@ class OrderListByCategoryView(generics.ListAPIView):
 
     def get_queryset(self):
         category_id = self.kwargs["category_id"]
-        # Filter orders by category_id
         return Order.objects.filter(category_id=category_id)
 
 
