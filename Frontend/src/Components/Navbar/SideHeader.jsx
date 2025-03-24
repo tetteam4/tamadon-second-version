@@ -4,6 +4,7 @@ import { FaXmark } from "react-icons/fa6";
 import logo from "../../../public/Tamadon.png";
 import { MdWbSunny, MdNightlight } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
+import { LuLogIn } from "react-icons/lu";
 import ResNavbar from "./ResNavbar";
 import { Link } from "react-router-dom";
 import CryptoJS from "crypto-js";
@@ -133,7 +134,7 @@ const SideHeader = ({ navItems }) => {
             >
               <img
                 src="/Tamadon.png"
-                alt="Tamadon logo"
+                alt="logo"
                 className=" hidden   lg:flex h-[90px] md:h-[120px] p-2 w-auto"
               />
             </Link>
@@ -271,13 +272,7 @@ const SideHeader = ({ navItems }) => {
                             processing: "#9C27B0",
                           }[incommingData[0].status] || "#9E9E9E",
                       }}
-                    >
-                      {{
-                        taken: "گرفته شده",
-                        pending: "در انتظار",
-                        done: "انجام شده",
-                        processing: "در حال پروسس",
-                      }[incommingData[0].status] || "نامشخص"}
+                    >{incommingData[0].status}
                     </span>
                   </div>
                   <div className="bg-gray-100 p-3 rounded-lg">

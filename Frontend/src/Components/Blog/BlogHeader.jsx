@@ -55,6 +55,7 @@ const BlogHeader = () => {
           <Swiper
             modules={[Navigation, Pagination, Autoplay]}
             autoplay={{ delay: 3000 }}
+            loop={true}
             spaceBetween={30}
             slidesPerView={1}
             navigation={{

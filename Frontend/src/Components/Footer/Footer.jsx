@@ -1,5 +1,6 @@
 import React from "react";
 
+import { FaInstagram, FaLinkedin, FaTwitter, FaFacebook } from "react-icons/fa";
 import { IoMdArrowDropleft } from "react-icons/io";
 import { Link } from "react-router-dom";
 import HeadFooter from "./HeadFooter";
@@ -26,7 +27,7 @@ function Footer() {
           <div className="absolute left-1/2 transform -translate-x-1/2 -top-5 flex gap-x-6 bg-white dark:bg-tertiary px-4 py-2 rounded-full text-gray-400 border-gray-100 border-l-2 border-r-2">
             {[
               {
-                url: "https://www.facebook.com/yourfacebookpage",
+                url: "https://www.facebook.com",
                 icon: "/Facebook-03-01-01.png",
                 label: "facebook",
               },
@@ -59,7 +60,7 @@ function Footer() {
           <div className="flex bg-white rounded-lg md:bg-transparent items-center col-span-1  justify-center gap-5 md:gap-5 lg:gap-3">
             <div className="bg-white p-5 rounded-md ">
               <img
-                src="/Tamadon.png"
+                src="Tamadon.png"
                 alt="logo"
                 className="lg:h-[150px] h-[70px] md:h-[100px] w-auto"
               />
@@ -113,9 +114,9 @@ function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 text-center">
-          <hr className="w-3/5 mx-auto border-t border-gray-600" />
-          <p className="pt-4 text-sm text-gray-400 leading-relaxed">
+        <div className="mt-8 text-center  ">
+          <hr className="max-w-[60%] mx-auto border-gray-600" />
+          <p className="pt-4 text-gray-400">
             &copy; {new Date().getFullYear()} TET. تمامی حقوق محفوظ است.
           </p>
         </div>

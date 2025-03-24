@@ -28,11 +28,14 @@ const ReceivedList = () => {
   );
 
   const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [selectedOrderId, setSelectedOrderId] = useState();
+  const [orderPrice, setOrderprice] = useState({});
   const [userRole, setUserRole] = useState(
     decryptData(localStorage.getItem("role"))
   );
@@ -51,6 +54,18 @@ const ReceivedList = () => {
     { id: 9, name: "Shop_role" },
     { id: 10, name: "Laser" },
   ];
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/users/api/users`);
+      setUsers(response.data);
+    } catch (error) {
+      setError("Error fetching categories");
+      console.error("Error fetching categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/categories/`);
@@ -61,6 +76,7 @@ const ReceivedList = () => {
   }, [BASE_URL]);
 
   useEffect(() => {
+    fetchUsers();
     fetchCategories();
   }, []);
   const getTakenList = useCallback(async () => {
@@ -84,14 +100,17 @@ const ReceivedList = () => {
     async (id) => {
       try {
         const token = decryptData(localStorage.getItem("auth_token"));
-        const response = await axios.get(`${BASE_URL}/group/order/?order_id${id}/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        setOrderDetails(response.data);
-        setIsModelOpen(true);
+        const response = await axios.get(
+          `${BASE_URL}/group/order-by-price/?order=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setOrderprice(response.data);
+        setIsModelOpen(!isModelOpen);
       } catch (err) {
         console.error("Error fetching order details:", err);
       }
@@ -99,6 +118,7 @@ const ReceivedList = () => {
     [BASE_URL, decryptData]
   );
   const convertToHijriShamsi = (dateString) => {
+    console.log(dateString);
     // Parse the date string
     const date = new Date(dateString);
 
@@ -231,32 +251,6 @@ const ReceivedList = () => {
     };
   }, [decryptData]);
 
-  const fetchOrder = async (id) => {
-    console.log(id);
-
-    const token = decryptData(localStorage.getItem("auth_token"));
-    try {
-      const response = await axios.get(
-        `${BASE_URL}/group/order-by-price/?order=${id}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      // Access data directly from the response
-      const data = response.data;
-
-      // Assuming the response is an array and you want the first item
-      if (Array.isArray(data) && data.length > 0) {
-        setDeliveryDate(data[0].delivery_date);
-      }
-    } catch (error) {
-      console.error("Error fetching order data:", error);
-    }
-  };
-
   const filteredOrders = useMemo(() => {
     if (!Array.isArray(orders)) return []; // Ensure it’s an array
 
@@ -333,6 +327,9 @@ const ReceivedList = () => {
                 نام سفارش
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                طراح
+              </th>
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 دسته بندی
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
@@ -342,46 +339,65 @@ const ReceivedList = () => {
           </thead>
           <tbody>
             {dataToPaginate.length > 0 ? (
-              paginatedOrders.map((order, index) => (
-                <tr
-                  key={order.id}
-                  className={`text-center font-bold border-b border-gray-200 ${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  } hover:bg-gray-100 transition-all`}
-                >
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {order.customer_name}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {order.order_name}
-                  </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    {categories.find(
-                      (category) => category.id === order.category
-                    )?.name || "دسته‌بندی نامشخص"}
-                  </td>
-                  <td className="border-gray-300 px-6 flex items-center gap-x-5 justify-center text-gray-700">
-                    <button
-                      onClick={() => handleAdd(order)}
-                      className="secondry-btn"
-                    >
-                      تایید تکمیلی
-                    </button>
-                    <button
-                      onClick={() => {
-                        getDetails(order.id);
-                        fetchOrder(order.id);
-                      }}
-                      className="secondry-btn"
-                    >
-                      جزئیات
-                    </button>
-                  </td>
-                </tr>
-              ))
+              paginatedOrders.map((order, index) => {
+                const designer = users.find(
+                  (user) => user.id === order.designer
+                );
+                const designerName = designer
+                  ? `${designer.first_name || ""} ${
+                      designer.last_name || ""
+                    }`.trim()
+                  : "Unknown Designer";
+                const categoryName =
+                  categories.find((category) => category.id === order.category)
+                    ?.name || "دسته‌بندی نامشخص";
+
+                return (
+                  <tr
+                    key={order.id}
+                    className={`text-center font-bold border-b border-gray-200 ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-gray-100 transition-all`}
+                  >
+                    <td className="border border-gray-300 px-6 py-2 text-gray-700">
+                      {order.customer_name}
+                    </td>
+                    <td className="border border-gray-300 px-6 py-2 text-gray-700">
+                      {order.order_name}
+                    </td>
+                    <td className="border border-gray-300 px-6 py-2 text-gray-700">
+                      {designerName}
+                    </td>
+                    <td className="border border-gray-300 px-6 py-2 text-gray-700">
+                      {categoryName}
+                    </td>
+                    <td className="border border-gray-300 px-6 py-2 flex items-center gap-x-5 justify-center text-gray-700">
+                      <button
+                        onClick={() => handleAdd(order)}
+                        className="secondry-btn"
+                      >
+                        تایید تکمیلی
+                      </button>
+                      <button
+                        onClick={() => {
+                          setOrderDetails(order);
+                          getDetails(order.id);
+                          setSelectedOrderId(order.id);
+                        }}
+                        className="secondry-btn"
+                      >
+                        جزئیات
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
-                <td colSpan="4" className="border p-2 text-center">
+                <td
+                  colSpan="5"
+                  className="border p-2 text-center text-gray-600"
+                >
                   هیچ سفارشی برای وضعیت "{searchTerm ? "جستجو" : "در انتظار"}"
                   پیدا نشد.
                 </td>
@@ -423,7 +439,9 @@ const ReceivedList = () => {
               </div>
               <div className="flex justify-between items-center border-b border-gray-300 pb-2">
                 <span className="font-medium text-gray-700">تاریخ تحویل</span>
-                <span className="text-gray-900">{deliverDate}</span>
+                <span className="text-gray-900">
+                  {orderPrice.delivery_date}
+                </span>
               </div>
             </div>
             <div className="flex justify-center mt-5 items-center w-full">

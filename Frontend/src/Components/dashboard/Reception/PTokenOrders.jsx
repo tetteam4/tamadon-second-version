@@ -140,7 +140,7 @@ const PTokenOrders = () => {
     try {
       const [ordersResponse, categoriesResponse, usersResponse] =
         await Promise.all([
-          axios.get(`${BASE_URL}/group/order/Reception`, {
+          axios.get(`${BASE_URL}/group/order/`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
           axios.get(`${BASE_URL}/group/categories/`, {
@@ -158,7 +158,7 @@ const PTokenOrders = () => {
 
       const today = new Date().toISOString().split("T")[0]; // Get today's date in "YYYY-MM-DD" format
       setOrders(
-        ordersData.filter((order) => order.created_at.split("T")[0] == today)
+        ordersData.filter((order) => order.created_at.split("T")[0] != today)
       );
       setCategories(categoriesResponse.data || []);
       setDesigners(usersResponse.data || []);
@@ -272,8 +272,32 @@ const PTokenOrders = () => {
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
-  if (loading) return <div>Loading...</div>;
-
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="loader mr-3"></div>
+        <span className="text-xl font-semibold">در حال بارگذاری...</span>
+  
+        <style jsx>{`
+          .loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #16a34a; /* Tailwind green-600 */
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+  
+          @keyframes spin {
+            to {
+              transform: rotate(360deg);
+            }
+          }
+        `}</style>
+      </div>
+    );
+  }
+  
   return (
     <div className="mt-8 px-10 ">
       <h2 className="md:text-2xl text-base text-center font-Ray_black font-bold mb-4">

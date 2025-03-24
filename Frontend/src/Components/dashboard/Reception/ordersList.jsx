@@ -476,14 +476,37 @@ const OrderList = () => {
         currentPage * postsPerPage
       )
     : [];
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="loader mr-3"></div>
+        <span className="text-xl font-semibold">در حال بارگذاری...</span>
+
+        <style jsx>{`
+          .loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #16a34a; /* Tailwind green-600 */
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+
+          @keyframes spin {
+            to {
+              transform: rotate(360deg);
+            }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   return (
     <div className="w-[400px] md:w-[700px]  mt-10 lg:w-[90%] mx-auto  lg:overflow-hidden">
       <h2 className="md:text-2xl text-base font-Ray_black text-center font-bold mb-4">
         لیست سفارشات
       </h2>
-
-      {loading && <p>در حال بارگذاری...</p>}
-
       <center>
         <div className=" overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg md:w-full">
           <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
@@ -528,10 +551,15 @@ const OrderList = () => {
                       )?.name || "دسته‌بندی نامشخص"}
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {
-                        users.find((user) => user.id === order.designer)
-                          ?.first_name
-                      }
+                      {users.find((user) => user.id === order.designer)
+                        ? `${
+                            users.find((user) => user.id === order.designer)
+                              ?.first_name || ""
+                          } ${
+                            users.find((user) => user.id === order.designer)
+                              ?.last_name || ""
+                          }`.trim()
+                        : "Unknown Designer"}
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700 gap-x-5 flex justify-center ">
                       <button

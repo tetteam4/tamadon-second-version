@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./Layout/Layout";
 import Home from "./Pages/Home";
 import Blog from "./Pages/Blog";
+import "./App.css";
 import About from "./Pages/About";
 import Bill from "./Components/Bill_Page/Bill";
 import Services from "./Pages/Services";
@@ -14,7 +15,6 @@ import ForgotPassword from "./Components/loginpage/ForgotPassword";
 import CreateNewPassword from "./Components/loginpage/CreateNewPassword";
 import CategoryPage from "./Components/Blog/CategoryPage";
 import ServiceDetails from "./Components/Services/ServiceDetails";
-import CustomerWaitingScreen from "./Pages/Screeen";
 
 function App() {
   return (
@@ -24,8 +24,6 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogCardDetails />} />
-          <Route path="/s" element={<CustomerWaitingScreen />} />
-
           <Route path="/category/:categoryName" element={<CategoryPage />} />
           {/* New route */}
           <Route path="/service" element={<Services />} />

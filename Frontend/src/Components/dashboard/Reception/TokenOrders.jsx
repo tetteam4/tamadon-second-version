@@ -157,13 +157,53 @@ const TokenOrders = () => {
         ? ordersResponse.data
         : [];
       const today = new Date().toISOString().split("T")[0]; // Get today's date in "YYYY-MM-DD" format
-
       setOrders(
         ordersData.filter((order) => order.created_at.split("T")[0] == today)
       );
-
       setCategories(categoriesResponse.data || []);
       setDesigners(usersResponse.data || []);
+      const newPrices = {};
+      const newReceived = {};
+      const newRemainded = {};
+      const newDeliveryDate = {};
+
+      await Promise.all(
+        ordersData.map(async (order) => {
+          try {
+            const priceResponse = await axios.get(
+              `${BASE_URL}/group/order-by-price/`,
+              { params: { order: order.id } }
+            );
+
+            const data1 = priceResponse.data;
+
+            if (data1 && data1.length > 0) {
+              newPrices[order.id] = data1[0].price;
+              newReceived[order.id] = data1[0].receive_price;
+              newRemainded[order.id] = data1[0].reminder_price;
+              newDeliveryDate[order.id] = data1[0].delivery_date;
+            } else {
+              console.warn(`No price data found for order ID: ${order.id}`);
+            }
+          } catch (priceError) {
+            console.error(
+              `Error fetching price for order ID: ${order.id}`,
+              priceError
+            );
+          }
+        })
+      );
+
+      setPrices((prevPrices) => ({ ...prevPrices, ...newPrices }));
+      setReceivedPrices((prevReceived) => ({
+        ...prevReceived,
+        ...newReceived,
+      }));
+      setRemaindedPrices((prevRemainded) => ({
+        ...prevRemainded,
+        ...newRemainded,
+      }));
+      setDDate((prevDDate) => ({ ...prevDDate, ...newDeliveryDate }));
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -274,7 +314,32 @@ const TokenOrders = () => {
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
-  if (loading) return <div>Loading...</div>;
+  // Show loading message while fetching data
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="loader mr-3"></div>
+        <span className="text-xl font-semibold">در حال بارگذاری...</span>
+
+        <style jsx>{`
+          .loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #16a34a; /* Tailwind green-600 */
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+
+          @keyframes spin {
+            to {
+              transform: rotate(360deg);
+            }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-8 px-10 ">

@@ -549,7 +549,7 @@ const OrderListSuperDesigner = () => {
       <center>
         <div className=" overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg md:w-full">
           <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
-            <thead className="">
+            <thead className="">  
               <tr className="bg-green text-gray-100 text-center">
                 <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                   نام مشتری
@@ -562,6 +562,9 @@ const OrderListSuperDesigner = () => {
                 </th>
                 <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                   طراح
+                </th>
+                <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                  حالت
                 </th>
 
                 <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
@@ -591,10 +594,18 @@ const OrderListSuperDesigner = () => {
                       )?.name || "دسته‌بندی نامشخص"}
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {
-                        users.find((user) => user.id === order.designer)
-                          ?.first_name
-                      }
+                      {users.find((user) => user.id === order.designer)
+                        ? `${
+                            users.find((user) => user.id === order.designer)
+                              ?.first_name || ""
+                          } ${
+                            users.find((user) => user.id === order.designer)
+                              ?.last_name || ""
+                          }`.trim()
+                        : "Unknown Designer"}
+                    </td>
+                    <td className="border-gray-300 px-6 py-2 text-gray-700">
+                      {order.status}
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700">
                       {formatDate(order.created_at)}

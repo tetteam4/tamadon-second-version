@@ -139,8 +139,13 @@ const Bill = ({ order }) => {
           <div className="px-5 ">
             <div className="flex justify-between items-center h-full">
               {/* Persian Content */}
-              <div className="text-right relative"></div>
 
+              {/* Logo */}
+              <img
+                src="/Tamadon.png"
+                alt="Tamadon Logo"
+                className="w-24 h-24 object-contain"
+              />
               {/* Center Content */}
               <div className="text-center">
                 <p className="italic text-sm text-gray-900">
@@ -150,13 +155,6 @@ const Bill = ({ order }) => {
                   Intersection of Quality & Innovation
                 </p>
               </div>
-
-              {/* Logo */}
-              <img
-                src="/Tamadon.png"
-                alt="Tamadon Logo"
-                className="w-24 h-24 object-contain"
-              />
             </div>
           </div>
 
@@ -228,12 +226,15 @@ const Bill = ({ order }) => {
             </div>
             <div className="flex items-center text-lg gap-x-1">
               <p>تاریخ اخذ :</p>
-              <p>{formatToShamsi(prices[0]?.created_at).replace(/\//g, "-") || "unknown"}</p>
+              <p>
+                {formatToShamsi(prices[0]?.created_at).replace(/\//g, "-") ||
+                  "unknown"}
+              </p>
             </div>
             <div className="flex items-center text-lg gap-x-1">
               <p>تاریخ تحویل :</p>
 
-              <p>{(prices[0]?.delivery_date) || "unknown"}</p>
+              <p>{prices[0]?.delivery_date || "unknown"}</p>
             </div>
           </div>
           {/*  */}

@@ -4,11 +4,11 @@ import { IoClose } from "react-icons/io5";
 import axios from "axios";
 import Box from "@mui/material/Box";
 import Masonry from "@mui/lab/Masonry";
+
 const GalleryImage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isModalOpen, setModalOpen] = useState(false);
   const [images, setImages] = useState([]);
-
 
   // Fetch images from the backend
   const fetchImages = async () => {
@@ -49,7 +49,7 @@ const GalleryImage = () => {
   };
 
   return (
-    <div id="gallery-section" className="container mx-auto mt-10">
+    <div className="container mx-auto mt-10">
       {/* Header Section */}
       <div className="flex items-center gap-3 px-10 py-5 relative z-10">
         <p className="text-2xl text-gray-500 dark:text-gray-100 font-bold">

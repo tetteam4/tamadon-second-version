@@ -19,11 +19,11 @@ const ResNavbar = ({ open, navItems, setOpen }) => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 100 }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
-          className="fixed top-0 right-0 lg:hidden h-[100vh] w-[320px]  z-40"
+          className="fixed top-0 right-0 lg:hidden h-screen w-[300px] md:w-[400px] z-40"
           role="dialog"
           aria-hidden={!open}
         >
-          <div className="text-xl text-white h-[100vh] bg-green dark:bg-primary font-semibold uppercase">
+          <div className="text-xl text-white min-h-[100vh] bg-green dark:bg-primary font-semibold uppercase">
             {/* Logo and Close Button */}
             <div className="flex justify-between bg-white px-5 py-2 items-center mb-4">
               <img src='/Tamadon.png' alt="Tamadon Logo" className="h-[60px] w-auto" />

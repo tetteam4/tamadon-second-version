@@ -25,11 +25,10 @@ const Navbar = ({ navItems }) => {
     >
       <div
         className={` dark:bg-[#100d25]  flex justify-center items-center ${
-          isScrolled &&
-          "grid grid-cols-4  bg-[#00513a] dark:bg-primary place-content-center"
+          isScrolled && "grid grid-cols-4  bg-[#00513a] dark:bg-primary place-content-center"
         }`}
       >
-   
+        {/* Logo */}
         <div
           className={`flex items-center gap-4 ${
             isScrolled ? "blog col-span-1 " : "hidden"
@@ -38,7 +37,7 @@ const Navbar = ({ navItems }) => {
           {isScrolled && (
             <div className="flex items-center h-full gap-x-4">
               <Link to="/" className="bg-white p-2 h-full">
-                <img src='/Tamadon.png' alt="Logo" className="h-12 w-auto" />
+                <img src={logo} alt="Logo" className="h-12 w-auto" />
               </Link>
               <div className="md:space-y-1 bg-[#00513a] text-white dark:bg-primary ">
                 <h1 className="text-lg font-bold  font-Ray dark:text-[#fff]">

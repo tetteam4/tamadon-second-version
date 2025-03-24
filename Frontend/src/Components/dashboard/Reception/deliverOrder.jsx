@@ -308,7 +308,29 @@ const Delivery = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="loader mr-3"></div>
+        <span className="text-xl font-semibold">در حال بارگذاری...</span>
+
+        <style jsx>{`
+          .loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #16a34a; /* Tailwind green-600 */
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+
+          @keyframes spin {
+            to {
+              transform: rotate(360deg);
+            }
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (

@@ -122,13 +122,18 @@ const PastOrders = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const filterDesigner = response.data.filter(
-        (order) => order.designer === id
+        (order) => order.designer == id
       );
-      const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
 
-      const filterTime = filterDesigner.filter(
-        (order) => order.created_at && order.created_at == today
-      );
+      const today = new Date().toISOString().split("T")[0];
+
+      const filterTime = filterDesigner.filter((order) => {
+        if (!order.created_at) return false;
+
+        const orderDate = order.created_at.split("T")[0];
+        return orderDate !== today; // Keep only orders from past days
+      });
+
       setOrders(filterTime);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -294,12 +299,6 @@ const PastOrders = () => {
 
   useEffect(() => {
     fetchOrders();
-    const intervalId = setInterval(() => {
-      fetchOrders();
-    }, 5000); // Call fetchOrder every 5 seconds
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
   }, []);
 
   // Fetch orders and categories on mount
@@ -577,10 +576,15 @@ const PastOrders = () => {
                       )?.name || "دسته‌بندی نامشخص"}
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {
-                        users.find((user) => user.id === order.designer)
-                          ?.first_name
-                      }
+                      {users.find((user) => user.id === order.designer)
+                        ? `${
+                            users.find((user) => user.id === order.designer)
+                              ?.first_name
+                          } ${
+                            users.find((user) => user.id === order.designer)
+                              ?.last_name
+                          }`
+                        : "Unknown Designer"}
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700">
                       {formatDate(order.created_at)}
@@ -624,66 +628,6 @@ const PastOrders = () => {
           />
         )}
       </center>
-
-      {/* Modal for Price and Delivery Date */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col gap-5 items-center justify-center">
-          <div className="bg-white">
-            <div className="bg-white p-6 rounded  w-[350px]  md:w-[600px]">
-              <h3 className="text-lg text-center font-bold mb-4">
-                اضافه کردن قیمت و تاریخ تحویل
-              </h3>
-              <div className="mb-4">
-                <label className="block mb-1 font-medium">قیمت:</label>
-                <input
-                  type="number"
-                  name="total_price"
-                  value={modalData.total_price || ""}
-                  onChange={handleModalChange}
-                  className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
-                  placeholder="قیمت را وارد کنید"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block mb-1 font-medium">قیمت دریافتی:</label>
-                <input
-                  type="number"
-                  name="receive_price"
-                  value={modalData.receive_price}
-                  onChange={handleModalChange}
-                  className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
-                  placeholder="قیمت دریافتی را وارد کنید"
-                  required
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block mb-1 font-medium">تاریخ تحویل:</label>
-                <input
-                  type="date"
-                  name="deliveryDate"
-                  value={modalData.deliveryDate}
-                  onChange={handleModalChange}
-                  className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green"
-                  required
-                />
-              </div>
-            </div>
-            <div className="flex justify-center pb-6 items-center gap-2">
-              <button onClick={handleModalSubmit} className="secondry-btn">
-                تایید
-              </button>
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-red-500 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300 hover:bg-red-600"
-              >
-                انصراف
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       {/* Conditionally render the Bill component */}
       {isViewModelOpen && passedOrder && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">

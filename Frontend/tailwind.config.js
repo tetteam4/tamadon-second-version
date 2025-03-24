@@ -15,6 +15,7 @@ export default {
         "white-100": "#f3f3f3",
         green: "#00513a",
         orange: "#FFDB00",
+        "update": "#ED8D1D",
       },
       fontFamily: {
         vazirmatn: ["Vazirmatn", "Arial", "sans-serif"],
@@ -31,7 +32,6 @@ export default {
           "2xl": "3rem",
         },
       },
-      
     },
   },
   plugins: [],
