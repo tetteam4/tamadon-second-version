@@ -109,13 +109,6 @@ class Order(models.Model):
     customer_name = models.CharField(max_length=255)
     designer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     description = models.TextField()
-    printer = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="printer_orders",
-        null=True,
-        blank=True,
-    )
     secret_key = models.CharField(
         default="",
         max_length=6,
