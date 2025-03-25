@@ -1,12 +1,3 @@
-from apps.group.filters import OrderFilter
-from apps.users.tasks import (
-    process_order_deletion,
-    process_order_saving,
-    process_order_update,
-    process_reception_order_creation,
-    process_reception_order_deletion,
-    process_reception_order_update,
-)
 from django.db.models import Q
 from django.forms import ValidationError
 from django_filters.rest_framework.backends import DjangoFilterBackend
@@ -17,6 +8,16 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from apps.group.filters import OrderFilter
+from apps.users.tasks import (
+    process_order_deletion,
+    process_order_saving,
+    process_order_update,
+    process_reception_order_creation,
+    process_reception_order_deletion,
+    process_reception_order_update,
+)
 
 from .models import AttributeType, AttributeValue, Category, Order, ReceptionOrder
 from .permissions import IsSuperDesigner
@@ -151,19 +152,25 @@ class CategoryAttributeView(generics.GenericAPIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
 
+class OrderPagination(PageNumberPagination):
+    page_size = 20  # Number of items per page
+    page_query_param = "pagenum"  # Custom query parameter name for pagination
+
+
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.order_by("created_at")
     serializer_class = OrderSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    search_fields = ["secret_key"]  # Allows searching by secret_key
+    search_fields = ["secret_key"]
 
-    pagination_class = PageNumberPagination
-    pagination_class.page_size = 2
-    pagination_class.page_query_param = "pagenum"
+    # Define pagination class directly here
+    pagination_class = OrderPagination
 
     def get_queryset(self):
-
+        """
+        Override the get_queryset method to filter orders based on user roles.
+        """
         user = self.request.user
 
         if user.role in [0, 2, 3, 1]:
@@ -185,11 +192,12 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Order.objects.none()
 
     def perform_create(self, serializer):
+        """
+        Override perform_create to ensure only Designers or Admins can create orders.
+        """
         user = self.request.user
         print(f"User role: {user.role}")  # Debugging output for user role
 
-        # You can remove the role checks for creation if you want all users to create orders
-        # For now, keeping the check to ensure only Designers/Admins can create orders
         if user.role != 1 and user.role != 3:
             raise PermissionDenied(
                 "You must be a Designer or Admin to create an order."
@@ -200,18 +208,24 @@ class OrderViewSet(viewsets.ModelViewSet):
         # process_order_saving.delay(order.id)
 
     def perform_update(self, serializer):
+        """
+        Override perform_update to ensure only Designers or Admins can update orders.
+        """
         user = self.request.user
-        if user.role != 1 and user.role != 2 and user.role != 3:
+        if user.role not in [1, 2, 3]:
             raise PermissionDenied(
-                "You must be a Designer or Admin to create an order."
+                "You must be a Designer or Admin to update an order."
             )
 
         order = serializer.save()
 
         # Trigger Celery task asynchronously to process the updated order
-        process_order_update.delay(order.id)
+        # process_order_update.delay(order.id)
 
     def perform_destroy(self, instance):
+        """
+        Override perform_destroy to ensure deletion of orders is processed properly.
+        """
         # Trigger Celery task asynchronously to process the deleted order
         # process_order_deletion.delay(instance.id)
 
@@ -228,63 +242,68 @@ class OrderViewSet(viewsets.ModelViewSet):
         if search_key:
             queryset = queryset.filter(secret_key__icontains=search_key)
 
-        print(f"Final queryset: {queryset}")  # Debugging output for final queryset
+        # Serialize and return the response with pagination applied automatically
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-        # Serialize and return the response
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
 
-# class OrderListView(generics.ListAPIView):
-#     serializer_class = OrderSerializer
-#     permission_classes = [AllowAny]
-#     filter_backends = [DjangoFilterBackend, SearchFilter]
-#     search_fields = ["secret_key"]
+class OrderListView(generics.ListAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ["secret_key"]
 
-#     def get_queryset(self):
-#         queryset = Order.objects.all()
+    def get_queryset(self):
+        queryset = Order.objects.all()
 
-#         # Get the status parameter from the URL kwargs (if available)
-#         status_param = self.kwargs.get("status")
+        # Get the status parameter from the URL kwargs (if available)
+        status_param = self.kwargs.get("status")
 
-#         if status_param:
-#             # Filter orders where the status contains the given status_param (e.g., "Printer")
-#             # Use `icontains` for case-insensitive partial matches
-#             queryset = queryset.filter(status__icontains=status_param)
-#         else:
-#             # If no status param is given, you can add default filtering if needed
-#             queryset = queryset.exclude(
-#                 Q(status__contains="Reception") | Q(status__contains="Designer")
-#             )
+        if status_param:
+            # Filter orders where the status contains the given status_param (e.g., "Printer")
+            # Use `icontains` for case-insensitive partial matches
+            queryset = queryset.filter(status__icontains=status_param)
+        else:
+            # If no status param is given, you can add default filtering if needed
+            queryset = queryset.exclude(
+                Q(status__contains="Reception") | Q(status__contains="Designer")
+            )
 
-#         return queryset
+        return queryset
 
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.get_queryset()
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
 
-#         # Handle search parameter if it exists
-#         if "search" in request.query_params:
-#             search_key = request.query_params["search"]
-#             queryset = queryset.filter(secret_key__icontains=search_key)
+        # Handle search parameter if it exists
+        if "search" in request.query_params:
+            search_key = request.query_params["search"]
+            queryset = queryset.filter(secret_key__icontains=search_key)
 
-#         page = self.paginate_queryset(queryset)
-#         if page is not None:
-#             serializer = self.get_serializer(page, many=True)
-#             return self.get_paginated_response(serializer.data)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-#         # Return the serialized data if found
-#         serializer = self.get_serializer(queryset, many=True)
+        # Return the serialized data if found
+        serializer = self.get_serializer(queryset, many=True)
 
-#         if queryset.exists():
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         else:
-#             status_param = self.kwargs.get("status")
-#             message = (
-#                 f"Order with status '{status_param}' not found."
-#                 if status_param
-#                 else "order not found ."
-#             )
-#             return Response({"message": message}, status=status.HTTP_200_OK)
+        if queryset.exists():
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            status_param = self.kwargs.get("status")
+            message = (
+                f"Order with status '{status_param}' not found."
+                if status_param
+                else "order not found ."
+            )
+            return Response({"message": message}, status=status.HTTP_200_OK)
+
+
 class OrderListView(generics.ListAPIView):
     serializer_class = OrderSerializer
     permission_classes = [AllowAny]
@@ -318,7 +337,7 @@ class OrderListView(generics.ListAPIView):
             queryset = queryset.filter(id=order_id_param)
 
         # Order by 'created_at' field in descending order
-        queryset = queryset.order_by('-created_at')
+        queryset = queryset.order_by("-created_at")
 
         return queryset
 
@@ -350,6 +369,8 @@ class OrderListView(generics.ListAPIView):
                 else "No orders found."
             )
             return Response({"message": message}, status=status.HTTP_200_OK)
+
+
 class ReceptionOrderViewSet(viewsets.ModelViewSet):
     queryset = ReceptionOrder.objects.all()
     serializer_class = ReceptionOrderSerializer
