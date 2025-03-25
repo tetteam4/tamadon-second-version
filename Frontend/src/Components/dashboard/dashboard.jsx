@@ -490,7 +490,7 @@ const Dashboard = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="loader mr-3"></div>
         <span className="text-xl font-semibold">در حال بارگذاری...</span>
-  
+
         <style jsx>{`
           .loader {
             width: 40px;
@@ -500,7 +500,7 @@ const Dashboard = () => {
             border-radius: 50%;
             animation: spin 1s linear infinite;
           }
-  
+
           @keyframes spin {
             to {
               transform: rotate(360deg);
@@ -510,7 +510,6 @@ const Dashboard = () => {
       </div>
     );
   }
-  
 
   return (
     <div className={`bg-gray-100 text-gray-800 h-screen w-full flex flex-col`}>

@@ -142,7 +142,6 @@ const TokenOrders = () => {
         await Promise.all([
           axios.get(`${BASE_URL}/group/order/`, {
             headers: { Authorization: `Bearer ${token}` },
-            params: { status: "done" },
           }),
           axios.get(`${BASE_URL}/group/categories/`, {
             headers: { Authorization: `Bearer ${token}` },

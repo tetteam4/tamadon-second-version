@@ -23,6 +23,7 @@ const OrderList = () => {
   const [users, setUsers] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingData, setEditingData] = useState({});
+  const [totalCount, setTotalCount] = useState(0);
 
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
@@ -55,6 +56,9 @@ const OrderList = () => {
   );
   const [refreshingToken, setRefreshingToken] = useState(false); // Prevent multiple refresh requests
   const [role, setRole] = useState(decryptData(localStorage.getItem("role")));
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 15;
+
   // Function to get JWT token from localStorage
   const getAuthToken = () => {
     return decryptData(localStorage.getItem("auth_token"));
@@ -91,7 +95,7 @@ const OrderList = () => {
     }
   };
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (page = 1) => {
     if (!token) {
       setError("No authentication token found.");
       return;
@@ -106,11 +110,13 @@ const OrderList = () => {
     }
 
     try {
-      const response = await axios.get(`${BASE_URL}/group/order/Reception`, {
+      const response = await axios.get(`${BASE_URL}/group/order/Reception/`, {
+        params: { pagenum: page },
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setOrders(response.data);
+      setOrders(response.data.results);
+      setTotalCount(response.data.count);
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
@@ -191,11 +197,11 @@ const OrderList = () => {
   };
   // Fetch orders and categories on mount
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(currentPage);
     fetchCategories();
     fetchUsers();
-  }, [token]); // Dependency array now includes token to refetch when token changes
-
+  }, [token, currentPage]); // Refetch when currentPage changes
+  const totalPages = Math.ceil(totalCount / postsPerPage);
   // Handle "check" button click (open modal)
   const handleCheckClick = (order) => {
     setSelectedOrder(order.id);
@@ -271,7 +277,8 @@ const OrderList = () => {
         text: "سفارش مورد نظر با موفقیت حذف گردید.",
         icon: "success",
         confirmButtonText: "باشه",
-      });
+      }); // In handleDelete after successful deletion
+      await fetchOrders(currentPage);
     } catch (error) {
       console.error("Error deleting order:", error);
 
@@ -414,7 +421,7 @@ const OrderList = () => {
         text: "سفارش با موفقیت بروزرسانی شد.",
         confirmButtonText: "تایید",
       });
-      fetchOrders();
+      await fetchOrders(currentPage);
     } catch (error) {
       console.error("Error updating the order:", error.response || error);
       const remove = await axios.post(
@@ -465,11 +472,7 @@ const OrderList = () => {
     setIsViewModelOpen(false);
   };
   //  pagination section
-  const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 15;
 
-  // Calculate pagination
-  const totalPages = Math.ceil(orders.length / postsPerPage);
   const paginatedOrders = Array.isArray(orders)
     ? [...orders].slice(
         (currentPage - 1) * postsPerPage,
@@ -534,7 +537,7 @@ const OrderList = () => {
             </thead>
             <tbody>
               {orders.length > 0 ? (
-                paginatedOrders.map((order) => (
+                orders.map((order) => (
                   <tr
                     key={order.id}
                     className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -602,7 +605,10 @@ const OrderList = () => {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={(newPage) => {
+              setCurrentPage(newPage);
+              fetchOrders(newPage);
+            }}
           />
         )}
       </center>
