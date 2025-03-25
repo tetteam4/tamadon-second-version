@@ -321,6 +321,9 @@ const ReceivedList = () => {
           <thead className="bg-gray-100">
             <tr className="bg-green text-gray-100 text-center">
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+                کدسفارش
+              </th>
+              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 مشتری
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
@@ -359,6 +362,9 @@ const ReceivedList = () => {
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     } hover:bg-gray-100 transition-all`}
                   >
+                    <td className="border border-gray-300 px-6 py-2 text-gray-700">
+                      {order.secret_key}
+                    </td>
                     <td className="border border-gray-300 px-6 py-2 text-gray-700">
                       {order.customer_name}
                     </td>
