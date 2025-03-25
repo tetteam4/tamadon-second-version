@@ -2,10 +2,11 @@ import datetime
 from decimal import Decimal
 
 import jdatetime
-from apps.users.models import User
 from django import forms
 from jdatetime import datetime
 from rest_framework import serializers
+
+from apps.users.models import User
 
 from .models import AttributeType, AttributeValue, Category, Order, ReceptionOrder
 
@@ -70,10 +71,10 @@ class AttributeValueSerializer(serializers.ModelSerializer):
         ]
 
 
+
 class OrderSerializer(serializers.ModelSerializer):
     designer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
-    # status = serializers.ListField(child=serializers.CharField())
 
     class Meta:
         model = Order
@@ -90,6 +91,12 @@ class OrderSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    def create(self, validated_data):
+        # The secret_key will be generated automatically when calling save()
+        order = Order(**validated_data)
+        order.save()  # This will generate the secret_key in the model's save() method
+        return order
 
 
 class ReceptionOrderSerializer(serializers.ModelSerializer):
@@ -173,7 +180,7 @@ class ReceptionOrderSerializer(serializers.ModelSerializer):
 
 
 class OrderStatusUpdateSerializer(serializers.Serializer):
-    order_id = serializers.IntegerField()  
+    order_id = serializers.IntegerField()
     status = serializers.CharField()
 
     def validate_order_id(self, value):
