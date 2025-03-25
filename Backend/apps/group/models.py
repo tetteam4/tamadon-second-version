@@ -82,9 +82,6 @@ class AttributeValue(models.Model):
 
 
 def generate_secret_key(order_id):
-    # Zero pad the order ID to always be 3 digits (001, 002, 003, etc.)
-    first_three_digits = str(order_id).zfill(3)
-
     # Get the current date in the Jalali (Persian) calendar
     current_jalali_date = jdatetime.datetime.now()
 
@@ -96,6 +93,9 @@ def generate_secret_key(order_id):
         "%m"
     )  # Two-digit month (e.g., '03' for Farvardin)
     day_part = current_jalali_date.strftime("%d")  # Two-digit day (e.g., '25')
+
+    # Zero pad the order ID to always be 3 digits (001, 002, 003, etc.)
+    first_three_digits = str(order_id).zfill(3)
 
     # Combine all parts to form the secret key
     secret_key = f"{first_three_digits}{last_digit_of_year}{month_part}{day_part}"
@@ -138,7 +138,7 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         # Generate the secret key only if it's not already set
         if not self.secret_key:
-            # Generate the secret key only after the instance has been saved
+            # Generate the secret key after saving the instance
             super(Order, self).save(
                 *args, **kwargs
             )  # Save first to generate the auto-incremented id
@@ -179,5 +179,5 @@ class ReceptionOrder(models.Model):
                 )
 
     def __str__(self):
-       
+
         return str(self.price)
