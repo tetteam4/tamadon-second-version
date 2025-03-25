@@ -1,5 +1,6 @@
-import secrets
+from datetime import datetime
 
+import jdatetime
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -80,11 +81,26 @@ class AttributeValue(models.Model):
         unique_together = ["attribute", "attribute_value"]
 
 
-def generate_secret_key():
-    return "".join(
-        secrets.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-        for _ in range(6)
-    )
+def generate_secret_key(order_id):
+    # Zero pad the order ID to always be 3 digits (001, 002, 003, etc.)
+    first_three_digits = str(order_id).zfill(3)
+
+    # Get the current date in the Jalali (Persian) calendar
+    current_jalali_date = jdatetime.datetime.now()
+
+    # Extract the last digit of the current Jalali year
+    last_digit_of_year = str(current_jalali_date.year)[-1]  # e.g., '4' for 1404
+
+    # Get the current month and day in Jalali calendar
+    month_part = current_jalali_date.strftime(
+        "%m"
+    )  # Two-digit month (e.g., '03' for Farvardin)
+    day_part = current_jalali_date.strftime("%d")  # Two-digit day (e.g., '25')
+
+    # Combine all parts to form the secret key
+    secret_key = f"{first_three_digits}{last_digit_of_year}{month_part}{day_part}"
+
+    return secret_key
 
 
 class Order(models.Model):
@@ -101,14 +117,13 @@ class Order(models.Model):
         blank=True,
     )
     secret_key = models.CharField(
+        default="",
         max_length=6,
-        default=generate_secret_key,
         editable=False,
         unique=True,
     )
-
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    status = models.JSONField(default=list)
+    status = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     attributes = models.JSONField(default=dict, null=True, blank=True)
@@ -119,6 +134,23 @@ class Order(models.Model):
     class Meta:
         verbose_name = "Order"
         verbose_name_plural = "Orders"
+
+    def save(self, *args, **kwargs):
+        # Generate the secret key only if it's not already set
+        if not self.secret_key:
+            # Generate the secret key only after the instance has been saved
+            super(Order, self).save(
+                *args, **kwargs
+            )  # Save first to generate the auto-incremented id
+            self.secret_key = generate_secret_key(self.id)
+
+            # Ensure the secret_key is unique, if not, regenerate
+            while Order.objects.filter(secret_key=self.secret_key).exists():
+                # Regenerate the secret key if it already exists
+                self.secret_key = generate_secret_key(self.id)
+
+        # Call the parent's save method
+        super(Order, self).save(*args, **kwargs)
 
 
 class ReceptionOrder(models.Model):

@@ -13,6 +13,7 @@ from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.filters import SearchFilter
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -151,11 +152,15 @@ class CategoryAttributeView(generics.GenericAPIView):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.order_by("created_at")
     serializer_class = OrderSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ["secret_key"]  # Allows searching by secret_key
+
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 2
+    pagination_class.page_query_param = "pagenum"
 
     def get_queryset(self):
 
@@ -236,18 +241,21 @@ class OrderListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ["secret_key"]
 
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 2
+    pagination_class.page_query_param = "pagenum"
+
     def get_queryset(self):
-        queryset = Order.objects.all()
+        queryset = Order.objects.order_by("-created_at")
 
         # Get the status parameter from the URL kwargs (if available)
         status_param = self.kwargs.get("status")
 
         if status_param:
-            # Filter orders where the status contains the given status_param (e.g., "Printer")
-            # Use `icontains` for case-insensitive partial matches
+
             queryset = queryset.filter(status__icontains=status_param)
         else:
-            # If no status param is given, you can add default filtering if needed
+
             queryset = queryset.exclude(
                 Q(status__icontains="Reception") | Q(status__icontains="Designer")
             )
@@ -290,7 +298,7 @@ class ReceptionOrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
 
         queryset = ReceptionOrder.objects.all()
-
+        queryset = queryset.select_related("order")
         order_id = self.request.query_params.get("order", None)
         if order_id is not None:
             queryset = queryset.filter(order__id=order_id)
@@ -326,9 +334,6 @@ class ReceptionOrderViewSet(viewsets.ModelViewSet):
         super().perform_destroy(instance)
 
 
-# xskMPsNOOK,@
-
-
 class OrderStatusUpdateView(APIView):
     permission_classes = [AllowAny]
 
@@ -338,7 +343,7 @@ class OrderStatusUpdateView(APIView):
         if serializer.is_valid():
             order_id = serializer.validated_data["order_id"]
             status_value = serializer.validated_data["status"]
-            # print(status_value)
+
             order = Order.objects.get(id=order_id)
             order.status = status_value
             order.save()
