@@ -5,15 +5,15 @@ import Bill from "../../Bill_Page/Bill";
 import CryptoJS from "crypto-js";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import vazirmatnFont from "/vazirmatnBase64.txt"; // Ensure this is a valid Base64 font
-import SearchBar from "../../../Utilities/Searching"; // Adjust path if needed
-import Pagination from "../../../Utilities/Pagination"; // Adjust path if needed
+import vazirmatnFont from "/vazirmatnBase64.txt";
+import SearchBar from "../../../Utilities/Searching";
+import Pagination from "../../../Utilities/Pagination";
 import { CiEdit } from "react-icons/ci";
 import { FaCheck, FaEdit } from "react-icons/fa";
 import { Price } from "./Price";
-
 import Swal from "sweetalert2";
 import BillTotalpage from "../../Bill_Page/BillTotalpage";
+
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const TokenOrders = () => {
@@ -30,11 +30,19 @@ const TokenOrders = () => {
   const [loading, setLoading] = useState(true);
   const [selectedAttribute, setSelectedAttribute] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState({});
-  const [searchTerm, setSearchTerm] = useState(""); // Search term state
-  const [searchResults, setSearchResults] = useState([]); // Search results state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const [showPrice, setShowPrice] = useState(false);
   const [editingPriceId, setEditingPriceId] = useState(null);
   const [selectedOrders, setSelectedOrders] = useState([]);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [nextPageUrl, setNextPageUrl] = useState(null);
+  const [prevPageUrl, setPrevPageUrl] = useState(null);
+
   const secretKey = "TET4-1";
 
   const decryptData = (hashedData) => {
@@ -51,6 +59,7 @@ const TokenOrders = () => {
       return null;
     }
   };
+
   const toggleOrderSelection = (neworder) => {
     setSelectedOrders((prevSelected) =>
       prevSelected.includes(neworder)
@@ -67,7 +76,6 @@ const TokenOrders = () => {
     }
 
     try {
-      // Fixed bill size (190mm x 320mm)
       const billWidth = 210;
       const billHeight = 148;
 
@@ -119,7 +127,7 @@ const TokenOrders = () => {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = async (pageUrl = null) => {
     let token = getAuthToken();
 
     if (!token) {
@@ -138,9 +146,14 @@ const TokenOrders = () => {
     }
 
     try {
+      // Determine which URL to use for fetching orders
+      const ordersUrl =
+        pageUrl ||
+        `${BASE_URL}/group/order/?pagenum=${currentPage}&status=done`;
+
       const [ordersResponse, categoriesResponse, usersResponse] =
         await Promise.all([
-          axios.get(`${BASE_URL}/group/order/`, {
+          axios.get(ordersUrl, {
             headers: { Authorization: `Bearer ${token}` },
           }),
           axios.get(`${BASE_URL}/group/categories/`, {
@@ -151,23 +164,29 @@ const TokenOrders = () => {
           }),
         ]);
 
-      // Ensure the data is always an array
-      const ordersData = Array.isArray(ordersResponse.data)
-        ? ordersResponse.data
-        : [];
-      const today = new Date().toISOString().split("T")[0]; // Get today's date in "YYYY-MM-DD" format
-      setOrders(
-        ordersData.filter((order) => order.created_at.split("T")[0] == today)
+      // Handle paginated orders response
+      const ordersData = ordersResponse.data.results || [];
+      const today = new Date().toISOString().split("T")[0];
+      const filteredOrders = ordersData.filter(
+        (order) => order.created_at.split("T")[0] == today
       );
+
+      setOrders(filteredOrders);
+      setTotalCount(ordersResponse.data.count || 0);
+      setNextPageUrl(ordersResponse.data.next);
+      setPrevPageUrl(ordersResponse.data.previous);
+      setTotalPages(Math.ceil(ordersResponse.data.count / 10)); // Assuming 10 items per page
+
       setCategories(categoriesResponse.data || []);
       setDesigners(usersResponse.data || []);
+
       const newPrices = {};
       const newReceived = {};
       const newRemainded = {};
       const newDeliveryDate = {};
 
       await Promise.all(
-        ordersData.map(async (order) => {
+        filteredOrders.map(async (order) => {
           try {
             const priceResponse = await axios.get(
               `${BASE_URL}/group/order-by-price/`,
@@ -208,6 +227,11 @@ const TokenOrders = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    fetchData();
   };
 
   const handleComplete = async (id) => {
@@ -252,9 +276,10 @@ const TokenOrders = () => {
       });
     }
   };
+
   useEffect(() => {
     fetchData();
-  }, [showPrice]);
+  }, [currentPage, showPrice]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -272,7 +297,6 @@ const TokenOrders = () => {
         );
       });
       setSearchResults(results);
-      setCurrentPage(1); // Reset to first page on new search
     } else {
       setSearchResults([]);
     }
@@ -293,43 +317,24 @@ const TokenOrders = () => {
     setSelectedStatus(status);
   };
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 10;
-
-  const dataToPaginate =
-    Array.isArray(searchResults) && searchResults.length > 0
-      ? searchResults
-      : Array.isArray(orders)
-      ? orders
-      : [];
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
-
-  const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
-  const paginatedOrders = [...dataToPaginate] // Create a copy to avoid mutation
-    .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
-
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
-  // Show loading message while fetching data
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="loader mr-3"></div>
         <span className="text-xl font-semibold">در حال بارگذاری...</span>
-
         <style jsx>{`
           .loader {
             width: 40px;
             height: 40px;
-            border: 4px solid #16a34a; /* Tailwind green-600 */
+            border: 4px solid #16a34a;
             border-top-color: transparent;
             border-radius: 50%;
             animation: spin 1s linear infinite;
           }
-
           @keyframes spin {
             to {
               transform: rotate(360deg);
@@ -346,7 +351,6 @@ const TokenOrders = () => {
         لیست سفارشات تکمیلی
       </h2>
 
-      {/* Search Bar */}
       <SearchBar
         placeholder="جستجو در سفارشات"
         value={searchTerm}
@@ -401,106 +405,109 @@ const TokenOrders = () => {
               </tr>
             </thead>
             <tbody className="">
-              {orders.length > 0 ? (
-                paginatedOrders.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
-                  >
-                    {" "}
-                    <td className="border-gray-300 px-6 py-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedOrders.includes(order)}
-                        onChange={() => toggleOrderSelection(order)}
-                      />
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                      {order.customer_name || "در حال بارگذاری..."}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                      {order.order_name || "در حال بارگذاری..."}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                      {getCategoryName(order.category) || "در حال بارگذاری..."}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                      {getDesignerName(order.designer) || "در حال بارگذاری..."}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                      {prices[order.id] || "در حال بارگذاری..."}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                      {receivedPrices[order.id] || "در حال بارگذاری..."}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                      {remaindedPrices[order.id] || "در حال بارگذاری..."}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                      {DDate[order.id] || "در حال بارگذاری..."}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                      {order.status || "در حال بارگذاری..."}
-                    </td>
-                    <td className="flex items-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
-                      <button
-                        onClick={() => {
-                          handleShowAttribute(order, order.status);
-                          setIsModelOpen(true);
-                        }}
-                        className="secondry-btn"
-                      >
-                        نمایش
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowPrice(true);
-                          setEditingPriceId(order.id);
-                        }}
-                        className=""
-                      >
-                        <FaEdit size={20} className="text-green" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          handleComplete(order.id);
-                        }}
-                        className="text-green"
-                      >
-                        <FaCheck />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+              {(searchResults.length > 0 ? searchResults : orders).length >
+              0 ? (
+                (searchResults.length > 0 ? searchResults : orders).map(
+                  (order) => (
+                    <tr
+                      key={order.id}
+                      className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
+                    >
+                      <td className="border-gray-300 px-6 py-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedOrders.includes(order)}
+                          onChange={() => toggleOrderSelection(order)}
+                        />
+                      </td>
+                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                        {order.customer_name || "در حال بارگذاری..."}
+                      </td>
+                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                        {order.order_name || "در حال بارگذاری..."}
+                      </td>
+                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                        {getCategoryName(order.category) ||
+                          "در حال بارگذاری..."}
+                      </td>
+                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                        {getDesignerName(order.designer) ||
+                          "در حال بارگذاری..."}
+                      </td>
+                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                        {prices[order.id] || "در حال بارگذاری..."}
+                      </td>
+                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                        {receivedPrices[order.id] || "در حال بارگذاری..."}
+                      </td>
+                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                        {remaindedPrices[order.id] || "در حال بارگذاری..."}
+                      </td>
+                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                        {DDate[order.id] || "در حال بارگذاری..."}
+                      </td>
+                      <td className="border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                        {order.status || "در حال بارگذاری..."}
+                      </td>
+                      <td className="flex items-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700 text-sm md:text-base">
+                        <button
+                          onClick={() => {
+                            handleShowAttribute(order, order.status);
+                            setIsModelOpen(true);
+                          }}
+                          className="secondry-btn"
+                        >
+                          نمایش
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowPrice(true);
+                            setEditingPriceId(order.id);
+                          }}
+                          className=""
+                        >
+                          <FaEdit size={20} className="text-green" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleComplete(order.id);
+                          }}
+                          className="text-green"
+                        >
+                          <FaCheck />
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                )
               ) : (
                 <tr>
-                  <td colSpan="9" className="border p-3 text-center">
-                    هیچ سفارشی با وضعیت 'گرفته شده' وجود ندارد.
+                  <td colSpan="11" className="border p-3 text-center">
+                    هیچ سفارشی یافت نشد.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
+
         {/* Pagination Component */}
         {totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={handlePageChange}
           />
         )}
       </center>
-      {/* Show Bill Button */}
 
-      {/* Popup */}
+      {/* Popup Modals */}
       {isModelOpen && (
         <>
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
             onClick={() => setIsModelOpen(false)}
           ></div>
-
           <div
             id="bill-content"
             className="scale-75 fixed inset-0 bg-opacity-75 flex top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 items-center justify-center z-50"
@@ -526,13 +533,13 @@ const TokenOrders = () => {
           </div>
         </>
       )}
+
       {isTotalModelOpen && (
         <>
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
             onClick={() => setIsModelOpen(false)}
           ></div>
-
           <div
             id="bill-content"
             className="scale-75 fixed inset-0 bg-opacity-75 flex top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 items-center justify-center z-50"
@@ -544,7 +551,6 @@ const TokenOrders = () => {
               ✕
             </button>
             <BillTotalpage
-              // order={passedOrder}
               orders={orders.filter((order) => selectedOrders.includes(order))}
             />
             <button
@@ -556,6 +562,7 @@ const TokenOrders = () => {
           </div>
         </>
       )}
+
       {showPrice && (
         <div>
           <Price editingPriceId={editingPriceId} setShowPrice={setShowPrice} />
