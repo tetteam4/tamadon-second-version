@@ -65,6 +65,7 @@ import Token from "./TokenOrdeing/Token.jsx";
 import OrderListSuperDesigner from "./designer/orderlistSuperDesigner.jsx";
 import BillTotal from "./Reception/BillTotal.jsx";
 import PTokenOrders from "./Reception/PTokenOrders.jsx";
+import ReceivedListVisitCard from "./Printer/ReceivedListVisitCard.jsx";
 const Dashboard = () => {
   // Modal visibility state
   const secretKey = "TET4-1"; // Use a strong secret key
@@ -231,6 +232,7 @@ const Dashboard = () => {
       "designerChart",
       // "token",
       "Logout",
+      "ReceivedListVisitCard",
       "ReceivedList",
       "OrderListSuperDesigner",
     ],
@@ -362,6 +364,11 @@ const Dashboard = () => {
       icon: <FaClipboardList />,
       label: " سفارشات دریافتی",
     },
+    ReceivedListVisitCard: {
+      component: "ReceivedListVisitCard",
+      icon: <FaClipboardList />,
+      label: " سفارشات دریافتی کارت",
+    },
     ProcessingList: {
       component: "ProcessingList",
       icon: <FaClipboardList />,
@@ -467,6 +474,8 @@ const Dashboard = () => {
         return () => handleLogout();
       case "ReceivedList":
         return <ReceivedList />;
+      case "ReceivedListVisitCard":
+        return <ReceivedListVisitCard />;
       case "DashboardHome":
         return <ReportDashboard />;
       case "AddOrder":

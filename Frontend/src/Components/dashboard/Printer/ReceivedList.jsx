@@ -84,8 +84,8 @@ const ReceivedList = () => {
       const newrole = roles.find((r) => r.id == userRole)?.name;
       const response = await axios.get(`${BASE_URL}/group/order/${newrole}`);
 
-      if (Array.isArray(response.data)) {
-        setOrders(response.data);
+      if (Array.isArray(response.data.results)) {
+        setOrders(response.data.results);
       } else {
         setOrders([]); // Set empty array if no data
         console.warn("Unexpected response format:", response.data);
