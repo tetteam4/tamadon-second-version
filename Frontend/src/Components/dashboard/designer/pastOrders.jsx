@@ -6,10 +6,16 @@ import CryptoJS from "crypto-js";
 import Pagination from "../../../Utilities/Pagination.jsx";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 import moment from "moment-jalaali";
-import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
+import { FaRegEdit, FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
+import { IoTrashSharp } from "react-icons/io5";
 
 const PastOrders = () => {
   const [orders, setOrders] = useState([]);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [passedOrder, setPassedOrder] = useState([]);
   const [isViewModelOpen, setIsViewModelOpen] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -49,8 +55,6 @@ const PastOrders = () => {
     order: selectedOrder,
   });
   const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [id, setId] = useState(decryptData(localStorage.getItem("id")));
   const [token, setToken] = useState(
     decryptData(localStorage.getItem("auth_token"))
@@ -93,9 +97,13 @@ const PastOrders = () => {
     }
   };
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (page = 1) => {
+    setLoading(true);
+
+    const token = decryptData(localStorage.getItem("auth_token"));
     if (!token) {
       setError("No authentication token found.");
+      setLoading(false);
       return;
     }
 
@@ -103,38 +111,42 @@ const PastOrders = () => {
       const newToken = await refreshAuthToken();
       if (!newToken) {
         setError("Unable to refresh token");
+        setLoading(false);
         return;
       }
     }
 
     try {
       let url = `${BASE_URL}/group/orders/`;
-      const params = new URLSearchParams();
+      const params = new URLSearchParams({
+        page,
+        page_size: pageSize, // Backend should handle this
+      });
+
       if (filterDate) {
         const formattedDate = moment(filterDate).format("YYYY-MM-DD");
         params.append("created_at", formattedDate);
       }
 
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
+      url += `?${params.toString()}`;
+
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const filterDesigner = response.data.filter(
+
+      let filteredOrders = response.data.results.filter(
         (order) => order.designer == id
       );
 
+      // Keep only orders from past days
       const today = new Date().toISOString().split("T")[0];
-
-      const filterTime = filterDesigner.filter((order) => {
+      filteredOrders = filteredOrders.filter((order) => {
         if (!order.created_at) return false;
-
-        const orderDate = order.created_at.split("T")[0];
-        return orderDate !== today; // Keep only orders from past days
+        return order.created_at.split("T")[0] !== today;
       });
 
-      setOrders(filterTime);
+      setOrders(filteredOrders);
+      setTotalOrders(response.data.count);
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
@@ -142,6 +154,7 @@ const PastOrders = () => {
       setLoading(false);
     }
   };
+  const totalPages = Math.ceil(totalOrders / pageSize);
   const handleEdit = (order) => {
     setIsEditing(true);
     setEditingData(order);
@@ -466,7 +479,6 @@ const PastOrders = () => {
     setIsViewModelOpen(false);
   };
   //  pagination section
-  const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 15;
 
   // Format date in Jalaali calendar
@@ -474,10 +486,6 @@ const PastOrders = () => {
     if (!date) return "N/A"; // Handle cases where the date is null/undefined
     return moment(date).format("jYYYY/jMM/jDD");
   };
-
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredOrders.length / postsPerPage);
-
   const paginatedOrders = filteredOrders.slice(
     (currentPage - 1) * postsPerPage,
     currentPage * postsPerPage
@@ -558,75 +566,54 @@ const PastOrders = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.length > 0 ? (
-                paginatedOrders.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
-                  >
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {order.customer_name}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {order.order_name}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {categories.find(
-                        (category) => category.id === order.category
-                      )?.name || "دسته‌بندی نامشخص"}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {users.find((user) => user.id === order.designer)
-                        ? `${
-                            users.find((user) => user.id === order.designer)
-                              ?.first_name
-                          } ${
-                            users.find((user) => user.id === order.designer)
-                              ?.last_name
-                          }`
-                        : "Unknown Designer"}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      {formatDate(order.created_at)}
-                    </td>
-                    <td className="border-gray-300 px-6 py-2 text-gray-700">
-                      <button
-                        onClick={() => {
-                          handleShowAttribute(order);
-                        }}
-                        className="secondry-btn"
-                      >
-                        نمایش
-                      </button>{" "}
-                      <button
-                        onClick={() => {
-                          handleDelete(order.id);
-                        }}
-                        className=" bg-red-600 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300"
-                      >
-                        حذف
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="border p-2 text-center">
-                    هیچ سفارشی پیدا نشد
+              {orders.map((order) => (
+                <tr
+                  key={order.id}
+                  className="text-center border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
+                >
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {order.customer_name}
+                  </td>
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {order.order_name}
+                  </td>
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {categories.find(
+                      (category) => category.id === order.category
+                    )?.name || "دسته‌بندی نامشخص"}
+                  </td>
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {formatDate(order.created_at)}
+                  </td>
+                  <td className="flex items-center justify-center gap-x-5 border-gray-300 px-6 py-2 text-gray-700">
+                    <button
+                      onClick={() => {
+                        handleEdit(order);
+                        setIsFormOpen(true);
+                      }}
+                      className="text-green hover:scale-105 transition-all duration-300"
+                    >
+                      <FaRegEdit size={24} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(order.id)}
+                      className="text-red-600 hover:scale-105 transition-all duration-300"
+                    >
+                      <IoTrashSharp size={24} />
+                    </button>
                   </td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
           {/* Pagination Component */}
         </div>
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalOrders={totalOrders}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+        />
       </center>
       {/* Conditionally render the Bill component */}
       {isViewModelOpen && passedOrder && (

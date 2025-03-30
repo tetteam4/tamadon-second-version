@@ -21,7 +21,6 @@ const AddOrder = () => {
   const [dropdownState, setDropdownState] = useState({});
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [orders, setOrders] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [formFields, setFormFields] = useState([]);
   const [formData, setFormData] = useState({});
@@ -58,6 +57,10 @@ const AddOrder = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingOrderId, setEditingOrderId] = useState(null);
   const [id, setId] = useState(decryptData(localStorage.getItem("id")));
+  const [orders, setOrders] = useState([]);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5); // Adjust page size as needed
 
   const handleForm1InputChange = (e) => {
     const { name, value } = e.target;
@@ -67,7 +70,7 @@ const AddOrder = () => {
     }));
   };
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (page = 1) => {
     try {
       const token = decryptData(localStorage.getItem("auth_token"));
       if (!token) {
@@ -79,19 +82,21 @@ const AddOrder = () => {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       };
-      let url = `${BASE_URL}/group/orders/`;
-      const params = new URLSearchParams();
 
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
-
-      const response = await axios.get(url, {
-        headers,
+      const params = new URLSearchParams({
+        page: page,
+        page_size: pageSize, // Assuming backend supports this
       });
-      let filteredOrders = response.data.filter(
-        (order) => order.designer == id
+
+      const url = `${BASE_URL}/group/orders/?${params.toString()}`;
+
+      const response = await axios.get(url, { headers });
+
+      let filteredOrders = response.data.results.filter(
+        (order) => order.designer === id
       );
+
+      // Filter orders by selected date
       if (filterDate) {
         const formattedFilterDate = moment(filterDate).format("YYYY-MM-DD");
         filteredOrders = filteredOrders.filter((order) => {
@@ -99,10 +104,11 @@ const AddOrder = () => {
           return orderDate === formattedFilterDate;
         });
       }
+
       setOrders(filteredOrders);
+      setTotalOrders(response.data.count); // Total number of orders
     } catch (error) {
       console.error("Error fetching orders:", error.response || error);
-      // Handle error appropriately (e.g., display an error message)
     }
   };
   // Function to handle date filter change
@@ -130,7 +136,7 @@ const AddOrder = () => {
   useEffect(() => {
     fetchOrders();
   }, [filterDate, refreshOrders]); // Re-fetch when the filterDate, or refreshOrders changes
-
+  const totalPages = Math.ceil(totalOrders / pageSize);
   // Fetch form fields for the selected category
   useEffect(() => {
     if (selectedCategoryId) {
@@ -378,8 +384,6 @@ const AddOrder = () => {
         .startsWith(searchTerm.toLowerCase());
       return startsWithB - startsWithA;
     });
-
-  const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 15;
 
   // Format date in Jalaali calendar
@@ -406,7 +410,6 @@ const AddOrder = () => {
   // Pagination logic
   const dataToPaginate =
     searchResults.length > 0 ? searchResults : sortedOrders;
-  const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
 
   const paginatedOrders = [...dataToPaginate].slice(
     (currentPage - 1) * postsPerPage,
@@ -854,14 +857,12 @@ const AddOrder = () => {
           </tbody>
         </table>
 
-        {/* Pagination Component */}
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalOrders={totalOrders}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );

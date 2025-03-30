@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import jwt_decode from "jwt-decode";
@@ -10,6 +10,11 @@ import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 
 const OrderListSuperDesigner = () => {
   const [orders, setOrders] = useState([]);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20); // Number of orders per page
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [passedOrder, setPassedOrder] = useState([]);
   const [isViewModelOpen, setIsViewModelOpen] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -49,8 +54,6 @@ const OrderListSuperDesigner = () => {
     order: selectedOrder,
   });
   const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [token, setToken] = useState(
     decryptData(localStorage.getItem("auth_token"))
   );
@@ -92,9 +95,13 @@ const OrderListSuperDesigner = () => {
     }
   };
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (page = 1) => {
+    setLoading(true);
+
+    const token = decryptData(localStorage.getItem("auth_token"));
     if (!token) {
       setError("No authentication token found.");
+      setLoading(false);
       return;
     }
 
@@ -102,35 +109,43 @@ const OrderListSuperDesigner = () => {
       const newToken = await refreshAuthToken();
       if (!newToken) {
         setError("Unable to refresh token");
+        setLoading(false);
         return;
       }
     }
 
     try {
       let url = `${BASE_URL}/group/order/Reception/`;
-      const params = new URLSearchParams();
+      const params = new URLSearchParams({
+        pagenum: currentPage, // Backend should handle pagination
+      });
+
       if (filterDate) {
         const formattedDate = moment(filterDate).format("YYYY-MM-DD");
         params.append("created_at", formattedDate);
       }
 
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
+      url += `?${params.toString()}`;
+
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.data.length === 0) {
+      if (response.data.results.length === 0) {
         setError("No orders found.");
+        setOrders([]);
+        setTotalOrders(0);
+        setLoading(false);
         return;
       }
 
-      const filteredOrders = response.data.filter(
+      // Filter orders based on missing total_price or receive_price
+      const filteredOrders = response.data.results.filter(
         (order) => !order.total_price || !order.receive_price
       );
 
       setOrders(filteredOrders);
+      setTotalOrders(response.data.count); // Total count from backend
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
@@ -138,6 +153,7 @@ const OrderListSuperDesigner = () => {
       setLoading(false);
     }
   };
+
   const handleEdit = (order) => {
     setIsEditing(true);
     setEditingData(order);
@@ -288,15 +304,14 @@ const OrderListSuperDesigner = () => {
 
     // 3. Sorting
     results = sortOrders(results, sortOrder);
-
-    setFilteredOrders(results);
-    setCurrentPage(1); // Reset pagination
   }, [orders, filterDate, searchTerm, sortOrder, categories]);
 
   useEffect(() => {
     fetchOrders();
   }, []);
-
+  const onPageChange = useCallback((page) => {
+    setCurrentPage(page);
+  }, []);
   // Fetch orders and categories on mount
   useEffect(() => {
     fetchCategories();
@@ -462,7 +477,6 @@ const OrderListSuperDesigner = () => {
     setIsViewModelOpen(false);
   };
   //  pagination section
-  const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 15;
 
   // Format date in Jalaali calendar
@@ -549,7 +563,7 @@ const OrderListSuperDesigner = () => {
       <center>
         <div className=" overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg md:w-full">
           <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
-            <thead className="">  
+            <thead className="">
               <tr className="bg-green text-gray-100 text-center">
                 <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                   نام مشتری
@@ -576,8 +590,8 @@ const OrderListSuperDesigner = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.length > 0 ? (
-                paginatedOrders.map((order) => (
+              {orders.length > 0 ? (
+                orders.map((order) => (
                   <tr
                     key={order.id}
                     className="text-center font-bold border-b border-gray-200 bg-white hover:bg-gray-200 transition-all"
@@ -612,18 +626,14 @@ const OrderListSuperDesigner = () => {
                     </td>
                     <td className="border-gray-300 px-6 py-2 text-gray-700">
                       <button
-                        onClick={() => {
-                          handleShowAttribute(order);
-                        }}
+                        onClick={() => handleShowAttribute(order)}
                         className="secondry-btn"
                       >
                         نمایش
-                      </button>{" "}
+                      </button>
                       <button
-                        onClick={() => {
-                          handleDelete(order.id);
-                        }}
-                        className=" bg-red-600 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300"
+                        onClick={() => handleDelete(order.id)}
+                        className="bg-red-600 text-sm text-white py-2 px-5 rounded-lg hover:!scale-105 duration-300"
                       >
                         حذف
                       </button>
@@ -632,7 +642,7 @@ const OrderListSuperDesigner = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="border p-2 text-center">
+                  <td colSpan="7" className="border p-2 text-center">
                     هیچ سفارشی پیدا نشد
                   </td>
                 </tr>
@@ -641,13 +651,13 @@ const OrderListSuperDesigner = () => {
           </table>
           {/* Pagination Component */}
         </div>
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        )}
+
+        <Pagination
+          currentPage={currentPage}
+          totalOrders={totalOrders}
+          pageSize={pageSize}
+          onPageChange={onPageChange}
+        />
       </center>
 
       {/* Modal for Price and Delivery Date */}

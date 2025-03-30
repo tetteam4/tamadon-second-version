@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import Bill from "../../Bill_Page/Bill";
@@ -19,6 +19,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 const TokenOrders = () => {
   const [orders, setOrders] = useState([]);
   const [passedOrder, setPassedOrder] = useState([]);
+  const [totalOrders, setTotalOrders] = useState(0);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [isTotalModelOpen, setIsTotalModelOpen] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -35,7 +36,7 @@ const TokenOrders = () => {
   const [showPrice, setShowPrice] = useState(false);
   const [editingPriceId, setEditingPriceId] = useState(null);
   const [selectedOrders, setSelectedOrders] = useState([]);
-
+  const pageSize = 20;
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -148,8 +149,7 @@ const TokenOrders = () => {
     try {
       // Determine which URL to use for fetching orders
       const ordersUrl =
-        pageUrl ||
-        `${BASE_URL}/group/order/?pagenum=${currentPage}&status=done`;
+        pageUrl || `${BASE_URL}/group/order/?pagenum=${currentPage}`;
 
       const [ordersResponse, categoriesResponse, usersResponse] =
         await Promise.all([
@@ -165,6 +165,7 @@ const TokenOrders = () => {
         ]);
 
       // Handle paginated orders response
+
       const ordersData = ordersResponse.data.results || [];
       const today = new Date().toISOString().split("T")[0];
       const filteredOrders = ordersData.filter(
@@ -172,6 +173,7 @@ const TokenOrders = () => {
       );
 
       setOrders(filteredOrders);
+      setTotalOrders(ordersResponse.data.count);
       setTotalCount(ordersResponse.data.count || 0);
       setNextPageUrl(ordersResponse.data.next);
       setPrevPageUrl(ordersResponse.data.previous);
@@ -228,11 +230,9 @@ const TokenOrders = () => {
       setLoading(false);
     }
   };
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-    fetchData();
-  };
+  const onPageChange = useCallback((page) => {
+    setCurrentPage(page);
+  }, []);
 
   const handleComplete = async (id) => {
     try {
@@ -309,7 +309,9 @@ const TokenOrders = () => {
 
   const getDesignerName = (designerId) => {
     const designer = designers.find((des) => des.id === designerId);
-    return designer ? designer.first_name : "نامشخص";
+    return designer
+      ? `${designer.first_name} ${designer.last_name}`.trim()
+      : "نامشخص";
   };
 
   const handleShowAttribute = (order, status) => {
@@ -492,13 +494,13 @@ const TokenOrders = () => {
         </div>
 
         {/* Pagination Component */}
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        )}
+
+        <Pagination
+          currentPage={currentPage}
+          totalOrders={totalOrders}
+          pageSize={pageSize}
+          onPageChange={onPageChange}
+        />
       </center>
 
       {/* Popup Modals */}

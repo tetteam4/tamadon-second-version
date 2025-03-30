@@ -8,7 +8,7 @@ import jalaali from "jalaali-js";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-const ReceivedList = () => {
+const ReceivedListVisitCard = () => {
   const secretKey = "TET4-1";
   const decryptData = useCallback((hashedData) => {
     if (!hashedData) return null;
@@ -27,6 +27,8 @@ const ReceivedList = () => {
   const [categories, setCategories] = useState([]);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState({});
+  const [orderPrice, setOrderprice] = useState({});
+  const [selectedOrderId, setSelectedOrderId] = useState();
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -143,8 +145,8 @@ const ReceivedList = () => {
             },
           }
         );
-        setOrderDetails(response.data);
-        setIsModelOpen(true);
+        setOrderprice(response.data[0]);
+        setIsModelOpen(!isModelOpen);
       } catch (err) {
         console.error("Error fetching order details:", err);
       }
@@ -205,6 +207,7 @@ const ReceivedList = () => {
         setOrders([]);
         console.warn("Unexpected response format:", response.data);
       }
+      setTotalOrders(response.data.count);
     } catch (err) {
       console.error("Error fetching List", err);
       setOrders([]); // Ensure orders is always an array
@@ -296,7 +299,11 @@ const ReceivedList = () => {
                         تایید تکمیلی
                       </button>
                       <button
-                        onClick={() => getDetails(order.id)}
+                        onClick={() => {
+                          setOrderDetails(order);
+                          getDetails(order.id);
+                          setSelectedOrderId(order.id);
+                        }}
                         className="secondry-btn"
                       >
                         جزئیات
@@ -328,10 +335,11 @@ const ReceivedList = () => {
 
       {isModelOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg  w-full">
             <h3 className="text-xl font-bold mb-4 text-gray-800">
               اطلاعات سفارش
             </h3>
+            {console.log(orderDetails)}
             <div className="bg-gray-100 p-4 rounded overflow-auto text-sm space-y-2">
               {orderDetails.attributes &&
                 Object.entries(orderDetails.attributes).map(([key, value]) => (
@@ -352,17 +360,15 @@ const ReceivedList = () => {
               <div className="flex justify-between items-center border-b border-gray-300 pb-2">
                 <span className="font-medium text-gray-700">تاریخ تحویل</span>
                 <span className="text-gray-900">
-                  {convertToHijriShamsi(orderDetails.delivery_time)}
+                  {orderPrice.delivery_date}
                 </span>
               </div>
             </div>
-
-            <button
-              onClick={handleClosePopup}
-              className="primary-btn w-full mt-4"
-            >
-              بستن
-            </button>
+            <div className="flex justify-center mt-5 items-center w-full">
+              <button onClick={handleClosePopup} className="tertiary-btn">
+                بستن
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -370,4 +376,4 @@ const ReceivedList = () => {
   );
 };
 
-export default ReceivedList;
+export default ReceivedListVisitCard;

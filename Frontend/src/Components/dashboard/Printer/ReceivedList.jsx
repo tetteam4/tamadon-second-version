@@ -1,46 +1,41 @@
 import axios from "axios";
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import CryptoJS from "crypto-js";
 import Swal from "sweetalert2";
 import SearchBar from "../../../Utilities/Searching";
 import Pagination from "../../../Utilities/Pagination";
 import jalaali from "jalaali-js";
+
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const ReceivedList = () => {
   const secretKey = "TET4-1";
-  const decryptData = useCallback(
-    (hashedData) => {
-      if (!hashedData) {
-        console.error("No data to decrypt");
-        return null;
-      }
-      try {
-        const bytes = CryptoJS.AES.decrypt(hashedData, secretKey);
-        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-        return JSON.parse(decrypted);
-      } catch (error) {
-        console.error("Decryption failed:", error);
-        return null;
-      }
-    },
-    [secretKey]
-  );
+  const decryptData = useCallback((hashedData) => {
+    if (!hashedData) return null;
+    try {
+      const bytes = CryptoJS.AES.decrypt(hashedData, secretKey);
+      return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    } catch (error) {
+      console.error("Decryption failed:", error);
+      return null;
+    }
+  }, []);
 
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+  const [visitCard, setVisitCard] = useState();
   const [categories, setCategories] = useState([]);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState({});
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [selectedOrderId, setSelectedOrderId] = useState();
   const [orderPrice, setOrderprice] = useState({});
-  const [userRole, setUserRole] = useState(
-    decryptData(localStorage.getItem("role"))
-  );
-  const [loading, setLoading] = useState(true);
-  const [deliverDate, setDeliveryDate] = useState();
+  const [selectedOrderId, setSelectedOrderId] = useState();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
+  const [totalOrders, setTotalOrders] = useState(0);
   const roles = [
     { id: 1, name: "Designer" },
     { id: 2, name: "Reception" },
@@ -54,87 +49,12 @@ const ReceivedList = () => {
     { id: 9, name: "Shop_role" },
     { id: 10, name: "Laser" },
   ];
-
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/users/api/users`);
-      setUsers(response.data);
-    } catch (error) {
-      setError("Error fetching categories");
-      console.error("Error fetching categories:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const fetchCategories = useCallback(async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/group/categories/`);
-      setCategories(response.data);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  }, [BASE_URL]);
-
   useEffect(() => {
     fetchUsers();
-    fetchCategories();
   }, []);
-  const getTakenList = useCallback(async () => {
-    try {
-      const newrole = roles.find((r) => r.id == userRole)?.name;
-      const response = await axios.get(`${BASE_URL}/group/order/${newrole}`);
-
-      if (Array.isArray(response.data.results)) {
-        setOrders(response.data.results);
-      } else {
-        setOrders([]); // Set empty array if no data
-        console.warn("Unexpected response format:", response.data);
-      }
-    } catch (err) {
-      console.error("Error fetching List", err);
-      setOrders([]); // Ensure orders is always an array
-    }
-  }, [BASE_URL, userRole]);
-
-  const getDetails = useCallback(
-    async (id) => {
-      try {
-        const token = decryptData(localStorage.getItem("auth_token"));
-        const response = await axios.get(
-          `${BASE_URL}/group/order-by-price/?order=${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        setOrderprice(response.data);
-        setIsModelOpen(!isModelOpen);
-      } catch (err) {
-        console.error("Error fetching order details:", err);
-      }
-    },
-    [BASE_URL, decryptData]
+  const newRole = roles.find(
+    (role) => role.id == decryptData(localStorage.getItem("role"))?.name
   );
-  const convertToHijriShamsi = (dateString) => {
-    console.log(dateString);
-    // Parse the date string
-    const date = new Date(dateString);
-
-    // Extract the Gregorian year, month, and day
-    const gYear = date.getFullYear();
-    const gMonth = date.getMonth() + 1; // Months are zero-indexed
-    const gDay = date.getDate();
-
-    // Convert to Hijri Shamsi
-    const { jy, jm, jd } = jalaali.toJalaali(gYear, gMonth, gDay);
-
-    // Format the date as "yyyy/mm/dd"
-    return `${jy}/${jm.toString().padStart(2, "0")}/${jd
-      .toString()
-      .padStart(2, "0")}`;
-  };
   const handleAdd = useCallback(
     async (order) => {
       const result = await Swal.fire({
@@ -201,183 +121,183 @@ const ReceivedList = () => {
     },
     [BASE_URL, categories]
   );
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/users/api/users`);
+      setUsers(response.data);
+    } catch (error) {
+      setError("Error fetching categories");
+      console.error("Error fetching categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const getDetails = useCallback(
+    async (id) => {
+      try {
+        const token = decryptData(localStorage.getItem("auth_token"));
+        const response = await axios.get(
+          `${BASE_URL}/group/order-by-price/?order=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setOrderprice(response.data[0]);
+        setIsModelOpen(!isModelOpen);
+      } catch (err) {
+        console.error("Error fetching order details:", err);
+      }
+    },
+    [BASE_URL, decryptData]
+  );
+
+  const convertToHijriShamsi = (dateString) => {
+    if (!dateString) return 0;
+    const date = new Date(dateString);
+    const { jy, jm, jd } = jalaali.toJalaali(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      date.getDate()
+    );
+    return `${jy}/${jm.toString().padStart(2, "0")}/${jd
+      .toString()
+      .padStart(2, "0")}`;
+  };
 
   const handleClosePopup = useCallback(() => {
     setIsModelOpen(false);
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await getTakenList();
-        await fetchCategories();
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch orders from the backend with pagination
 
-    fetchData();
-  }, [fetchCategories, getTakenList]);
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const roleData = localStorage.getItem("role");
-      if (roleData) {
-        try {
-          const decryptedRole = decryptData(roleData);
-          if (
-            typeof decryptedRole === "object" &&
-            Array.isArray(decryptedRole) &&
-            decryptedRole.length > 0
-          ) {
-            const roleValue = decryptedRole[0];
-            if (typeof roleValue === "number") {
-              setUserRole(roleValue);
-            } else {
-              console.warn("Role must be number, but is not.");
-            }
-          }
-        } catch (error) {
-          console.error("Error decrypting role:", error);
-        }
-      } else {
-        console.warn("No 'role' found in localStorage.");
-      }
-    };
-    window.addEventListener("storage", handleStorageChange);
-    handleStorageChange();
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, [decryptData]);
-
-  const filteredOrders = useMemo(() => {
-    if (!Array.isArray(orders)) return []; // Ensure it’s an array
-
-    return orders;
-  }, [orders, userRole]);
-
-  const handleSearchChange = useCallback((e) => {
-    setSearchTerm(e.target.value);
+  // Fetch categories
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/group/categories/`);
+      setCategories(response.data);
+      setVisitCard(response.data.find((c) => c.name == "کارت ویزیت")?.id);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
   }, []);
 
-  useEffect(() => {
-    if (searchTerm) {
-      const results = filteredOrders.filter((order) => {
-        const customerName = order.customer_name || "";
-        const orderName = order.order_name || "";
-
-        return (
-          customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          orderName.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      });
-      setSearchResults(results);
-    } else {
-      setSearchResults([]);
-    }
-  }, [searchTerm, filteredOrders, categories]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const postsPerPage = 15;
-
-  const dataToPaginate =
-    searchResults.length > 0 ? searchResults : filteredOrders || [];
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, filteredOrders]);
-
-  const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
-  const paginatedOrders = useMemo(
-    () =>
-      [...dataToPaginate]
-        .reverse()
-        .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage),
-    [currentPage, dataToPaginate]
-  );
-
+  // Pagination handler
   const onPageChange = useCallback((page) => {
     setCurrentPage(page);
   }, []);
+  const getTakenList = useCallback(async () => {
+    try {
+      // Ensure categories are fetched first
+      await fetchCategories();
+
+      const newrole = roles.find(
+        (r) => r.id == decryptData(localStorage.getItem("role"))
+      )?.name;
+
+      const response = await axios.get(
+        `${BASE_URL}/group/order/${newrole}/?pagenum=${currentPage}`
+      );
+
+      if (Array.isArray(response.data.results)) {
+        if (newrole == "Head_of_designers") {
+          setOrders(
+            response.data.results.filter(
+              (order) => order.category !== visitCard
+            )
+          );
+        } else setOrders(response.data.results);
+      } else {
+        setOrders([]);
+        console.warn("Unexpected response format:", response.data);
+      }
+      setTotalOrders(response.data.count);
+    } catch (err) {
+      console.error("Error fetching List", err);
+      setOrders([]); // Ensure orders is always an array
+    }
+  }, [visitCard, BASE_URL]);
+
+  useEffect(() => {
+    if (visitCard) {
+    }
+    getTakenList(currentPage); // Then fetch the taken list}
+  }, [currentPage, visitCard]);
+
+  // Calculate total pages based on the backend count
+  const totalPages = Math.ceil(totalOrders / pageSize);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="w-[400px] md:w-[700px] mt-10 lg:w-[70%] mx-auto lg:overflow-hidden">
+    <div className="w-[400px] md:w-[700px] mt-10 lg:w-[70%] mx-auto">
       <h2 className="md:text-2xl text-base font-Ray_black text-center font-bold mb-4">
         لیست سفارشات دریافتی
       </h2>
+
       <SearchBar
         placeholder="جستجو..."
         value={searchTerm}
-        onChange={handleSearchChange}
+        onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <div className="overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg md:w-full">
+
+      <div className="overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg">
         <table className="min-w-full bg-white rounded-lg border border-gray-200">
           <thead className="bg-gray-100">
             <tr className="bg-green text-gray-100 text-center">
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+              <th className="border px-6 py-2.5 text-sm font-semibold">
                 کدسفارش
               </th>
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+              <th className="border px-6 py-2.5 text-sm font-semibold">
                 مشتری
               </th>
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+              <th className="border px-6 py-2.5 text-sm font-semibold">
                 نام سفارش
               </th>
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
-                طراح
-              </th>
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+              <th className="border px-6 py-2.5 text-sm font-semibold">طراح</th>
+              <th className="border px-6 py-2.5 text-sm font-semibold">
                 دسته بندی
               </th>
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
+              <th className="border px-6 py-2.5 text-sm font-semibold">
                 اقدامات
               </th>
             </tr>
           </thead>
           <tbody>
-            {dataToPaginate.length > 0 ? (
-              paginatedOrders.map((order, index) => {
-                const designer = users.find(
-                  (user) => user.id === order.designer
+            {orders.length > 0 ? (
+              orders.map((order, index) => {
+                const designer = users.find((user) => user.id == order.designer)
+                  ? `${
+                      users.find((user) => user.id == order.designer).first_name
+                    } ${
+                      users.find((user) => user.id == order.designer).last_name
+                    }`
+                  : "نامشخص";
+
+                const category = categories.find(
+                  (cat) => cat.id === order.category
                 );
-                const designerName = designer
-                  ? `${designer.first_name || ""} ${
-                      designer.last_name || ""
-                    }`.trim()
-                  : "Unknown Designer";
-                const categoryName =
-                  categories.find((category) => category.id === order.category)
-                    ?.name || "دسته‌بندی نامشخص";
+                const categoryName = category
+                  ? category.name
+                  : "دسته‌بندی نامشخص";
 
                 return (
                   <tr
                     key={order.id}
                     className={`text-center font-bold border-b border-gray-200 ${
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                    } hover:bg-gray-100 transition-all`}
+                    }`}
                   >
-                    <td className="border border-gray-300 px-6 py-2 text-gray-700">
-                      {order.secret_key}
-                    </td>
-                    <td className="border border-gray-300 px-6 py-2 text-gray-700">
-                      {order.customer_name}
-                    </td>
-                    <td className="border border-gray-300 px-6 py-2 text-gray-700">
-                      {order.order_name}
-                    </td>
-                    <td className="border border-gray-300 px-6 py-2 text-gray-700">
-                      {designerName}
-                    </td>
-                    <td className="border border-gray-300 px-6 py-2 text-gray-700">
-                      {categoryName}
-                    </td>
-                    <td className="border border-gray-300 px-6 py-2 flex items-center gap-x-5 justify-center text-gray-700">
+                    <td className="border px-6 py-2">{order.secret_key}</td>
+                    <td className="border px-6 py-2">{order.customer_name}</td>
+                    <td className="border px-6 py-2">{order.order_name}</td>
+                    <td className="border px-6 py-2">{designer}</td>
+                    <td className="border px-6 py-2">{categoryName}</td>
+                    <td className="border px-6 py-2 flex gap-x-5 justify-center">
                       <button
                         onClick={() => handleAdd(order)}
                         className="secondry-btn"
@@ -401,24 +321,23 @@ const ReceivedList = () => {
             ) : (
               <tr>
                 <td
-                  colSpan="5"
+                  colSpan="6"
                   className="border p-2 text-center text-gray-600"
                 >
-                  هیچ سفارشی برای وضعیت "{searchTerm ? "جستجو" : "در انتظار"}"
-                  پیدا نشد.
+                  {loading ? "در حال بارگذاری..." : "هیچ سفارشی یافت نشد."}
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-        />
-      )}
+
+      <Pagination
+        currentPage={currentPage}
+        totalOrders={totalOrders}
+        pageSize={pageSize}
+        onPageChange={onPageChange}
+      />
 
       {isModelOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
@@ -426,6 +345,7 @@ const ReceivedList = () => {
             <h3 className="text-xl font-bold mb-4 text-gray-800">
               اطلاعات سفارش
             </h3>
+            {console.log(orderDetails)}
             <div className="bg-gray-100 p-4 rounded overflow-auto text-sm space-y-2">
               {orderDetails.attributes &&
                 Object.entries(orderDetails.attributes).map(([key, value]) => (

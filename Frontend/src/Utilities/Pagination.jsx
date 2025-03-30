@@ -1,7 +1,7 @@
 import React from "react";
 
 const Pagination = ({ currentPage, totalOrders, pageSize, onPageChange }) => {
-  const totalPages = totalOrders ? Math.ceil(totalOrders / pageSize) : 1; // If totalOrders is 0 or undefined, show 1 page.
+  const totalPages = totalOrders ? Math.ceil(totalOrders / pageSize) : 1;
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -10,25 +10,25 @@ const Pagination = ({ currentPage, totalOrders, pageSize, onPageChange }) => {
   };
 
   return (
-    <div className="flex justify-center mt-4">
+    <div className="flex justify-center items-center gap-3 mt-4">
       <button
         onClick={() => handlePageChange(currentPage - 1)}
-        className="pagination-btn"
         disabled={currentPage === 1}
+        className="px-3 py-1 bg-gray-300 rounded-md hover:bg-gray-400 disabled:opacity-50"
       >
-        &lt; پیشرفته
+        « قبلی
       </button>
 
-      <span className="mx-4 text-sm">
+      <span>
         صفحه {currentPage} از {totalPages}
       </span>
 
       <button
         onClick={() => handlePageChange(currentPage + 1)}
-        className="pagination-btn"
         disabled={currentPage === totalPages}
+        className="px-3 py-1 bg-gray-300 rounded-md hover:bg-gray-400 disabled:opacity-50"
       >
-        بعدی &gt;
+        بعدی »
       </button>
     </div>
   );
