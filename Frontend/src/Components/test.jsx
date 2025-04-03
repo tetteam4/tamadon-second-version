@@ -1,52 +1,300 @@
-<div>
-  <label id="listbox-label" class="block text-sm/6 font-medium text-gray-900">Assigned to</label>
-  <div class="relative mt-2">
-    <button type="button" class="grid w-full cursor-default grid-cols-1 rounded-md bg-white py-1.5 pr-2 pl-3 text-left text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" aria-haspopup="listbox" aria-expanded="true" aria-labelledby="listbox-label">
-      <span class="col-start-1 row-start-1 flex items-center gap-3 pr-6">
-        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" class="size-5 shrink-0 rounded-full">
-        <span class="block truncate">Tom Cook</span>
-      </span>
-      <svg class="col-start-1 row-start-1 size-5 self-center justify-self-end text-gray-500 sm:size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" data-slot="icon">
-        <path fill-rule="evenodd" d="M5.22 10.22a.75.75 0 0 1 1.06 0L8 11.94l1.72-1.72a.75.75 0 1 1 1.06 1.06l-2.25 2.25a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 0 1 0-1.06ZM10.78 5.78a.75.75 0 0 1-1.06 0L8 4.06 6.28 5.78a.75.75 0 0 1-1.06-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1 0 1.06Z" clip-rule="evenodd" />
-      </svg>
-    </button>
+import React, { useEffect, useState } from "react";
+import { FaTelegramPlane, FaEnvelope } from "react-icons/fa";
+import { PiPhoneCallFill } from "react-icons/pi";
+import { CiGlobe } from "react-icons/ci";
+import axios from "axios";
+import { FaMapMarkerAlt } from "react-icons/fa";
+import CryptoJS from "crypto-js";
+import moment from "moment-jalaali";
+const Bill = ({ order }) => {
+  const [categories, setCategories] = useState([]);
+  const [attributes, setAttributes] = useState([order.attributes]);
+  const [designers, setDesigners] = useState([]);
+  const [prices, setPrices] = useState([]);
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const fetchPrices = async (orderId) => {
+    try {
+      // Get the email from localStorage
+      const token = decryptData(localStorage.getItem("auth_token"));
+      if (!token) {
+        console.error("Token not found in localStorage");
+        return;
+      }
 
-    <!--
-      Select popover, show/hide based on select state.
+      // Make the API request
+      const response = await axios.get(`${BASE_URL}/group/order-by-price/`, {
+        params: { order: orderId },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Use email in the header
+        },
+      });
 
-      Entering: ""
-        From: ""
-        To: ""
-      Leaving: "transition ease-in duration-100"
-        From: "opacity-100"
-        To: "opacity-0"
-    -->
-    <ul class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg ring-black/5 focus:outline-hidden sm:text-sm" tabindex="-1" role="listbox" aria-labelledby="listbox-label" aria-activedescendant="listbox-option-3">
-      <!--
-        Select option, manage highlight styles based on mouseenter/mouseleave and keyboard navigation.
+      // Set the response data to the state
+      setPrices(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching prices:", error);
+    }
+  };
+  const formatToShamsi = (date) => {
+    if (!date) return "";
+    return moment(date).format("jYYYY/jMM/jDD"); // Shamsi format
+  };
+  useEffect(() => {
+    if (order || order.id) {
+      fetchPrices(order.id);
+      // Fetch prices only when order.id is available
+      console.log("Prices fetched for order:", order.id);
+    }
+  }, [order]); // Dependency array ensures it runs when `order` changes
 
-        Highlighted: "bg-indigo-600 text-white outline-hidden", Not Highlighted: "text-gray-900"
-      -->
-      <li class="relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none" id="listbox-option-0" role="option">
-        <div class="flex items-center">
-          <img src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" class="size-5 shrink-0 rounded-full">
-          <!-- Selected: "font-semibold", Not Selected: "font-normal" -->
-          <span class="ml-3 block truncate font-normal">Wade Cooper</span>
+  const getDesignerName = (designerId) => {
+    const designer = designers.find((des) => des.id === designerId);
+    return designer ? designer.first_name : "نامشخص";
+  };
+
+  const secretKey = "TET4-1"; // Use a strong secret key
+  const decryptData = (hashedData) => {
+    if (!hashedData) {
+      console.error("No data to decrypt");
+      return null;
+    }
+    try {
+      const bytes = CryptoJS.AES.decrypt(hashedData, secretKey);
+      const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+      return JSON.parse(decrypted);
+    } catch (error) {
+      console.error("Decryption failed:", error);
+      return null;
+    }
+  };
+
+  const fetchDesigners = async () => {
+    try {
+      // Get the email from localStorage
+      const token = decryptData(localStorage.getItem("auth_token"));
+      if (!token) {
+        console.error("Email not found in localStorage");
+        return;
+      }
+
+      // Make the API request
+      const response = await axios.get(`${BASE_URL}/users/api/users/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Use email in the header
+        },
+      });
+
+      // Set the response data to the state
+      setDesigners(response.data);
+    } catch (error) {
+      console.error("Error fetching designers:", error);
+    }
+  };
+  useEffect(() => {
+    fetchDesigners();
+  }, []); // Fetch data on component mount
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/group/categories/`);
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+  return (
+    <div className="bg-white border border-green ">
+      <div className="flex justify-between items-center">
+        <div className="w-full relative pr-5">
+          {/* Backdrop image */}
+          <img
+            src="/Tamadon.png"
+            alt="logo"
+            className="absolute   opacity-5 top-20 -bottom-10 right-5 mt-5 w-[600px] object-cover overflow-hidden "
+          />
+
+          {/* Header */}
+
+          <div>
+            <div className=" flex  items-center justify-center">
+              <div className="flex justify-center gap-x-2 items-center">
+                <h2 className="text-5xl font-semibold text-left ">
+                  <p>Tamadon</p>
+                  <p>Printing Press</p>
+                </h2>
+                <h1 className="text-6xl  font-bold text-green-800 border-r-4  border-green pr-4">
+                  مطبعـه تمدن
+                </h1>
+              </div>
+            </div>
+          </div>
+
+          <div className="px-5 ">
+            <div className="flex justify-between items-center h-full">
+              {/* Persian Content */}
+              <div className="text-right relative"></div>
+
+              {/* Center Content */}
+              <div className="text-center">
+                <p className="italic text-sm text-gray-900">
+                  تلاقی کیفیت و نوآوری!
+                </p>
+                <p className="italic text-sm text-gray-800">
+                  Intersection of Quality & Innovation
+                </p>
+              </div>
+
+              {/* Logo */}
+              <img
+                src="/Tamadon.png"
+                alt="Tamadon Logo"
+                className="w-24 h-24 object-contain"
+              />
+            </div>
+          </div>
+
+          {/* contain */}
+
+          <div className="flex justify-center mt-2 items-center ">
+            <div className="border border-gray-400 h-[280px]  w-[800px]  rounded-lg bg-white grid overflow-hidden grid-cols-4  px-4 shadow-md">
+              <div className="mt-3 col-span-1 ">
+                <div className=" p-1 gap-x-2 flex items-start">
+                  <p>مشتری:</p>
+                  <span className=" ">{order.customer_name}</span>
+                </div>
+                <div className=" p-1 gap-x-2 flex items-start">
+                  <p>دیزاینر:</p>{" "}
+                  <span className=" ">{getDesignerName(order.designer)}</span>
+                </div>
+                <div className=" p-1 gap-x-2 flex items-start">
+                  <p>نام سفارش:</p>{" "}
+                  <span className=" ">{order.order_name}</span>
+                </div>
+                <div className=" p-1 gap-x-2 flex items-start">
+                  <p>جنس:</p>{" "}
+                  <span className=" ">
+                    {categories.find(
+                      (category) => category.id === order.category
+                    )?.name || "نامشخص"}
+                  </span>
+                </div>
+                <div className="p-1 gap-x-2 flex items-start">
+                  <p>جمله :</p>
+                  <span className="">{prices[0]?.price || "unknown"}</span>
+                </div>
+                <div className="p-1 gap-x-2 flex items-start">
+                  <p>پیش پرداخت:</p>
+                  <span className="">
+                    {prices[0]?.receive_price || "unknown"}
+                  </span>
+                </div>
+                <div className="p-1 gap-x-2 flex items-start">
+                  <p>باقی :</p>
+                  <span className="">
+                    {prices[0]?.reminder_price || "unknown"}
+                  </span>
+                </div>
+              </div>
+              <div className=" col-span-3 grid grid-cols-3 mt-4">
+                {order.attributes &&
+                  Object.entries(order.attributes).map(
+                    ([key, value], index) => (
+                      <div
+                        key={index}
+                        className="flex justify-center items-center mb-3 gap-x-2 pb-2 last:border-b-0"
+                      >
+                        <span className="font-medium">{key}:</span>
+                        <span>{value || "ندارد"}</span>
+                      </div>
+                    )
+                  )}{" "}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center mt-6 px-8 justify-between  ">
+            <div className="flex items-center justify-center gap-x-2 text-lg">
+              <div className="flex items-center text-lg gap-x-1">
+                <p>کد سفارش :</p>
+
+                <p>{order.secret_key}</p>
+              </div>
+            </div>
+            <div className="flex items-center text-lg gap-x-1">
+              <p>تاریخ اخذ :</p>
+              <p>{formatToShamsi(prices[0]?.created_at).replace(/\//g, "-") || "unknown"}</p>
+            </div>
+            <div className="flex items-center text-lg gap-x-1">
+              <p>تاریخ تحویل :</p>
+
+              <p>{(prices[0]?.delivery_date) || "unknown"}</p>
+            </div>
+          </div>
+          {/*  */}
+          <div>
+            {/* Contact Section */}
+            <footer className="py-2 font-bold flex px-8 justify-between items-center text-md text-gray-600 print:flex print:justify-between print:px-4">
+              <div className="flex items-center justify-center gap-x-2 print:gap-x-1">
+                <span>93-772-029-545+</span>
+                <span className="bg-black p-1.5 rounded-full flex items-center justify-center w-8 h-8">
+                  <PiPhoneCallFill className="text-white w-5 h-5" />
+                </span>
+              </div>
+              <div className="flex items-center justify-center gap-x-2 print:gap-x-1">
+                <span>tamadon.af@gmail.com</span>
+                <span className="bg-black p-1.5 rounded-full flex items-center justify-center w-8 h-8">
+                  <FaEnvelope className="text-white w-5 h-5" />
+                </span>
+              </div>
+              <div className="flex items-center justify-center gap-x-2 print:gap-x-1">
+                <span>@tamadon_press</span>
+                <span className="bg-black p-1.5 rounded-full flex items-center justify-center w-8 h-8">
+                  <FaTelegramPlane className="text-white w-5 h-5" />
+                </span>
+              </div>
+            </footer>
+
+            {/* Address & Website Section */}
+            <div className="flex justify-evenly mt-3 items-center flex-wrap gap-4 print:gap-2">
+              {/* Address Section */}
+              <div className="flex items-center gap-2 align-middle print:inline-flex">
+                <FaMapMarkerAlt className="text-[#d9534f] text-xl w-5 h-5" />
+                <p className="text-gray-700 text-sm font-medium dark:text-gray-300 leading-none">
+                  نشانی ما:
+                </p>
+                <p className="text-gray-700 text-sm font-medium dark:text-gray-300 text-right leading-none">
+                  کوتة سنگی، سرک دهبوری، مارکیت اتفاق
+                </p>
+              </div>
+
+              {/* Website Section */}
+              <div className="flex items-center gap-2 align-middle print:inline-flex">
+                <CiGlobe className="text-[#d9534f] text-xl w-5 h-5" />
+                <p className="text-gray-800 text-sm font-medium dark:text-gray-300 leading-none">
+                  نشانی ویب سایت ما:
+                </p>
+                <p className="text-gray-800 text-md font-medium dark:text-gray-300 text-right leading-none">
+                  tamadonprintingpress.com
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="text-center text-md mt-2 text-red-600 ">
+            نوت: لطفاً هنگام دریافت سفارش، بل سفارش را همراه داشته باشید.
+          </div>
         </div>
+        <div className="">
+          <img src="/bill.jpeg" alt="" className="h-[190mm] w-[300px]" />
+        </div>
+      </div>
+    </div>
+  );
+};
 
-        <!--
-          Checkmark, only display for selected option.
-
-          Highlighted: "text-white", Not Highlighted: "text-indigo-600"
-        -->
-        <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
-          <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-            <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
-          </svg>
-        </span>
-      </li>
-
-      <!-- More items... -->
-    </ul>
-  </div>
-</div>
+export default React.memo(Bill);
