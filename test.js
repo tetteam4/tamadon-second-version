@@ -7,7 +7,7 @@ import Pagination from "../../../Utilities/Pagination";
 import jalaali from "jalaali-js";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-const Delivery = () => {
+const ReceivedList = () => {
   const secretKey = "TET4-1";
   const decryptData = useCallback(
     (hashedData) => {
@@ -29,40 +29,14 @@ const Delivery = () => {
 
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
-<<<<<<< HEAD
-
-  const [token, setToken] = useState(
-    decryptData(localStorage.getItem("auth_token"))
-  );
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [refreshingToken, setRefreshingToken] = useState(false);
-=======
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState({});
->>>>>>> d0cacd95e84979fb6e7e911644aa6d8a27aac645
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [selectedDetails, setSelectedDetail] = useState([]);
-  const [userRole, setUserRole] = useState(
-    decryptData(localStorage.getItem("role"))
-  );
+  const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deliverDate, setDeliveryDate] = useState();
-  const roles = [
-    { id: 1, name: "Designer" },
-    { id: 2, name: "Reception" },
-    // { id: 0, name: "Admin" },
-    { id: 3, name: "Head of designers" },
-    { id: 4, name: "Printer" },
-    { id: 5, name: "Delivery" },
-    { id: 6, name: "Digital" },
-    { id: 7, name: "Bill" },
-    { id: 8, name: "Chaspak" },
-    { id: 9, name: "Shop role" },
-    { id: 10, name: "Laser" },
-  ];
+
   const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(`${BASE_URL}/group/categories/`);
@@ -72,25 +46,14 @@ const Delivery = () => {
     }
   }, [BASE_URL]);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
   const getTakenList = useCallback(async () => {
     try {
-      const newrole = roles.find((r) => r.id == userRole)?.name;
-      const response = await axios.get(`${BASE_URL}/group/order/Completed`);
-
-      if (Array.isArray(response.data)) {
-        setOrders(response.data);
-      } else {
-        setOrders([]); // Set empty array if no data
-        console.warn("Unexpected response format:", response.data);
-      }
+      const response = await axios.get(`${BASE_URL}/group/orders/`);
+      setOrders(response.data);
     } catch (err) {
-      console.error("Error fetching List", err);
-      setOrders([]); // Ensure orders is always an array
+      console.log("Error fetching List", err);
     }
-  }, [BASE_URL, userRole]);
+  }, [BASE_URL]);
 
   const getDetails = useCallback(
     async (id) => {
@@ -103,6 +66,7 @@ const Delivery = () => {
           },
         });
         setOrderDetails(response.data);
+        setIsModelOpen(true);
       } catch (err) {
         console.error("Error fetching order details:", err);
       }
@@ -127,10 +91,10 @@ const Delivery = () => {
       .padStart(2, "0")}`;
   };
   const handleAdd = useCallback(
-    async (order) => {
+    async (id) => {
       const result = await Swal.fire({
         title: "آیا مطمئن هستید؟",
-        text: "این سفارش به وضعیت 'کامل' تغییر خواهد کرد!",
+        text: "این سفارش به وضعیت 'در حال پردازش' تغییر خواهد کرد!",
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "بله، تغییر بده",
@@ -138,104 +102,36 @@ const Delivery = () => {
         reverseButtons: true,
       });
 
-      if (!result.isConfirmed) return;
+      if (result.isConfirmed) {
+        try {
+          await axios.post(`${BASE_URL}/group/update-order-status/`, {
+            order_id: id,
+            status: "processing",
+          });
 
-      console.log(order);
+          setOrders((prevOrders) =>
+            prevOrders.filter((order) => order.id !== id)
+          );
 
-      let nextStatus;
-      const category = categories.find((cat) => cat.id === order.category);
+          Swal.fire({
+            icon: "success",
+            title: "سفارش بروزرسانی شد",
+            text: "وضعیت سفارش با موفقیت به 'در حال پردازش' تغییر کرد.",
+            confirmButtonText: "باشه",
+          });
+        } catch (err) {
+          console.error("Error changing status", err);
 
-      if (category && Array.isArray(category.stages)) {
-        const currentIndex = category.stages.indexOf(order.status);
-
-        if (currentIndex !== -1 && currentIndex < category.stages.length - 1) {
-          nextStatus = category.stages[currentIndex + 1];
-        } else {
-          console.log("No next status available.");
-          return;
+          Swal.fire({
+            icon: "error",
+            title: "خطا در تغییر وضعیت",
+            text: "مشکلی در تغییر وضعیت سفارش به وجود آمد. لطفاً دوباره تلاش کنید.",
+            confirmButtonText: "متوجه شدم",
+          });
         }
-      } else {
-        console.log("Stages not found or not an array.");
-        return;
-      }
-
-<<<<<<< HEAD
-    setLoading(true);
-    try {
-      const response = await fetch(`${BASE_URL}/group/categories/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch categories");
-      }
-      const categoriesData = await response.json();
-      setCategories(categoriesData);
-    } catch (error) {
-      setError("Error fetching categories");
-      console.error("Error fetching categories:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchOrders = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/group/order/11`);
-      setOrders(Array.isArray(response.data) ? response.data : []);
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-      setOrders([]); // Set to an empty array on error
-    }
-  };
-
-  const markAsDelivered = async (id) => {
-    const result = await Swal.fire({
-      title: "آیا مطمئن هستید؟",
-      text: "این سفارش به وضعیت 'تحویل داده شد' تغییر خواهد کرد!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "بله، انجام بده",
-      cancelButtonText: "لغو",
-      reverseButtons: true,
-    });
-
-    if (result.isConfirmed) {
-=======
->>>>>>> d0cacd95e84979fb6e7e911644aa6d8a27aac645
-      try {
-        await axios.post(`${BASE_URL}/group/update-order-status/`, {
-          order_id: order.id,
-          status: nextStatus,
-        });
-
-        // ✅ Correctly update the order status without removing the order
-        setOrders((prevOrders) =>
-          prevOrders.map((o) =>
-            o.id === order.id ? { ...o, status: nextStatus } : o
-          )
-        );
-
-        Swal.fire({
-          icon: "success",
-          title: "سفارش بروزرسانی شد",
-          text: `وضعیت سفارش به 'کامل' تغییر کرد.`,
-          confirmButtonText: "باشه",
-        });
-      } catch (err) {
-        console.error("Error changing status", err);
-
-        Swal.fire({
-          icon: "error",
-          title: "خطا در تغییر وضعیت",
-          text: "مشکلی در تغییر وضعیت سفارش به وجود آمد. لطفاً دوباره تلاش کنید.",
-          confirmButtonText: "متوجه شدم",
-        });
       }
     },
-    [BASE_URL, categories]
+    [BASE_URL]
   );
 
   const handleClosePopup = useCallback(() => {
@@ -297,7 +193,7 @@ const Delivery = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, 
           },
         }
       );
@@ -314,10 +210,15 @@ const Delivery = () => {
   };
 
   const filteredOrders = useMemo(() => {
-    if (!Array.isArray(orders)) return []; // Ensure it’s an array
-
-    return orders;
-  }, [orders, userRole]);
+    if (!userRole || categories.length === 0) {
+      return orders;
+    }
+    return orders.filter((order) => {
+      const category = categories.find((cat) => cat.id === order.category);
+      if (!category) return false;
+      return category.role === userRole;
+    });
+  }, [orders, categories, userRole]);
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
@@ -328,10 +229,13 @@ const Delivery = () => {
       const results = filteredOrders.filter((order) => {
         const customerName = order.customer_name || "";
         const orderName = order.order_name || "";
-
+        const categoryName =
+          categories.find((category) => category.id === order.category)?.name ||
+          "";
         return (
           customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          orderName.toLowerCase().includes(searchTerm.toLowerCase())
+          orderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
         );
       });
       setSearchResults(results);
@@ -345,13 +249,7 @@ const Delivery = () => {
   const postsPerPage = 15;
 
   const dataToPaginate =
-<<<<<<< HEAD
-    Array.isArray(searchResults) && searchResults.length > 0
-      ? searchResults
-      : orders;
-=======
-    searchResults.length > 0 ? searchResults : filteredOrders || [];
->>>>>>> d0cacd95e84979fb6e7e911644aa6d8a27aac645
+    searchResults.length > 0 ? searchResults : filteredOrders;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -371,29 +269,7 @@ const Delivery = () => {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="loader mr-3"></div>
-        <span className="text-xl font-semibold">در حال بارگذاری...</span>
-
-        <style jsx>{`
-          .loader {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #16a34a; /* Tailwind green-600 */
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-          }
-
-          @keyframes spin {
-            to {
-              transform: rotate(360deg);
-            }
-          }
-        `}</style>
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
   return (
@@ -418,9 +294,6 @@ const Delivery = () => {
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 دسته بندی
-              </th>{" "}
-              <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
-                تاریخ تحویل دهی
               </th>
               <th className="border border-gray-300 px-6 py-2.5 text-sm font-semibold">
                 اقدامات
@@ -447,31 +320,17 @@ const Delivery = () => {
                       (category) => category.id === order.category
                     )?.name || "دسته‌بندی نامشخص"}
                   </td>
-                  <td className="border-gray-300 px-6 py-2 text-gray-700">
-                    <span className="flex flex-col">
-                      {" "}
-                      <span>{convertToHijriShamsi(order.updated_at)}</span>
-                      <span>
-                        {
-                          order.updated_at
-                            .split("T")[1]
-                            .split("Z")[0]
-                            .split(".")[0]
-                        }
-                      </span>
-                    </span>
-                  </td>
                   <td className="border-gray-300 px-6 flex items-center gap-x-5 justify-center text-gray-700">
-                    {/* <button
-                      onClick={() => handleAdd(order)}
+                    <button
+                      onClick={() => handleAdd(order.id)}
                       className="secondry-btn"
                     >
-                      تایید تکمیلی
-                    </button> */}
+                      تایید دریافت‌
+                    </button>
                     <button
                       onClick={() => {
-                        setOrderDetails(order);
-                        setIsModelOpen(true);
+                        getDetails(order.id);
+                        fetchOrder(order.id);
                       }}
                       className="secondry-btn"
                     >
@@ -519,10 +378,13 @@ const Delivery = () => {
               <div className="flex justify-between items-center border-b border-gray-300 pb-2">
                 <span className="font-medium text-gray-700"> تاریخ اخذ</span>
                 <span className="text-gray-900">
-                  {console.log(orderDetails)}
                   {convertToHijriShamsi(orderDetails.created_at)}
                 </span>
               </div>
+              <div className="flex justify-between items-center border-b border-gray-300 pb-2">
+                <span className="font-medium text-gray-700">تاریخ تحویل</span>
+                <span className="text-gray-900">{deliverDate}</span>
+              </div>{" "}
             </div>
             <div className="flex justify-center mt-5 items-center w-full">
               <button onClick={handleClosePopup} className="tertiary-btn">
@@ -536,4 +398,4 @@ const Delivery = () => {
   );
 };
 
-export default Delivery;
+export default ReceivedList;
