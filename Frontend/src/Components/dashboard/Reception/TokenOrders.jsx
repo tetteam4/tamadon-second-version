@@ -320,6 +320,9 @@ const TokenOrders = () => {
     setPassedOrder(order);
     setSelectedStatus(status);
   };
+
+  const postsPerPage = 20;
+
   const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
 
   useEffect(() => {

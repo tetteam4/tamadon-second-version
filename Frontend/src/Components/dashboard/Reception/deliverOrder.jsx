@@ -29,19 +29,8 @@ const Delivery = () => {
 
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
-<<<<<<< HEAD
-
-  const [token, setToken] = useState(
-    decryptData(localStorage.getItem("auth_token"))
-  );
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [refreshingToken, setRefreshingToken] = useState(false);
-=======
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState({});
->>>>>>> d0cacd95e84979fb6e7e911644aa6d8a27aac645
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [selectedDetails, setSelectedDetail] = useState([]);
@@ -159,52 +148,6 @@ const Delivery = () => {
         return;
       }
 
-<<<<<<< HEAD
-    setLoading(true);
-    try {
-      const response = await fetch(`${BASE_URL}/group/categories/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch categories");
-      }
-      const categoriesData = await response.json();
-      setCategories(categoriesData);
-    } catch (error) {
-      setError("Error fetching categories");
-      console.error("Error fetching categories:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchOrders = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/group/order/11`);
-      setOrders(Array.isArray(response.data) ? response.data : []);
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-      setOrders([]); // Set to an empty array on error
-    }
-  };
-
-  const markAsDelivered = async (id) => {
-    const result = await Swal.fire({
-      title: "آیا مطمئن هستید؟",
-      text: "این سفارش به وضعیت 'تحویل داده شد' تغییر خواهد کرد!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "بله، انجام بده",
-      cancelButtonText: "لغو",
-      reverseButtons: true,
-    });
-
-    if (result.isConfirmed) {
-=======
->>>>>>> d0cacd95e84979fb6e7e911644aa6d8a27aac645
       try {
         await axios.post(`${BASE_URL}/group/update-order-status/`, {
           order_id: order.id,
@@ -345,13 +288,7 @@ const Delivery = () => {
   const postsPerPage = 15;
 
   const dataToPaginate =
-<<<<<<< HEAD
-    Array.isArray(searchResults) && searchResults.length > 0
-      ? searchResults
-      : orders;
-=======
     searchResults.length > 0 ? searchResults : filteredOrders || [];
->>>>>>> d0cacd95e84979fb6e7e911644aa6d8a27aac645
 
   useEffect(() => {
     setCurrentPage(1);
