@@ -200,6 +200,7 @@ const ReceivedList = () => {
       const response = await axios.get(
         `${BASE_URL}/group/order/${newrole}/?pagenum=${currentPage}`
       );
+      console.log(response.data);
 
       if (Array.isArray(response.data.results)) {
         if (newrole == "Head_of_designers") {
@@ -222,8 +223,11 @@ const ReceivedList = () => {
 
   useEffect(() => {
     if (visitCard) {
-    }
-    getTakenList(currentPage); // Then fetch the taken list}
+      getTakenList(currentPage);
+    } else {
+      setVisitCard(categories.find((c) => c.name == "ویزیت کارت")?.id);
+      getTakenList(currentPage);
+    } // Then fetch the taken list}
   }, [currentPage, visitCard]);
 
   // Calculate total pages based on the backend count

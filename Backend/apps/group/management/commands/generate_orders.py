@@ -19,14 +19,14 @@ class Command(BaseCommand):
         users = User.objects.all()
 
         # Create 1000 orders
-        for _ in range(1000):
+        for _ in range(100):
             order_name = fake.word()  # Random word for order name
             customer_name = fake.name()  # Random name for customer
             description = fake.text()  # Random description text
             designer = random.choice(users)  # Random user for designer
             category = random.choice(categories)  # Random category
             status = random.choice(
-                ["Pending", "In Progress", "Completed", "Shipped"]
+                ["Reception"]
             )  # Random status
 
             # Create and save the Order instance
