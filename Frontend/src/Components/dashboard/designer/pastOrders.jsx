@@ -310,7 +310,6 @@ const PastOrders = () => {
     results = sortOrders(results, sortOrder);
 
     setFilteredOrders(results);
-    setCurrentPage(1); // Reset pagination
   }, [orders, filterDate, searchTerm, sortOrder, categories]);
 
   useEffect(() => {
@@ -622,11 +621,12 @@ const PastOrders = () => {
           </table>
           {/* Pagination Component */}
         </div>
+
         <Pagination
           currentPage={currentPage}
           totalOrders={totalOrders}
           pageSize={pageSize}
-          onPageChange={setCurrentPage}
+          onPageChange={onPageChange}
         />
       </center>
       {/* Conditionally render the Bill component */}

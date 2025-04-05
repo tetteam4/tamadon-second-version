@@ -8,7 +8,7 @@ import jalaali from "jalaali-js";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-const ReceivedList = () => {
+const ReceivedListVisitCard = () => {
   const secretKey = "TET4-1";
   const decryptData = useCallback((hashedData) => {
     if (!hashedData) return null;
@@ -187,6 +187,7 @@ const ReceivedList = () => {
   // Pagination handler
   const onPageChange = useCallback((page) => {
     setCurrentPage(page);
+    console.log(page);
   }, []);
   const getTakenList = useCallback(async () => {
     try {
@@ -203,13 +204,9 @@ const ReceivedList = () => {
       console.log(response.data);
 
       if (Array.isArray(response.data.results)) {
-        if (newrole == "Head_of_designers") {
-          setOrders(
-            response.data.results.filter(
-              (order) => order.category !== visitCard
-            )
-          );
-        } else setOrders(response.data.results);
+        setOrders(
+          response.data.results.filter((order) => order.category !== visitCard)
+        );
       } else {
         setOrders([]);
         console.warn("Unexpected response format:", response.data);
@@ -222,12 +219,16 @@ const ReceivedList = () => {
   }, [visitCard, BASE_URL]);
 
   useEffect(() => {
+    if (!visitCard) {
+      const found = categories.find((c) => c.name === "ویزیت کارت");
+      if (found) setVisitCard(found.id);
+    }
+  }, [categories, visitCard]);
+
+  useEffect(() => {
     if (visitCard) {
       getTakenList(currentPage);
-    } else {
-      setVisitCard(categories.find((c) => c.name == "ویزیت کارت")?.id);
-      getTakenList(currentPage);
-    } // Then fetch the taken list}
+    }
   }, [currentPage, visitCard]);
 
   // Calculate total pages based on the backend count
@@ -386,4 +387,4 @@ const ReceivedList = () => {
   );
 };
 
-export default ReceivedList;
+export default ReceivedListVisitCard;
