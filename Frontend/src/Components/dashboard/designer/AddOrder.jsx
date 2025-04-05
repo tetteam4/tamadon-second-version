@@ -182,7 +182,6 @@ const AddOrder = () => {
 
   const onPageChange = useCallback((page) => {
     setCurrentPage(page);
-    console.log(page);
   }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();

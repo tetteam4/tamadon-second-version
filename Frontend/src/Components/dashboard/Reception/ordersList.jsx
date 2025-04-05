@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import CryptoJS from "crypto-js";
@@ -23,7 +23,8 @@ const OrderList = () => {
   const [users, setUsers] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingData, setEditingData] = useState({});
-  const [totalCount, setTotalCount] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [pageSize, setPageSize] = useState(20); // Number of orders per page
 
   const secretKey = "TET4-1"; // Use a strong secret key
   const decryptData = (hashedData) => {
@@ -57,7 +58,6 @@ const OrderList = () => {
   const [refreshingToken, setRefreshingToken] = useState(false); // Prevent multiple refresh requests
   const [role, setRole] = useState(decryptData(localStorage.getItem("role")));
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 15;
 
   // Function to get JWT token from localStorage
   const getAuthToken = () => {
@@ -115,12 +115,16 @@ const OrderList = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders(response.data.results);
-      setTotalCount(response.data.count);
+
+      setTotalOrders(response.data.count);
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
     }
   };
+  const onPageChange = useCallback((page) => {
+    setCurrentPage(page);
+  }, []);
   const handleEdit = (order) => {
     setIsEditing(true);
     setEditingData(order);
@@ -200,7 +204,6 @@ const OrderList = () => {
     fetchCategories();
     fetchUsers();
   }, [token, currentPage]); // Refetch when currentPage changes
-  const totalPages = Math.ceil(totalCount / postsPerPage);
   // Handle "check" button click (open modal)
   const handleCheckClick = (order) => {
     setSelectedOrder(order.id);
@@ -472,12 +475,6 @@ const OrderList = () => {
   };
   //  pagination section
 
-  const paginatedOrders = Array.isArray(orders)
-    ? [...orders].slice(
-        (currentPage - 1) * postsPerPage,
-        currentPage * postsPerPage
-      )
-    : [];
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -605,16 +602,12 @@ const OrderList = () => {
           </table>
           {/* Pagination Component */}
         </div>
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={(newPage) => {
-              setCurrentPage(newPage);
-              fetchOrders(newPage);
-            }}
-          />
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalOrders={totalOrders}
+          pageSize={pageSize}
+          onPageChange={onPageChange}
+        />
       </center>
 
       {/* Modal for Price and Delivery Date */}
