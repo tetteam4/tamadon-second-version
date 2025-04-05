@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import jwt_decode from "jwt-decode";
@@ -96,7 +96,10 @@ const PastOrders = () => {
       setRefreshingToken(false);
     }
   };
-
+  const onPageChange = useCallback((page) => {
+    setCurrentPage(page);
+    console.log(page);
+  }, []);
   const fetchOrders = async (page = 1) => {
     setLoading(true);
 
@@ -119,7 +122,7 @@ const PastOrders = () => {
     try {
       let url = `${BASE_URL}/group/orders/`;
       const params = new URLSearchParams({
-        page,
+        pagenum: currentPage,
         page_size: pageSize, // Backend should handle this
       });
 
@@ -312,7 +315,7 @@ const PastOrders = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [currentPage]);
 
   // Fetch orders and categories on mount
   useEffect(() => {
@@ -581,6 +584,17 @@ const PastOrders = () => {
                     {categories.find(
                       (category) => category.id === order.category
                     )?.name || "دسته‌بندی نامشخص"}
+                  </td>{" "}
+                  <td className="border-gray-300 px-6 py-2 text-gray-700">
+                    {users.find((user) => user.id === order.designer)
+                      ? `${
+                          users.find((user) => user.id === order.designer)
+                            ?.first_name || ""
+                        } ${
+                          users.find((user) => user.id === order.designer)
+                            ?.last_name || ""
+                        }`.trim()
+                      : "Unknown Designer"}
                   </td>
                   <td className="border-gray-300 px-6 py-2 text-gray-700">
                     {formatDate(order.created_at)}

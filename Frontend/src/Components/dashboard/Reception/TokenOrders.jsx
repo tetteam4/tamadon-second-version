@@ -167,6 +167,8 @@ const TokenOrders = () => {
       // Handle paginated orders response
 
       const ordersData = ordersResponse.data.results || [];
+      console.log(ordersResponse.data);
+
       const today = new Date().toISOString().split("T")[0];
       const filteredOrders = ordersData.filter(
         (order) => order.created_at.split("T")[0] == today

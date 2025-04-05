@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Pagination from "../../../Utilities/Pagination";
 import axios from "axios";
 import CryptoJS from "crypto-js";
@@ -84,26 +84,17 @@ const AddOrder = () => {
       };
 
       const params = new URLSearchParams({
-        page: page,
+        pagenum: page,
         page_size: pageSize, // Assuming backend supports this
       });
 
-      const url = `${BASE_URL}/group/orders/?${params.toString()}`;
+      const url = `${BASE_URL}/group/orders/?pagenum=${currentPage}`;
 
       const response = await axios.get(url, { headers });
 
       let filteredOrders = response.data.results.filter(
         (order) => order.designer === id
       );
-
-      // Filter orders by selected date
-      if (filterDate) {
-        const formattedFilterDate = moment(filterDate).format("YYYY-MM-DD");
-        filteredOrders = filteredOrders.filter((order) => {
-          const orderDate = moment(order.created_at).format("YYYY-MM-DD");
-          return orderDate === formattedFilterDate;
-        });
-      }
 
       setOrders(filteredOrders);
       setTotalOrders(response.data.count); // Total number of orders
@@ -135,7 +126,7 @@ const AddOrder = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [filterDate, refreshOrders]); // Re-fetch when the filterDate, or refreshOrders changes
+  }, [currentPage]); // Re-fetch when the filterDate, or refreshOrders changes
   const totalPages = Math.ceil(totalOrders / pageSize);
   // Fetch form fields for the selected category
   useEffect(() => {
@@ -189,6 +180,10 @@ const AddOrder = () => {
     setFormData(order.attributes || {});
   };
 
+  const onPageChange = useCallback((page) => {
+    setCurrentPage(page);
+    console.log(page);
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -440,7 +435,6 @@ const AddOrder = () => {
         );
       });
       setSearchResults(results);
-      setCurrentPage(1);
     } else {
       setSearchResults([]);
     }
@@ -861,7 +855,7 @@ const AddOrder = () => {
           currentPage={currentPage}
           totalOrders={totalOrders}
           pageSize={pageSize}
-          onPageChange={setCurrentPage}
+          onPageChange={onPageChange}
         />
       </div>
     </div>

@@ -308,9 +308,10 @@ const OrderListSuperDesigner = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [currentPage]);
   const onPageChange = useCallback((page) => {
     setCurrentPage(page);
+    console.log(page);
   }, []);
   // Fetch orders and categories on mount
   useEffect(() => {

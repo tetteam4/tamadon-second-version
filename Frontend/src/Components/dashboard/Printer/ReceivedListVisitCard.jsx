@@ -187,6 +187,7 @@ const ReceivedListVisitCard = () => {
   // Pagination handler
   const onPageChange = useCallback((page) => {
     setCurrentPage(page);
+    console.log(page);
   }, []);
   const getTakenList = useCallback(async () => {
     try {
@@ -197,7 +198,10 @@ const ReceivedListVisitCard = () => {
         (r) => r.id == decryptData(localStorage.getItem("role"))
       )?.name;
 
-      const response = await axios.get(`${BASE_URL}/group/order/${newrole}`);
+      const response = await axios.get(
+        `${BASE_URL}/group/order/${newrole}/?pagenum=${currentPage}`
+      );
+      console.log(response.data);
 
       if (Array.isArray(response.data.results)) {
         setOrders(
