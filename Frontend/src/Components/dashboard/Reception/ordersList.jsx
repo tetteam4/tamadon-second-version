@@ -115,25 +115,8 @@ const OrderList = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-<<<<<<< HEAD
       setOrders(response.data.results);
       setTotalCount(response.data.count);
-=======
-<<<<<<< HEAD
-      if (response.data.length === 0) {
-        setError("No orders found.");
-        return;
-      }
-
-      const filteredOrders = response.data.filter(
-        (order) => !order.total_price || !order.receive_price
-      );
-
-      setOrders(filteredOrders);
-=======
-      setOrders(response.data);
->>>>>>> d0cacd95e84979fb6e7e911644aa6d8a27aac645
->>>>>>> Anwar
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Error fetching orders.");
@@ -527,24 +510,8 @@ const OrderList = () => {
       <h2 className="md:text-2xl text-base font-Ray_black text-center font-bold mb-4">
         لیست سفارشات
       </h2>
-<<<<<<< HEAD
-=======
-
-      {loading && (
-        <p className="text-center font-semibold ">در حال بارگذاری...</p>
-      )}
-
->>>>>>> Anwar
       <center>
         <div className=" overflow-x-scroll lg:overflow-hidden bg-white w-full rounded-lg md:w-full">
-          <div className="flex gap-x-4 items-center justify-center bg-white  p-2  hover:shadow-lg transition-shadow duration-300">
-            <span className="text-lg font-semibold text-gray-700">
-              تعداد سفارشات جدید :
-            </span>
-            <span className="text-2xl font-bold text-green">
-              {orders.length}
-            </span>
-          </div>
           <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
             <thead className="">
               <tr className="bg-green text-gray-100 text-center">

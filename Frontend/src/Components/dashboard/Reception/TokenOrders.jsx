@@ -320,17 +320,12 @@ const TokenOrders = () => {
     setPassedOrder(order);
     setSelectedStatus(status);
   };
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 10;
-
   const dataToPaginate = searchResults.length > 0 ? searchResults : orders;
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  const totalPages = Math.ceil(dataToPaginate.length / postsPerPage);
   const paginatedOrders = [...dataToPaginate] // Create a copy to avoid mutation
     .reverse()
     .slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
